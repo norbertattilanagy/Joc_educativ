@@ -2,4 +2,7 @@
     <string name="app_name">Code Game</string>
     <string name="play">PLAY</string>
     <string name="back">Back</string>
+    <string name="title_activity_game" translatable="false">GameActivity</string>
+    <string name="dummy_button" translatable="false">Dummy Button</string>
+    <string name="dummy_content" translatable="false">DUMMY\nCONTENT</string>
 </resources>

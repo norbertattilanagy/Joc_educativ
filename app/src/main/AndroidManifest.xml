@@ -14,17 +14,25 @@
         android:theme="@style/Theme.Joc_educativ"
         tools:targetApi="31">
         <activity
-            android:name=".LevelActivity"
+            android:name=".LevelMenuActivity"
             android:exported="false"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="landscape"
+            tools:ignore="Instantiatable" />
         <activity
-            android:name=".CategoryActivity"
+            android:name=".CategoryMenuActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            tools:ignore="Instantiatable" />
+        <activity
+            android:name=".GameActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            tools:ignore="Instantiatable" />
         <activity
             android:name=".LoadingActivity"
             android:exported="true"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            tools:ignore="Instantiatable">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

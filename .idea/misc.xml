@@ -3,14 +3,22 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/drawable-anydpi/ic_back_white.xml" value="0.1505" />
+        <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/drawable/button.xml" value="0.1505" />
         <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/drawable/ic_back_white.xml" value="0.1505" />
         <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.1505" />
         <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1505" />
+        <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/drawable/play_buton.xml" value="0.1505" />
         <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/drawable/play_button.xml" value="0.1505" />
+        <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/drawable/stop_button.xml" value="0.1505" />
         <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/layout/activity_category.xml" value="0.1328125" />
+        <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/layout/activity_category_menu.xml" value="0.19880290722530997" />
+        <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/layout/activity_game.xml" value="0.136" />
         <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/layout/activity_level.xml" value="0.136" />
+        <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/layout/activity_level_menu.xml" value="0.136" />
         <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/layout/activity_loading.xml" value="0.20380434782608695" />
         <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/layout/category_list_view.xml" value="0.10897435897435898" />
+        <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/layout/game_view_2d.xml" value="0.136" />
         <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/layout/level_list_view.xml" value="0.144" />
       </map>
     </option>

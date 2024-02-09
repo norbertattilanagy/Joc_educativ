@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 
 import com.joc_educativ.Database.LevelModel;
+import com.joc_educativ.LevelMenuActivity;
 import com.joc_educativ.R;
 
 import java.util.List;
@@ -70,6 +71,42 @@ public class LevelAdaptor extends BaseAdapter {
             button5.setVisibility(View.VISIBLE);
             button5.setText(String.valueOf(levelModels.get(i).get(4).getLevel()));
         }
+
+        LevelMenuActivity levelMenuActivity = new LevelMenuActivity();
+
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                levelMenuActivity.openGameActivity(context,levelModels.get(i).get(0).getId());
+            }
+        });
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                levelMenuActivity.openGameActivity(context,levelModels.get(i).get(1).getId());
+            }
+        });
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                levelMenuActivity.openGameActivity(context,levelModels.get(i).get(2).getId());
+            }
+        });
+        button4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                levelMenuActivity.openGameActivity(context,levelModels.get(i).get(3).getId());
+            }
+        });
+        button5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                levelMenuActivity.openGameActivity(context,levelModels.get(i).get(4).getId());
+            }
+        });
+
 
         return view;
     }

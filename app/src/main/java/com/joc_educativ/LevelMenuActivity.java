@@ -2,6 +2,7 @@ package com.joc_educativ;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,14 +10,13 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.joc_educativ.Adaptors.LevelAdaptor;
-import com.joc_educativ.Database.CategoryModel;
 import com.joc_educativ.Database.DatabaseHelper;
 import com.joc_educativ.Database.LevelModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LevelActivity extends AppCompatActivity {
+public class LevelMenuActivity extends AppCompatActivity {
 
     private View decorView;
     private ListView levelButtonListView;
@@ -25,7 +25,7 @@ public class LevelActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_level);
+        setContentView(R.layout.activity_level_menu);
         decorView = getWindow().getDecorView();//hide system bars
 
         levelButtonListView = findViewById(R.id.levelButtonListView);
@@ -42,6 +42,7 @@ public class LevelActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+
     }
 
     //hide system bars
@@ -75,8 +76,13 @@ public class LevelActivity extends AppCompatActivity {
             levelMatrix.add(levelListByCategory.subList(i,i+nrButton));//add button in matrix
         }
 
-        LevelAdaptor levelAdaptor = new LevelAdaptor(getApplicationContext(),levelMatrix);
+        LevelAdaptor levelAdaptor = new LevelAdaptor(this,levelMatrix);
         levelButtonListView.setAdapter(levelAdaptor);
     }
 
+    public void openGameActivity(Context context,int levelId){
+        Intent intent = new Intent(context,GameActivity.class);
+        intent.putExtra("levelId",levelId);//pass the category id in LevelActivity class
+        context.startActivity(intent);
+    }
 }

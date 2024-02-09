@@ -90,7 +90,7 @@ public class LoadingActivity extends AppCompatActivity {
     }
 
     public void openCategoryActivity(){
-        Intent intent = new Intent(this, CategoryActivity.class);
+        Intent intent = new Intent(this, CategoryMenuActivity.class);
         startActivity(intent);
         finish();
     }

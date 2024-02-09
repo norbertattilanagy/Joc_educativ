@@ -14,7 +14,7 @@ import com.joc_educativ.Database.DatabaseHelper;
 
 import java.util.List;
 
-public class CategoryActivity extends AppCompatActivity {
+public class CategoryMenuActivity extends AppCompatActivity {
 
     private View decorView;
     private ListView categoryButtonListView;
@@ -22,7 +22,7 @@ public class CategoryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_category);
+        setContentView(R.layout.activity_category_menu);
         decorView = getWindow().getDecorView();//hide system bars
 
         categoryButtonListView = findViewById(R.id.categoryButtonListView);
@@ -61,7 +61,7 @@ public class CategoryActivity extends AppCompatActivity {
     //---
 
     public void openLevelActivity(int id){
-        Intent intent = new Intent(this,LevelActivity.class);
+        Intent intent = new Intent(this, LevelMenuActivity.class);
         intent.putExtra("categoryId",id);//pass the category id in LevelActivity class
         startActivity(intent);
     }

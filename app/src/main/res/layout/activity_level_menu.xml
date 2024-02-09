@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/blue_sky_background"
-    tools:context=".LevelActivity">
+    tools:context=".LevelMenuActivity">
 
     <Button
         android:id="@+id/backButton"
@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:background="@drawable/play_button"
+        android:background="@drawable/button"
         android:text="@string/back"
         android:textAllCaps="false"
         android:textColor="@color/white"

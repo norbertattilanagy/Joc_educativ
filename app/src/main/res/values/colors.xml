@@ -11,4 +11,11 @@
     <color name="blue">#D90000FF</color>
     <color name="light_blue">#33BBFF</color>
     <color name="progressBarBackground">#AAAAAA</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
+    <color name="light_blue_A200">#FF40C4FF</color>
+    <color name="light_blue_A400">#FF00B0FF</color>
+    <color name="black_overlay">#66000000</color>
+    <color name="play_green">#48b02c</color>
+    <color name="stop_red">#FB3C3C</color>
 </resources>
