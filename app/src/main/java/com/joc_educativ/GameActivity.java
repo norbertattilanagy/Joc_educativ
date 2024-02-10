@@ -3,23 +3,35 @@ package com.joc_educativ;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.joc_educativ.CustomView.DrawGameView;
+import com.joc_educativ.Database.DatabaseHelper;
+import com.joc_educativ.Database.LevelModel;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameActivity extends AppCompatActivity {
 
     private View decorView;
     private DrawGameView gameView;
     public View codeView, codeElementView;
-    private ImageButton backButton, playButton, stopButton;
-    private int levelId;
-    public static int xCar,yCar;
-    Thread animationThread;
-    private boolean isRunning = true;
+    public ImageButton backButton, playButton, stopButton;
+    private static int levelId;
+    public static int xCar, yCar;
+    public static Thread animationThread;
+    public boolean isRunning = true;
 
     @SuppressLint("CutPasteId")
     @Override
@@ -39,6 +51,8 @@ public class GameActivity extends AppCompatActivity {
         playButton = findViewById(R.id.playButton);
         stopButton = findViewById(R.id.stopButton);
 
+        gameView.setLevelId(levelId);
+
         //DrawGameView drawGameView = new DrawGameView(this,gameView.getWidth(),gameView.getHeight());
 
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -54,9 +68,6 @@ public class GameActivity extends AppCompatActivity {
 
                 if (animationThread == null) {
                     isRunning = true;
-                    //xCar=-1;
-                    //yCar=-1;
-                    //reset();
                     System.out.println("RUN");
                     playGame();
                 }
@@ -98,67 +109,61 @@ public class GameActivity extends AppCompatActivity {
         //Solution
         //right();->right();->up();->right();->up();->right();->right();->down();->down();->right();->right();
 
+        DatabaseHelper db = new DatabaseHelper(this);
+        LevelModel levelModel = db.selectLevelById(levelId);//get level data
+        Context context = this;//save context
+
+        List<String> executeCodeList = new ArrayList<>();
+        executeCodeList.add("right");
+        executeCodeList.add("right");
+        executeCodeList.add("right");//game over
+        //executeCodeList.add("up");
+        executeCodeList.add("right");
+        executeCodeList.add("up");
+        executeCodeList.add("right");
+        executeCodeList.add("right");
+        executeCodeList.add("down");
+        executeCodeList.add("down");
+        executeCodeList.add("right");
+        executeCodeList.add("right");
 
         animationThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (isRunning) {
-                    if (xCar!=-1)
-                        reset();
-                    right();
+                if (xCar != -1)
+                    reset();
+                for (String codeLine : executeCodeList) {
+
+                    if (codeLine.equals("right")) {
+                        right();
+                    } else if (codeLine.equals("left")) {
+                        left();
+                    } else if (codeLine.equals("up")) {
+                        up();
+                    } else if (codeLine.equals("down")) {
+                        down();
+                    }
+
+                    //run operations on the main/UI thread
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (levelModel.getMap()[yCar][xCar].equals("R") || levelModel.getMap()[yCar][xCar].equals("T")) {
+                                isRunning = false;
+                                animationThread = null;
+                                System.out.println("GAME OVER");
+                                gameOver(context);
+                            }
+                        }
+                    });
+
+
                     moveAndWait(1000);
                     if (!isRunning) {
                         break;
                     }
-                    right();
-                    moveAndWait(1000);
-                    if (!isRunning) {
-                        break;
-                    }
-                    up();
-                    moveAndWait(1000);
-                    if (!isRunning) {
-                        break;
-                    }
-                    right();
-                    moveAndWait(1000);
-                    if (!isRunning) {
-                        break;
-                    }
-                    up();
-                    moveAndWait(1000);
-                    if (!isRunning) {
-                        break;
-                    }
-                    right();
-                    moveAndWait(1000);
-                    if (!isRunning) {
-                        break;
-                    }
-                    right();
-                    moveAndWait(1000);
-                    if (!isRunning) {
-                        break;
-                    }
-                    down();
-                    moveAndWait(1000);
-                    if (!isRunning) {
-                        break;
-                    }
-                    down();
-                    moveAndWait(1000);
-                    if (!isRunning) {
-                        break;
-                    }
-                    right();
-                    moveAndWait(1000);
-                    if (!isRunning) {
-                        break;
-                    }
-                    right();
-                    moveAndWait(1000);
-                    isRunning = !isRunning;
                 }
+                isRunning = !isRunning;
             }
         });
         animationThread.start();
@@ -170,7 +175,6 @@ public class GameActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
     }
 
     private void right() {
@@ -193,8 +197,41 @@ public class GameActivity extends AppCompatActivity {
         gameView.redraw(xCar, yCar);
     }
 
-    private void reset(){
+    private void reset() {
         gameView.redraw(-1, -1);
         moveAndWait(1000);
+    }
+
+    public void gameOver(Context context) {
+
+        Dialog dialog = new Dialog(context);
+        dialog.setContentView(R.layout.game_over);
+
+        Button retryButton = dialog.findViewById(R.id.retryButton);
+        Button homeButton = dialog.findViewById(R.id.homeButton);
+
+        retryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.cancel();
+            }
+        });
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openLevelActivity();
+            }
+        });
+        dialog.show();//open dialog
+    }
+
+    private void openLevelActivity() {
+        DatabaseHelper dbh = new DatabaseHelper(this);
+        int categoryId = dbh.selectCategoryIdByLevel(levelId);
+
+        Intent intent = new Intent(this, LevelMenuActivity.class);
+        intent.putExtra("categoryId", categoryId);//pass the category id in LevelActivity class
+        startActivity(intent);
     }
 }

@@ -4,11 +4,17 @@ public class LevelModel {
     private int id;
     private int categoryId;
     private int level;
+    private int mapXSize;
+    private int mapYSize;
+    private String[][] map;
 
-    public LevelModel(int id, int categoryId, int level) {
+    public LevelModel(int id, int categoryId, int level, int mapXSize, int mapYSize, String[][] map) {
         this.id = id;
         this.categoryId = categoryId;
         this.level = level;
+        this.mapXSize = mapXSize;
+        this.mapYSize = mapYSize;
+        this.map = map;
     }
 
     @Override
@@ -42,5 +48,29 @@ public class LevelModel {
 
     public void setLevel(int level) {
         this.level = level;
+    }
+
+    public int getMapXSize() {
+        return mapXSize;
+    }
+
+    public void setMapXSize(int mapXSize) {
+        this.mapXSize = mapXSize;
+    }
+
+    public int getMapYSize() {
+        return mapYSize;
+    }
+
+    public void setMapYSize(int mapYSize) {
+        this.mapYSize = mapYSize;
+    }
+
+    public String[][] getMap() {
+        return map;
+    }
+
+    public void setMap(String[][] map) {
+        this.map = map;
     }
 }

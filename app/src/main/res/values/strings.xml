@@ -5,4 +5,6 @@
     <string name="title_activity_game" translatable="false">GameActivity</string>
     <string name="dummy_button" translatable="false">Dummy Button</string>
     <string name="dummy_content" translatable="false">DUMMY\nCONTENT</string>
+    <string name="retry">Retry</string>
+    <string name="home">Home</string>
 </resources>
