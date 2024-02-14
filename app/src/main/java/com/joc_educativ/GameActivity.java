@@ -1,14 +1,10 @@
 package com.joc_educativ;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.MotionEvent;
@@ -19,14 +15,12 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.joc_educativ.CustomView.DrawGameView;
 import com.joc_educativ.Database.DatabaseHelper;
 import com.joc_educativ.Database.LevelModel;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,8 +123,16 @@ public class GameActivity extends AppCompatActivity {
         codeView.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View view, DragEvent dragEvent) {
-                if (dragEvent.getAction() == DragEvent.ACTION_DROP) {
-                    addNewElementInCode(view,dragEvent);
+                Button draggedButton = (Button) dragEvent.getLocalState();
+
+                //if draggedButton.getTag() != null then is from codeView
+                if (dragEvent.getAction() == DragEvent.ACTION_DROP && draggedButton.getTag() == null) {
+                    addNewElementInCode(view, dragEvent);
+                }
+
+                if (dragEvent.getAction() == DragEvent.ACTION_DRAG_EXITED && draggedButton.getTag() != null) {
+                    executeCodeList.remove(codeView.indexOfChild(draggedButton));
+                    codeView.removeView(draggedButton);
                 }
                 return true;
             }
@@ -181,16 +183,20 @@ public class GameActivity extends AppCompatActivity {
                         down();
                     }
 
-                    //run operations on the main/UI thread
+                    //run operations on the main thread
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if (levelModel.getMap()[yCar][xCar].equals("R") || levelModel.getMap()[yCar][xCar].equals("T")) {
                                 isRunning = false;
                                 animationThread = null;
-                                System.out.println("GAME OVER");
                                 gameOver(context);
+                            } else if (levelModel.getMap()[yCar][xCar].equals("H")) {
+                                isRunning = false;
+                                animationThread = null;
+                                completed(context);
                             }
+
                         }
                     });
 
@@ -241,7 +247,7 @@ public class GameActivity extends AppCompatActivity {
     public void gameOver(Context context) {
 
         Dialog dialog = new Dialog(context);
-        dialog.setContentView(R.layout.game_over);
+        dialog.setContentView(R.layout.game_over_dialog);
 
         Button retryButton = dialog.findViewById(R.id.retryButton);
         Button homeButton = dialog.findViewById(R.id.homeButton);
@@ -262,9 +268,56 @@ public class GameActivity extends AppCompatActivity {
         dialog.show();//open dialog
     }
 
+    private void completed(Context context) {
+        Dialog dialog = new Dialog(context);
+        dialog.setContentView(R.layout.completed_dialog);
+
+        Button retryButton = dialog.findViewById(R.id.retryButton);
+        Button nextLeveButton = dialog.findViewById(R.id.nextLevelButton);
+        Button homeButton = dialog.findViewById(R.id.homeButton);
+
+        if (verifyNextLevel()==-1)
+            nextLeveButton.setVisibility(View.GONE);
+
+        retryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.cancel();
+            }
+        });
+
+        nextLeveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openNextLevel();
+            }
+        });
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openLevelActivity();
+            }
+        });
+        dialog.show();//open dialog
+    }
+
+    private int verifyNextLevel(){
+        DatabaseHelper db = new DatabaseHelper(this);
+        LevelModel levelModel = db.selectLevelById(levelId);//get level data
+        return db.selectNextLevelId(levelModel.getCategoryId(), levelModel.getLevel() + 1);//return next level Id
+    }
+
+    private void openNextLevel() {
+        Intent intent = new Intent(this,GameActivity.class);
+        intent.putExtra("levelId",verifyNextLevel());//pass the category id in LevelActivity class
+        this.startActivity(intent);
+    }
+
     private void openLevelActivity() {
-        DatabaseHelper dbh = new DatabaseHelper(this);
-        int categoryId = dbh.selectCategoryIdByLevel(levelId);
+        DatabaseHelper db = new DatabaseHelper(this);
+        LevelModel levelModel = db.selectLevelById(levelId);
+        int categoryId = levelModel.getCategoryId();
 
         Intent intent = new Intent(this, LevelMenuActivity.class);
         intent.putExtra("categoryId", categoryId);//pass the category id in LevelActivity class
@@ -281,7 +334,7 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    private void addNewElementInCode(View view,DragEvent dragEvent){
+    private void addNewElementInCode(View view, DragEvent dragEvent) {
         Button draggedButton = (Button) dragEvent.getLocalState();
         Button copiedButton = new Button(GameActivity.this);
 
@@ -293,9 +346,17 @@ public class GameActivity extends AppCompatActivity {
         copiedButton.setTransformationMethod(draggedButton.getTransformationMethod());//textAllCaps
         copiedButton.setTextColor(draggedButton.getTextColors());//textColor
         copiedButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, draggedButton.getTextSize());//textSize
+        copiedButton.setTag(true);//is from codeView
 
         draggedButton.performClick();//add command in executeCodeList
         codeView.addView(copiedButton);
+
+        copiedButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
 
         //scroll down after add new element
         final ScrollView scrollview = ((ScrollView) findViewById(R.id.codeScrollView));
@@ -323,4 +384,5 @@ public class GameActivity extends AppCompatActivity {
     public void addDown(View view) {
         executeCodeList.add("down");
     }
+
 }

@@ -138,18 +138,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return levelModel;
     }
 
-    public int selectCategoryIdByLevel(int levelId) {
-
-        int category = -1;
-        String select = "SELECT * FROM level WHERE id = " + levelId;
+    public int selectNextLevelId(int categoryId, int level){
+        int levelId = -1;
+        String select = "SELECT id FROM level WHERE Category = " + categoryId + " AND Level = " + level;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(select, null);
 
         if (cursor.moveToFirst()) {//put all level in level list
-            category = cursor.getInt(1);
+            levelId = cursor.getInt(0);
         }
-        return category;
+        return levelId;
     }
 
     public boolean addCategory(CategoryModel categoryModel) {

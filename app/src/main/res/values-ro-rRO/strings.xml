@@ -9,4 +9,6 @@
     <string name="left">Stânga</string>
     <string name="up">Sus</string>
     <string name="down">Jos</string>
+    <string name="completed">Completat</string>
+    <string name="next_level">Nivelul următor</string>
 </resources>

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/blue_sky_background"
     tools:context=".GameActivity">
 
     <ImageButton
@@ -47,13 +48,14 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/codeScrollView"
+        android:background="@drawable/game_view_layout"
+        app:layout_constraintEnd_toStartOf="@+id/codeOutlineView"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/backButton" />
 
-    <ScrollView
-        android:id="@+id/codeScrollView"
+    <LinearLayout
+        android:id="@+id/codeOutlineView"
         android:layout_width="0dp"
         android:layout_height="250dp"
         android:layout_marginStart="16dp"
@@ -62,16 +64,26 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/gameView"
-        app:layout_constraintTop_toBottomOf="@+id/stopButton">
+        app:layout_constraintTop_toBottomOf="@+id/stopButton"
+        android:background="@drawable/code_view_layout">
 
-        <LinearLayout
-            android:id="@+id/codeView"
+        <ScrollView
+            android:id="@+id/codeScrollView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="250dp"
-            android:orientation="vertical" />
-    </ScrollView>
+            android:layout_height="match_parent"
+            android:layout_marginVertical="8dp"
+            android:layout_marginHorizontal="8dp">
 
+            <LinearLayout
+                android:id="@+id/codeView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="234dp"
+                android:orientation="vertical" />
+
+        </ScrollView>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/codeElementView"
@@ -82,7 +94,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/codeScrollView">
+        app:layout_constraintTop_toBottomOf="@+id/gameView">
 
         <Button
             android:id="@+id/rightButton"
