@@ -49,7 +49,6 @@ public class DrawGameView extends View {
         paint.setStyle(Paint.Style.STROKE);
 
         map = levelModel.getMap();
-
         /*map = new String[][]{
                 {"T", "R", "R", "X", "X", "X", "T", "T"},
                 {"R", "R", "X", "X", "R", "X", "T", "T"},
@@ -62,10 +61,8 @@ public class DrawGameView extends View {
     }
 
     public synchronized void redraw(int x, int y) {
-        //Log.d("Before Redraw", "xCar: " + xCar + ", yCar: " + yCar);
         xCar = x;
         yCar = y;
-        //Log.d("After Redraw", "xCar: " + xCar + ", yCar: " + yCar);
         invalidate();
     }
 
@@ -96,22 +93,11 @@ public class DrawGameView extends View {
                 if (map[j][i].equals("R")) {
                     rock.setBounds(i * wField, j * hField, (i + 1) * wField, (j + 1) * hField);
                     rock.draw(canvas);
-                    /*if(i==xCar && j==yCar) {
-                        System.out.println(i+"=="+xCar+"&&"+j+"=="+yCar);
-                        gameActivity.isRunning=false;
-                        //GameActivity.animationThread = null;
-                        //gameActivity.gameOver(context);
-                    }*/
                 }
 
                 if (map[j][i].equals("T")) {
                     tree.setBounds(i * wField, j * hField, (i + 1) * wField, (j + 1) * hField);
                     tree.draw(canvas);
-                    /*if(i==xCar && j==yCar) {
-                        System.out.println(i+"=="+xCar+"&&"+j+"=="+yCar);
-
-                        //gameActivity.gameOver(context);
-                    }*/
                 }
             }
         }
@@ -121,6 +107,4 @@ public class DrawGameView extends View {
             car.draw(canvas);
         }
     }
-
-
 }

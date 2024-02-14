@@ -42,33 +42,105 @@
 
     <com.joc_educativ.CustomView.DrawGameView
         android:id="@+id/gameView"
-        android:layout_width="400dp"
+        android:layout_width="0dp"
         android:layout_height="250dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/codeView"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/codeScrollView"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/backButton" />
 
-    <View
-        android:id="@+id/codeView"
-        android:layout_width="400dp"
+    <ScrollView
+        android:id="@+id/codeScrollView"
+        android:layout_width="0dp"
         android:layout_height="250dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/gameView"
-        app:layout_constraintTop_toBottomOf="@+id/stopButton" />
+        app:layout_constraintTop_toBottomOf="@+id/stopButton">
 
-    <View
+        <LinearLayout
+            android:id="@+id/codeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="250dp"
+            android:orientation="vertical" />
+    </ScrollView>
+
+
+    <LinearLayout
         android:id="@+id/codeElementView"
-        android:layout_width="830dp"
+        android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/codeView" />
+        app:layout_constraintTop_toBottomOf="@+id/codeScrollView">
 
+        <Button
+            android:id="@+id/rightButton"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="8dp"
+            android:background="@drawable/code_yellow_element"
+            android:drawableLeft="@drawable/ic_baseline_arrow_forward_48"
+            android:onClick="addRight"
+            android:text="@string/right"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/leftButton"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="8dp"
+            android:background="@drawable/code_green_element"
+            android:drawableLeft="@drawable/ic_baseline_arrow_back_48"
+            android:onClick="addLeft"
+            android:text="@string/left"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/upButton"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="8dp"
+            android:background="@drawable/code_blue_element"
+            android:drawableLeft="@drawable/ic_baseline_arrow_upward_48"
+            android:onClick="addUp"
+            android:text="@string/up"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/downButton"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="8dp"
+            android:background="@drawable/code_red_element"
+            android:drawableLeft="@drawable/ic_baseline_arrow_downward_48"
+            android:onClick="addDown"
+            android:text="@string/down"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

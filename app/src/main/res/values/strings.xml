@@ -7,4 +7,8 @@
     <string name="dummy_content" translatable="false">DUMMY\nCONTENT</string>
     <string name="retry">Retry</string>
     <string name="home">Home</string>
+    <string name="right">Right</string>
+    <string name="left">Left</string>
+    <string name="up">Up</string>
+    <string name="down">Down</string>
 </resources>

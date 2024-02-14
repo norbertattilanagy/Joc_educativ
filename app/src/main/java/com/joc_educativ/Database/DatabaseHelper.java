@@ -116,7 +116,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(getLevel, null);
 
-        if (cursor.moveToFirst()) {//put all level in level list
+        if (cursor.moveToFirst()) {//put all level data in leveModel
             int id = cursor.getInt(0);
             int category = cursor.getInt(1);
             int level = cursor.getInt(2);

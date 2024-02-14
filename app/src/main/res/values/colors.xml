@@ -18,4 +18,8 @@
     <color name="black_overlay">#66000000</color>
     <color name="play_green">#48b02c</color>
     <color name="stop_red">#FB3C3C</color>
+    <color name="code_yellow">#DDBA00</color>
+    <color name="code_red">#FF3434</color>
+    <color name="code_green">#47AA01</color>
+    <color name="code_blue">#4355FA</color>
 </resources>

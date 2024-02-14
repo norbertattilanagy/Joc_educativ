@@ -5,4 +5,8 @@
     <string name="back">Înapoi</string>
     <string name="retry">Reîncearcă</string>
     <string name="home">Acasă</string>
+    <string name="right">Dreapta</string>
+    <string name="left">Stânga</string>
+    <string name="up">Sus</string>
+    <string name="down">Jos</string>
 </resources>

@@ -6,10 +6,18 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.DragEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import com.joc_educativ.CustomView.DrawGameView;
 import com.joc_educativ.Database.DatabaseHelper;
@@ -26,12 +34,15 @@ public class GameActivity extends AppCompatActivity {
 
     private View decorView;
     private DrawGameView gameView;
-    public View codeView, codeElementView;
-    public ImageButton backButton, playButton, stopButton;
+    public LinearLayout codeView;
+    ScrollView codeScrollView;
+    ImageButton backButton, playButton, stopButton;
+    Button rightButton, leftButton, upButton, downButton;
     private static int levelId;
     public static int xCar, yCar;
     public static Thread animationThread;
     public boolean isRunning = true;
+    List<String> executeCodeList = new ArrayList<>();
 
     @SuppressLint("CutPasteId")
     @Override
@@ -45,11 +56,16 @@ public class GameActivity extends AppCompatActivity {
 
         gameView = findViewById(R.id.gameView);
         codeView = findViewById(R.id.codeView);
-        codeElementView = findViewById(R.id.codeElementView);
+        codeScrollView = findViewById(R.id.codeScrollView);
 
         backButton = findViewById(R.id.backButton);
         playButton = findViewById(R.id.playButton);
         stopButton = findViewById(R.id.stopButton);
+
+        rightButton = findViewById(R.id.rightButton);
+        leftButton = findViewById(R.id.leftButton);
+        upButton = findViewById(R.id.upButton);
+        downButton = findViewById(R.id.downButton);
 
         gameView.setLevelId(levelId);
 
@@ -84,6 +100,41 @@ public class GameActivity extends AppCompatActivity {
                 }
             }
         });
+
+        rightButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+        leftButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+        upButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+        downButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+
+        codeView.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View view, DragEvent dragEvent) {
+                if (dragEvent.getAction() == DragEvent.ACTION_DROP) {
+                    addNewElementInCode(view,dragEvent);
+                }
+                return true;
+            }
+        });
     }
 
     //hide system bars
@@ -112,20 +163,6 @@ public class GameActivity extends AppCompatActivity {
         DatabaseHelper db = new DatabaseHelper(this);
         LevelModel levelModel = db.selectLevelById(levelId);//get level data
         Context context = this;//save context
-
-        List<String> executeCodeList = new ArrayList<>();
-        executeCodeList.add("right");
-        executeCodeList.add("right");
-        executeCodeList.add("right");//game over
-        //executeCodeList.add("up");
-        executeCodeList.add("right");
-        executeCodeList.add("up");
-        executeCodeList.add("right");
-        executeCodeList.add("right");
-        executeCodeList.add("down");
-        executeCodeList.add("down");
-        executeCodeList.add("right");
-        executeCodeList.add("right");
 
         animationThread = new Thread(new Runnable() {
             @Override
@@ -156,7 +193,6 @@ public class GameActivity extends AppCompatActivity {
                             }
                         }
                     });
-
 
                     moveAndWait(1000);
                     if (!isRunning) {
@@ -233,5 +269,58 @@ public class GameActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LevelMenuActivity.class);
         intent.putExtra("categoryId", categoryId);//pass the category id in LevelActivity class
         startActivity(intent);
+    }
+
+    private Boolean moveCodeElement(View view, MotionEvent motionEvent) {
+        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+            view.startDrag(null, shadowBuilder, view, 0);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void addNewElementInCode(View view,DragEvent dragEvent){
+        Button draggedButton = (Button) dragEvent.getLocalState();
+        Button copiedButton = new Button(GameActivity.this);
+
+        //set new button parameter
+        copiedButton.setLayoutParams(new ViewGroup.LayoutParams(draggedButton.getWidth(), draggedButton.getHeight()));//layout
+        copiedButton.setCompoundDrawablesWithIntrinsicBounds(draggedButton.getCompoundDrawables()[0], null, null, null);//drawableLeft
+        copiedButton.setBackground(draggedButton.getBackground());//background
+        copiedButton.setText(draggedButton.getText());//text
+        copiedButton.setTransformationMethod(draggedButton.getTransformationMethod());//textAllCaps
+        copiedButton.setTextColor(draggedButton.getTextColors());//textColor
+        copiedButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, draggedButton.getTextSize());//textSize
+
+        draggedButton.performClick();//add command in executeCodeList
+        codeView.addView(copiedButton);
+
+        //scroll down after add new element
+        final ScrollView scrollview = ((ScrollView) findViewById(R.id.codeScrollView));
+        scrollview.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollview.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
+    }
+
+    //add string to executeCodeList when button is pressed
+    public void addRight(View view) {
+        executeCodeList.add("right");
+    }
+
+    public void addLeft(View view) {
+        executeCodeList.add("left");
+    }
+
+    public void addUp(View view) {
+        executeCodeList.add("up");
+    }
+
+    public void addDown(View view) {
+        executeCodeList.add("down");
     }
 }
