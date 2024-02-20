@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_width="600dp"
+    android:layout_height="250dp"
+    android:orientation="vertical"
+    android:background="@drawable/code_view_layout">
 
 
     <TextView
@@ -33,7 +34,8 @@
             android:text="@string/retry"
             android:textAllCaps="false"
             android:textColor="@color/white"
-            android:textSize="28sp" />
+            android:textSize="28sp"
+            android:drawableTop="@drawable/ic_baseline_replay_48" />
 
         <Button
             android:id="@+id/nextLevelButton"
@@ -45,7 +47,8 @@
             android:text="@string/next_level"
             android:textAllCaps="false"
             android:textColor="@color/white"
-            android:textSize="28sp" />
+            android:textSize="28sp"
+            android:drawableTop="@drawable/ic_baseline_play_arrow_48"/>
 
         <Button
             android:id="@+id/homeButton"
@@ -57,7 +60,8 @@
             android:text="@string/home"
             android:textAllCaps="false"
             android:textColor="@color/white"
-            android:textSize="28sp" />
+            android:textSize="28sp"
+            android:drawableTop="@drawable/ic_baseline_home_48"/>
 
     </LinearLayout>
 

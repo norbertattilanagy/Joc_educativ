@@ -20,7 +20,11 @@
     <color name="play_green">#48b02c</color>
     <color name="stop_red">#FB3C3C</color>
     <color name="code_yellow">#DDBA00</color>
+    <color name="code_yellow_selected">#FFEB3B</color>
     <color name="code_red">#FF3434</color>
+    <color name="code_red_selected">#FF5252</color>
     <color name="code_green">#47AA01</color>
+    <color name="code_green_selected">#72AA48</color>
     <color name="code_blue">#4355FA</color>
+    <color name="code_blue_selected">#6473FA</color>
 </resources>

@@ -4,7 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.MotionEvent;
@@ -30,7 +32,7 @@ public class GameActivity extends AppCompatActivity {
     private DrawGameView gameView;
     public LinearLayout codeView;
     ScrollView codeScrollView;
-    ImageButton backButton, playButton, stopButton;
+    ImageButton homeButton, playButton, stopButton;
     Button rightButton, leftButton, upButton, downButton;
     private static int levelId;
     public static int xCar, yCar;
@@ -52,7 +54,7 @@ public class GameActivity extends AppCompatActivity {
         codeView = findViewById(R.id.codeView);
         codeScrollView = findViewById(R.id.codeScrollView);
 
-        backButton = findViewById(R.id.backButton);
+        homeButton = findViewById(R.id.homeButton);
         playButton = findViewById(R.id.playButton);
         stopButton = findViewById(R.id.stopButton);
 
@@ -63,12 +65,10 @@ public class GameActivity extends AppCompatActivity {
 
         gameView.setLevelId(levelId);
 
-        //DrawGameView drawGameView = new DrawGameView(this,gameView.getWidth(),gameView.getHeight());
-
-        backButton.setOnClickListener(new View.OnClickListener() {
+        homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onBackPressed();
+                openLevelActivity();
             }
         });
 
@@ -130,14 +130,16 @@ public class GameActivity extends AppCompatActivity {
                     addNewElementInCode(view, dragEvent);
                 }
 
-                if (dragEvent.getAction() == DragEvent.ACTION_DRAG_EXITED && draggedButton.getTag() != null) {
+                if (dragEvent.getAction() == DragEvent.ACTION_DRAG_EXITED && draggedButton.getTag() != null && codeView.getChildCount() > 0) {
                     executeCodeList.remove(codeView.indexOfChild(draggedButton));
                     codeView.removeView(draggedButton);
+                    putObjectSound();
                 }
                 return true;
             }
         });
     }
+
 
     //hide system bars
     @Override
@@ -171,16 +173,45 @@ public class GameActivity extends AppCompatActivity {
             public void run() {
                 if (xCar != -1)
                     reset();
-                for (String codeLine : executeCodeList) {
 
-                    if (codeLine.equals("right")) {
-                        right();
-                    } else if (codeLine.equals("left")) {
-                        left();
-                    } else if (codeLine.equals("up")) {
-                        up();
-                    } else if (codeLine.equals("down")) {
-                        down();
+                final ScrollView scrollview = ((ScrollView) findViewById(R.id.codeScrollView));
+                for (int i = 0; i < executeCodeList.size(); i++) {
+                    final int currentIndex = i;
+                    final Button button = (Button) codeView.getChildAt(i);//get  current code element
+
+                    //scroll in selected element
+                    scrollview.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            scrollview.smoothScrollTo(0, button.getTop() - button.getHeight());//view including the previous button
+                        }
+                    });
+
+                    //set default background for code element
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println("background == " + button.getBackground());
+                            codeElementSelect(button, executeCodeList.get(currentIndex));
+                            //button.setBackgroundResource(R.drawable.code_red_element_selected);
+                            button.setSelected(true);
+                        }
+                    });
+
+                    //go to the car
+                    switch (executeCodeList.get(i)) {
+                        case "right":
+                            right();
+                            break;
+                        case "left":
+                            left();
+                            break;
+                        case "up":
+                            up();
+                            break;
+                        case "down":
+                            down();
+                            break;
                     }
 
                     //run operations on the main thread
@@ -201,6 +232,15 @@ public class GameActivity extends AppCompatActivity {
                     });
 
                     moveAndWait(1000);
+
+                    //set default background for code element
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            codeElementDefault(button, executeCodeList.get(currentIndex));
+                        }
+                    });
+
                     if (!isRunning) {
                         break;
                     }
@@ -244,10 +284,54 @@ public class GameActivity extends AppCompatActivity {
         moveAndWait(1000);
     }
 
+    //set select background for code element
+    private void codeElementSelect(Button button, String action) {
+        switch (action) {
+            case "right":
+                button.setBackgroundResource(R.drawable.code_right_element_selected);
+                break;
+            case "left":
+                button.setBackgroundResource(R.drawable.code_left_element_selected);
+                break;
+            case "up":
+                button.setBackgroundResource(R.drawable.code_up_element_selected);
+                break;
+            case "down":
+                button.setBackgroundResource(R.drawable.code_down_element_selected);
+                break;
+        }
+    }
+
+    //set default background for code element
+    private void codeElementDefault(Button button, String action) {
+        switch (action) {
+            case "right":
+                button.setBackgroundResource(R.drawable.code_right_element_default);
+                break;
+            case "left":
+                button.setBackgroundResource(R.drawable.code_left_element_default);
+                break;
+            case "up":
+                button.setBackgroundResource(R.drawable.code_up_element_default);
+                break;
+            case "down":
+                button.setBackgroundResource(R.drawable.code_down_element_default);
+                break;
+        }
+    }
+
     public void gameOver(Context context) {
 
-        Dialog dialog = new Dialog(context);
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(1000);
+
+        MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.crash);
+        mediaPlayer.seekTo(0); // Rewind sound to beginning
+        mediaPlayer.start();
+
+        Dialog dialog = new Dialog(context, R.style.CustomDialog);
         dialog.setContentView(R.layout.game_over_dialog);
+        dialog.setCancelable(false);
 
         Button retryButton = dialog.findViewById(R.id.retryButton);
         Button homeButton = dialog.findViewById(R.id.homeButton);
@@ -269,14 +353,15 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void completed(Context context) {
-        Dialog dialog = new Dialog(context);
+        Dialog dialog = new Dialog(context, R.style.CustomDialog);
         dialog.setContentView(R.layout.completed_dialog);
+        dialog.setCancelable(false);
 
         Button retryButton = dialog.findViewById(R.id.retryButton);
         Button nextLeveButton = dialog.findViewById(R.id.nextLevelButton);
         Button homeButton = dialog.findViewById(R.id.homeButton);
 
-        if (verifyNextLevel()==-1)
+        if (verifyNextLevel() == -1)
             nextLeveButton.setVisibility(View.GONE);
 
         retryButton.setOnClickListener(new View.OnClickListener() {
@@ -302,15 +387,15 @@ public class GameActivity extends AppCompatActivity {
         dialog.show();//open dialog
     }
 
-    private int verifyNextLevel(){
+    private int verifyNextLevel() {
         DatabaseHelper db = new DatabaseHelper(this);
         LevelModel levelModel = db.selectLevelById(levelId);//get level data
         return db.selectNextLevelId(levelModel.getCategoryId(), levelModel.getLevel() + 1);//return next level Id
     }
 
     private void openNextLevel() {
-        Intent intent = new Intent(this,GameActivity.class);
-        intent.putExtra("levelId",verifyNextLevel());//pass the category id in LevelActivity class
+        Intent intent = new Intent(this, GameActivity.class);
+        intent.putExtra("levelId", verifyNextLevel());//pass the category id in LevelActivity class
         this.startActivity(intent);
     }
 
@@ -335,6 +420,9 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void addNewElementInCode(View view, DragEvent dragEvent) {
+
+        putObjectSound();//sound
+
         Button draggedButton = (Button) dragEvent.getLocalState();
         Button copiedButton = new Button(GameActivity.this);
 
@@ -385,4 +473,9 @@ public class GameActivity extends AppCompatActivity {
         executeCodeList.add("down");
     }
 
+    private void putObjectSound() {
+        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.put_object);//sound
+        mediaPlayer.seekTo(0);
+        mediaPlayer.start();
+    }
 }

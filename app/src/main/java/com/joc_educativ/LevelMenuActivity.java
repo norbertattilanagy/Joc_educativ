@@ -39,7 +39,7 @@ public class LevelMenuActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onBackPressed();
+                openCategoryActivity();
             }
         });
 
@@ -84,5 +84,10 @@ public class LevelMenuActivity extends AppCompatActivity {
         Intent intent = new Intent(context,GameActivity.class);
         intent.putExtra("levelId",levelId);//pass the category id in LevelActivity class
         context.startActivity(intent);
+    }
+
+    public void openCategoryActivity(){
+        Intent intent = new Intent(this, CategoryMenuActivity.class);
+        startActivity(intent);
     }
 }

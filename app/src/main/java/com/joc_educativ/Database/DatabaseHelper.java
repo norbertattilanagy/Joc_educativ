@@ -13,7 +13,7 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public DatabaseHelper(@Nullable Context context) {
-        super(context, "educative_game.db", null, 6);//create db
+        super(context, "educative_game.db", null, 1);//create db
     }
 
     @Override
@@ -31,9 +31,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         //insert level type
         String inserLevel = "INSERT INTO Level (Category,Level,MapXSize,MapYSize,Map) VALUES " +
-                "(1,1,8,5,'TRRXXXTTRRXXRXTTCXXTTXXHRRRTTTTTRRTTTTTT')" +
-                ",(1,2,8,5,'TRRXXXTTRRXXRXTTCXXTTXXHRRRTTTTTRRTTTTTT')" +
-                ",(1,3,8,5,'TRRXXXTTRRXXRXTTCXXTTXXHRRRTTTTTRRTTTTTT')";/* +
+                "(1,1,6,4,'RXXXXTCXTTXTRRRTXHRRRRRR')" +
+                ",(1,2,8,5,'TTTTTTTTRXXXXTTTCXTRXRTHRRRTXXXXRRTTTTTT')" +
+                ",(1,3,8,5,'TRRXXXTTRRXXRXTTCXXTTXXHRRRTTTTTRRTTTTTT')" +
+                ",(1,4,8,5,'XXXXXXXXXXXXXXXXCXXXXXXHXXXXXXXXXXXXXXXX')";/* +
                 ",(1,4,,,)" +
                 ",(1,5,,,)" +
                 ",(1,6,,,)" +

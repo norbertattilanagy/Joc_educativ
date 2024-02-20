@@ -21,6 +21,7 @@ public class DrawGameView extends View {
     private int levelId;
     private int wField, hField;
     private String[][] map;
+    private int xFieldNr,yFieldNr;
     int xCar = -1, yCar = -1;
     Context context;
 
@@ -40,8 +41,11 @@ public class DrawGameView extends View {
         DatabaseHelper db = new DatabaseHelper(context);
         LevelModel levelModel = db.selectLevelById(levelId);//get level data
 
-        wField = view.getWidth() / levelModel.getMapXSize();
-        hField = view.getHeight() / levelModel.getMapYSize();
+        xFieldNr = levelModel.getMapXSize();
+        yFieldNr = levelModel.getMapYSize();
+
+        wField = view.getWidth() / xFieldNr;
+        hField = view.getHeight() / yFieldNr;
 
         super.onDraw(canvas);
         /*paint.setColor(Color.BLACK);
@@ -49,12 +53,6 @@ public class DrawGameView extends View {
         paint.setStyle(Paint.Style.STROKE);
 
         map = levelModel.getMap();
-        /*map = new String[][]{
-                {"T", "R", "R", "X", "X", "X", "T", "T"},
-                {"R", "R", "X", "X", "R", "X", "T", "T"},
-                {"C", "X", "X", "T", "T", "X", "X", "H"},
-                {"R", "R", "R", "T", "T", "T", "T", "T"},
-                {"R", "R", "T", "T", "T", "T", "T", "T"}};*/
 
         canvas = canv;
         drawMap(xCar, yCar);
@@ -74,8 +72,8 @@ public class DrawGameView extends View {
 
         System.out.println("map="+map);
         //GameActivity gameActivity = new GameActivity();
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 5; j++) {
+        for (int i = 0; i < xFieldNr; i++) {
+            for (int j = 0; j < yFieldNr; j++) {
                 canvas.drawRect(i * wField, j * hField, (i + 1) * wField, (j + 1) * hField, paint);
 
                 if (map[j][i].equals("H")) {

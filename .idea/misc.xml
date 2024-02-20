@@ -4,14 +4,28 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_blue_element.xml" value="0.1565" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_blue_element_default.xml" value="0.121" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_blue_element_selected.xml" value="0.167" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_element_selected.xml" value="0.12" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_green_element.xml" value="0.167" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_green_element_selected.xml" value="0.167" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_red_element.xml" value="0.167" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_red_element_selected.xml" value="0.167" />
         <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_view_layout.xml" value="0.1565" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_yellow_element.xml" value="0.167" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_yellow_element_default.xml" value="0.121" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/code_yellow_element_selected.xml" value="0.167" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/dialog_background.xml" value="0.167" />
         <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/game_view_layout.xml" value="0.1565" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/ic_baseline_play_arrow_24.xml" value="0.167" />
         <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/drawable/stop_button.xml" value="0.1565" />
-        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/layout/activity_game.xml" value="0.136" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/layout/activity_game.xml" value="0.128" />
         <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/layout/activity_level.xml" value="0.1390625" />
         <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/layout/activity_level_menu.xml" value="0.136" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/layout/completed_dialog.xml" value="0.144" />
         <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/layout/game_over_dialog.xml" value="0.152" />
         <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/layout/game_view_2d.xml" value="0.20521590423257802" />
+        <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/layout/level_list_view.xml" value="0.20521590423257802" />
         <entry key="..\:/Programe/Android studio/Joc_educativ/app/src/main/res/layout/succes_dialog.xml" value="0.136" />
         <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/drawable/ic_back_white.xml" value="0.1505" />
         <entry key="..\:/info/Android_studio/Joc_educativ/app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.1505" />
