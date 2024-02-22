@@ -7,6 +7,17 @@
     android:background="@drawable/blue_sky_background"
     tools:context=".CategoryMenuActivity">
 
+    <ImageButton
+        android:id="@+id/settingsButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button"
+        android:src="@drawable/ic_baseline_settings_36"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ListView
         android:id="@+id/categoryButtonListView"
         android:layout_width="match_parent"

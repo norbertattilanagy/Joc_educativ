@@ -26,7 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(LevelTable);
 
         //insert category type
-        String inserCategory = "INSERT INTO Category (Category) VALUES ('Cars'),('People'),('Algorithm')";
+        String inserCategory = "INSERT INTO Category (Category) VALUES ('cars'),('people'),('algorithm')";
         db.execSQL(inserCategory);
 
         //insert level type

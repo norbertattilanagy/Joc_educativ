@@ -11,4 +11,8 @@
     <string name="down">Jos</string>
     <string name="completed">Completat</string>
     <string name="next_level">Nivelul următor</string>
+    <string name="game_over">Game Over</string>
+    <string name="settings">Setări</string>
+    <string name="language">Română</string>
+    <string name="cars">Mașini</string>
 </resources>

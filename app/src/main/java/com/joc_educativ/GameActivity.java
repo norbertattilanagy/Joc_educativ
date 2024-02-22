@@ -39,6 +39,7 @@ public class GameActivity extends AppCompatActivity {
     public static Thread animationThread;
     public boolean isRunning = true;
     List<String> executeCodeList = new ArrayList<>();
+    Context context = this;
 
     @SuppressLint("CutPasteId")
     @Override
@@ -68,6 +69,7 @@ public class GameActivity extends AppCompatActivity {
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(context);
                 openLevelActivity();
             }
         });
@@ -75,10 +77,9 @@ public class GameActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                SetingsPreferencis.playClickSound(context);
                 if (animationThread == null) {
                     isRunning = true;
-                    System.out.println("RUN");
                     playGame();
                 }
             }
@@ -87,8 +88,8 @@ public class GameActivity extends AppCompatActivity {
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(context);
                 if (animationThread != null) {
-                    System.out.println("STOP");
                     isRunning = false;
                     animationThread = null;
                 }
@@ -322,12 +323,16 @@ public class GameActivity extends AppCompatActivity {
 
     public void gameOver(Context context) {
 
-        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        vibrator.vibrate(1000);
+        if (SetingsPreferencis.getVibration(context)) {
+            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator.vibrate(500);
+        }
 
-        MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.crash);
-        mediaPlayer.seekTo(0); // Rewind sound to beginning
-        mediaPlayer.start();
+        if (SetingsPreferencis.getSound(context)) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.crash);
+            mediaPlayer.seekTo(0); // Rewind sound to beginning
+            mediaPlayer.start();
+        }
 
         Dialog dialog = new Dialog(context, R.style.CustomDialog);
         dialog.setContentView(R.layout.game_over_dialog);
@@ -474,8 +479,10 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void putObjectSound() {
-        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.put_object);//sound
-        mediaPlayer.seekTo(0);
-        mediaPlayer.start();
+        if (SetingsPreferencis.getSound(this)) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.put_object);//sound
+            mediaPlayer.seekTo(0);
+            mediaPlayer.start();
+        }
     }
 }

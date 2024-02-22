@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.joc_educativ.Adaptors.LevelAdaptor;
@@ -20,7 +21,8 @@ public class LevelMenuActivity extends AppCompatActivity {
 
     private View decorView;
     private ListView levelButtonListView;
-    private Button backButton;
+    private ImageButton backButton,settingsButton;
+    Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,7 @@ public class LevelMenuActivity extends AppCompatActivity {
         levelButtonListView = findViewById(R.id.levelButtonListView);
 
         backButton = findViewById(R.id.backButton);
+        settingsButton = findViewById(R.id.settingsButton);
 
         Intent intent = getIntent();//get submitted id
         int categoryId = intent.getIntExtra("categoryId",-1);
@@ -39,10 +42,19 @@ public class LevelMenuActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(context);
                 openCategoryActivity();
             }
         });
 
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SetingsPreferencis.playClickSound(context);
+                Settings settings = new Settings(context,categoryId);
+                settings.openSettings();
+            }
+        });
     }
 
     //hide system bars
@@ -88,6 +100,12 @@ public class LevelMenuActivity extends AppCompatActivity {
 
     public void openCategoryActivity(){
         Intent intent = new Intent(this, CategoryMenuActivity.class);
+        startActivity(intent);
+    }
+
+    public void refreshActivity(){
+        Intent intent = getIntent();
+        finish();
         startActivity(intent);
     }
 }

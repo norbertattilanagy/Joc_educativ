@@ -10,6 +10,7 @@ import android.widget.Button;
 import com.joc_educativ.Database.LevelModel;
 import com.joc_educativ.LevelMenuActivity;
 import com.joc_educativ.R;
+import com.joc_educativ.SetingsPreferencis;
 
 import java.util.List;
 
@@ -77,32 +78,35 @@ public class LevelAdaptor extends BaseAdapter {
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
+                SetingsPreferencis.playClickSound(context);
                 levelMenuActivity.openGameActivity(context,levelModels.get(i).get(0).getId());
             }
         });
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(context);
                 levelMenuActivity.openGameActivity(context,levelModels.get(i).get(1).getId());
             }
         });
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(context);
                 levelMenuActivity.openGameActivity(context,levelModels.get(i).get(2).getId());
             }
         });
         button4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(context);
                 levelMenuActivity.openGameActivity(context,levelModels.get(i).get(3).getId());
             }
         });
         button5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(context);
                 levelMenuActivity.openGameActivity(context,levelModels.get(i).get(4).getId());
             }
         });
