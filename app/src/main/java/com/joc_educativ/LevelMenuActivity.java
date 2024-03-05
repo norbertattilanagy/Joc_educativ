@@ -1,5 +1,7 @@
 package com.joc_educativ;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -108,4 +110,5 @@ public class LevelMenuActivity extends AppCompatActivity {
         finish();
         startActivity(intent);
     }
+
 }

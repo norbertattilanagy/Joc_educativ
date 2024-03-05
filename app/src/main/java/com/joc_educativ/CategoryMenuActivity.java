@@ -90,5 +90,4 @@ public class CategoryMenuActivity extends AppCompatActivity {
         intent.putExtra("categoryId", id);//pass the category id in LevelActivity class
         startActivity(intent);
     }
-
 }

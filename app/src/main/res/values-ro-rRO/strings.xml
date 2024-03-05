@@ -15,4 +15,18 @@
     <string name="settings">Setări</string>
     <string name="language">Română</string>
     <string name="cars">Mașini</string>
+    <string name="log_in">Autentificare</string>
+    <string name="email">Email</string>
+    <string name="password">Parolă</string>
+    <string name="sign_up">Întregistrare</string>
+    <string name="log_out">Deconectare</string>
+    <string name="incorrect_email">Adresa de email este incorect</string>
+    <string name="incorrect_password">Parola este incorectă</string>
+    <string name="incorrect_email_or_password">Adresa de email sau parola este incorectă</string>
+    <string name="confirm_password">Confirmă parola</string>
+    <string name="password_not_match">Parolele nu coincid</string>
+    <string name="not_contain_upper_case">Nu conține litere mari</string>
+    <string name="not_contain_lower_case">Nu conține litere mici</string>
+    <string name="not_contain_digit">Nu conține cifre</string>
+    <string name="registered_email">Această adresă de email este înregistrat</string>
 </resources>

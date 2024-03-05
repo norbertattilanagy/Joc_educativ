@@ -1,13 +1,21 @@
 package com.joc_educativ;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
+import static kotlin.jvm.internal.Reflection.function;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +28,7 @@ public class Settings {
     int languageIndex;
     ImageButton soundButton, vibrationButton, leftButton, rightButton, closeButton;
     TextView languageTextView;
+    Button authenticationButton;
     Locale currentLanguage;
 
     public Settings(Context context, int categoryId) {
@@ -39,6 +48,7 @@ public class Settings {
         leftButton = dialog.findViewById(R.id.leftButton);
         rightButton = dialog.findViewById(R.id.rightButton);
         languageTextView = dialog.findViewById(R.id.languageTextView);
+        authenticationButton = dialog.findViewById(R.id.authenticationButton);
 
         if (SetingsPreferencis.getSound(context))
             soundButton.setImageResource(R.drawable.ic_baseline_volume_up_48);
@@ -49,6 +59,10 @@ public class Settings {
             vibrationButton.setImageResource(R.drawable.ic_baseline_vibration_48);
         else
             vibrationButton.setImageResource(R.drawable.ic_baseline_mobile_off_48);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            authenticationButton.setText(R.string.log_out);
+        }
 
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +104,15 @@ public class Settings {
             }
         });
 
+        authenticationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SetingsPreferencis.playClickSound(context);
+                openSignIn();
+            }
+        });
+
+        //System.out.println("SUCCESS: " + FirebaseAuth.getInstance().getCurrentUser().getUid() + "," + FirebaseAuth.getInstance().getCurrentUser().getEmail());
         dialog.show();
     }
 
@@ -173,7 +196,18 @@ public class Settings {
             if (categoryId != -1)
                 intent.putExtra("categoryId", categoryId);//pass the category id in LevelActivity class
             context.startActivity(intent);
-            System.out.println("Switch");
+        }
+    }
+
+    //log out or open sign in activity
+    private void openSignIn() {
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            FirebaseAuth.getInstance().signOut();
+            closeButton.performClick();
+        } else {
+            closeButton.performClick();//close dialog
+            Intent intent = new Intent(context, SignIn.class);
+            context.startActivity(intent);
         }
     }
 }
