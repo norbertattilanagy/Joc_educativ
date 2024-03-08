@@ -11,7 +11,7 @@ import android.widget.ListView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.joc_educativ.Adaptors.CategoryAdaptor;
-import com.joc_educativ.Database.CategoryModel;
+import com.joc_educativ.Database.Category;
 import com.joc_educativ.Database.DatabaseHelper;
 
 import java.util.List;
@@ -34,9 +34,9 @@ public class CategoryMenuActivity extends AppCompatActivity {
         settingsButton = findViewById(R.id.settingsButton);
 
         DatabaseHelper dbh = new DatabaseHelper(this);
-        List<CategoryModel> categoryList = dbh.selectAllCategory();//get all category
+        List<Category> categoryList = dbh.selectAllCategory();//get all category
 
-        for (CategoryModel category : categoryList) {
+        for (Category category : categoryList) {
             int resourceId = getResources().getIdentifier(category.getCategory(), "string", getResources().getResourcePackageName(R.string.app_name));
 
             if (resourceId != 0)//if exist resource

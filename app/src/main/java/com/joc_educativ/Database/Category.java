@@ -1,13 +1,17 @@
 package com.joc_educativ.Database;
 
-public class CategoryModel {
+public class Category {
 
+    private String key;
     private int id;
     private String Category;
 
-    public CategoryModel(int id, String category) {
+    public Category(int id, String category) {
         this.id = id;
         this.Category = category;
+    }
+
+    public Category() {
     }
 
     @Override
@@ -16,6 +20,12 @@ public class CategoryModel {
                 "id=" + id +
                 ", Category='" + Category + '\'' +
                 '}';
+    }
+
+    public String getKey(){ return key;}
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public int getId() {

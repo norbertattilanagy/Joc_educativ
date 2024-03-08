@@ -6,9 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.Toast;
 
-import com.joc_educativ.Database.CategoryModel;
+import com.joc_educativ.Database.Category;
 import com.joc_educativ.R;
 
 import java.util.List;
@@ -16,18 +15,18 @@ import java.util.List;
 public class CategoryAdaptor extends BaseAdapter {
 
     Context context;
-    List<CategoryModel> categoryModels;
+    List<Category> categories;
     LayoutInflater inflater;
 
-    public CategoryAdaptor(Context context, List<CategoryModel> categoryModels){
+    public CategoryAdaptor(Context context, List<Category> categories){
         this.context = context;
-        this.categoryModels = categoryModels;
+        this.categories = categories;
         inflater = LayoutInflater.from(context);
     }
 
     @Override
     public int getCount() {
-        return categoryModels.size();
+        return categories.size();
     }
 
     @Override
@@ -44,7 +43,7 @@ public class CategoryAdaptor extends BaseAdapter {
     public View getView(int i, View view, ViewGroup viewGroup) {
         view = inflater.inflate(R.layout.category_list_view, null);//get view
         Button button = view.findViewById(R.id.button);//get button from view
-        button.setText(categoryModels.get(i).getCategory());//set button text
+        button.setText(categories.get(i).getCategory());//set button text
         return view;
     }
 }

@@ -1,20 +1,17 @@
 package com.joc_educativ;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.joc_educativ.Adaptors.LevelAdaptor;
 import com.joc_educativ.Database.DatabaseHelper;
-import com.joc_educativ.Database.LevelModel;
+import com.joc_educativ.Database.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,8 +76,8 @@ public class LevelMenuActivity extends AppCompatActivity {
 
     private void setButtonInListView(int categoryId){
         DatabaseHelper dbh = new DatabaseHelper(this);
-        List<LevelModel> levelListByCategory = dbh.selectAllLevelByCategory(categoryId);//get all level by category
-        List<List<LevelModel>> levelMatrix = new ArrayList<>();//create button matrix
+        List<Level> levelListByCategory = dbh.selectAllLevelByCategory(categoryId);//get all level by category
+        List<List<Level>> levelMatrix = new ArrayList<>();//create button matrix
 
         for (int i=0;i<levelListByCategory.size();i+=5){
             int nrButton = levelListByCategory.size() % 5;//set nr button in line

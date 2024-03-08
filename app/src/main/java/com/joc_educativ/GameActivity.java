@@ -21,7 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.joc_educativ.CustomView.DrawGameView;
 import com.joc_educativ.Database.DatabaseHelper;
-import com.joc_educativ.Database.LevelModel;
+import com.joc_educativ.Database.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -166,7 +166,7 @@ public class GameActivity extends AppCompatActivity {
         //right();->right();->up();->right();->up();->right();->right();->down();->down();->right();->right();
 
         DatabaseHelper db = new DatabaseHelper(this);
-        LevelModel levelModel = db.selectLevelById(levelId);//get level data
+        Level level = db.selectLevelById(levelId);//get level data
         Context context = this;//save context
 
         animationThread = new Thread(new Runnable() {
@@ -219,11 +219,11 @@ public class GameActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (levelModel.getMap()[yCar][xCar].equals("R") || levelModel.getMap()[yCar][xCar].equals("T")) {
+                            if (level.getMap()[yCar][xCar].equals("R") || level.getMap()[yCar][xCar].equals("T")) {
                                 isRunning = false;
                                 animationThread = null;
                                 gameOver(context);
-                            } else if (levelModel.getMap()[yCar][xCar].equals("H")) {
+                            } else if (level.getMap()[yCar][xCar].equals("H")) {
                                 isRunning = false;
                                 animationThread = null;
                                 completed(context);
@@ -394,8 +394,8 @@ public class GameActivity extends AppCompatActivity {
 
     private int verifyNextLevel() {
         DatabaseHelper db = new DatabaseHelper(this);
-        LevelModel levelModel = db.selectLevelById(levelId);//get level data
-        return db.selectNextLevelId(levelModel.getCategoryId(), levelModel.getLevel() + 1);//return next level Id
+        Level level = db.selectLevelById(levelId);//get level data
+        return db.selectNextLevelId(level.getCategoryId(), level.getLevel() + 1);//return next level Id
     }
 
     private void openNextLevel() {
@@ -406,8 +406,8 @@ public class GameActivity extends AppCompatActivity {
 
     private void openLevelActivity() {
         DatabaseHelper db = new DatabaseHelper(this);
-        LevelModel levelModel = db.selectLevelById(levelId);
-        int categoryId = levelModel.getCategoryId();
+        Level level = db.selectLevelById(levelId);
+        int categoryId = level.getCategoryId();
 
         Intent intent = new Intent(this, LevelMenuActivity.class);
         intent.putExtra("categoryId", categoryId);//pass the category id in LevelActivity class

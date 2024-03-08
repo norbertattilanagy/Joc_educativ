@@ -5,11 +5,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import com.joc_educativ.Database.DatabaseHelper;
-import com.joc_educativ.Database.LevelModel;
+import com.joc_educativ.Database.Level;
 import com.joc_educativ.GameActivity;
 import com.joc_educativ.R;
 
@@ -39,10 +38,10 @@ public class DrawGameView extends View {
     public void onDraw(Canvas canv) {
 
         DatabaseHelper db = new DatabaseHelper(context);
-        LevelModel levelModel = db.selectLevelById(levelId);//get level data
+        Level level = db.selectLevelById(levelId);//get level data
 
-        xFieldNr = levelModel.getMapXSize();
-        yFieldNr = levelModel.getMapYSize();
+        xFieldNr = level.getMapXSize();
+        yFieldNr = level.getMapYSize();
 
         wField = view.getWidth() / xFieldNr;
         hField = view.getHeight() / yFieldNr;
@@ -52,7 +51,7 @@ public class DrawGameView extends View {
         paint.setStrokeWidth(20);*/
         paint.setStyle(Paint.Style.STROKE);
 
-        map = levelModel.getMap();
+        map = level.getMap();
 
         canvas = canv;
         drawMap(xCar, yCar);

@@ -13,24 +13,26 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public DatabaseHelper(@Nullable Context context) {
-        super(context, "educative_game.db", null, 1);//create db
+        super(context, "educative_game.db", null, 2);//create db
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CategoryTable = "CREATE TABLE Category (id INTEGER PRIMARY KEY AUTOINCREMENT, Category Text)";
         String LevelTable = "CREATE TABLE Level (id INTEGER PRIMARY KEY AUTOINCREMENT, Category INTEGER, Level INTEGER, MapXSize INTEGER, MapYSize INTEGER, Map TEXT)";
+        String appData = "CREATE TABLE AppData (id INTEGER PRIMARY KEY AUTOINCREMENT, DBVersion FLOAT,AppVersion FLOAT)";
 
         //create table in db
         db.execSQL(CategoryTable);
         db.execSQL(LevelTable);
+        db.execSQL(appData);
 
         //insert category type
-        String inserCategory = "INSERT INTO Category (Category) VALUES ('cars'),('people'),('algorithm')";
-        db.execSQL(inserCategory);
+        String insertCategory = "INSERT INTO Category (Category) VALUES ('cars'),('people'),('algorithm')";
+        db.execSQL(insertCategory);
 
         //insert level type
-        String inserLevel = "INSERT INTO Level (Category,Level,MapXSize,MapYSize,Map) VALUES " +
+        String insertLevel = "INSERT INTO Level (Category,Level,MapXSize,MapYSize,Map) VALUES " +
                 "(1,1,6,4,'RXXXXTCXTTXTRRRTXHRRRRRR')" +
                 ",(1,2,8,5,'TTTTTTTTRXXXXTTTCXTRXRTHRRRTXXXXRRTTTTTT')" +
                 ",(1,3,8,5,'TRRXXXTTRRXXRXTTCXXTTXXHRRRTTTTTRRTTTTTT')" +
@@ -40,7 +42,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ",(1,6,,,)" +
                 ",(1,7,,,)" +
                 ",(1,55,,,)";*/
-        db.execSQL(inserLevel);
+        db.execSQL(insertLevel);
+
+        String insertAppData = "INSERT INTO AppData (DBVersion,AppVersion) VALUES (0.1,0.1)";
+        db.execSQL(insertAppData);
+
         System.out.println("CREATE DB");
     }
 
@@ -55,9 +61,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public List<CategoryModel> selectAllCategory() {
+    public Float getDbVersion(){
+        float version = 0;
+        String query = "SELECT DBVersion FROM AppData";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
 
-        List<CategoryModel> allCategory = new ArrayList<>();
+        if (cursor.moveToFirst()) {//put all level in level list
+            version = cursor.getFloat(0);
+        }
+        return version;
+    }
+
+    public void updateDbVersion(long dbVersion){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("dbVersion", dbVersion);
+        db.update("AppData", values, null, null);
+        db.close();
+    }
+
+    public void clearTable(String tableName){
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.delete(tableName, null, null);
+        db.close();
+    }
+
+    public List<Category> selectAllCategory() {
+
+        List<Category> allCategory = new ArrayList<>();
         String getCategory = "SELECT * FROM Category";
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -68,7 +100,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 int id = cursor.getInt(0);
                 String category = cursor.getString(1);
 
-                allCategory.add(new CategoryModel(id, category));
+                allCategory.add(new Category(id, category));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -76,9 +108,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return allCategory;
     }
 
-    public List<LevelModel> selectAllLevelByCategory(int categoryId) {
+    public boolean addCategory(Category category) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
 
-        List<LevelModel> allLevelByCategory = new ArrayList<>();
+        if (category.getId()>0)
+            contentValues.put("Id",category.getId());
+
+        contentValues.put("Category", category.getCategory());
+        long result = db.insert("Category", null, contentValues);
+
+        if (result == -1)
+            return false;
+        return true;
+    }
+
+    public List<Level> selectAllLevelByCategory(int categoryId) {
+
+        List<Level> allLevelByCategory = new ArrayList<>();
         String getLevel = "SELECT * FROM Level WHERE Category = " + categoryId;
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -101,7 +148,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         mapText = mapText.substring(1);//delete first character
                     }
                 }
-                allLevelByCategory.add(new LevelModel(id, category, level, mapXSize, mapYSize, map));
+                allLevelByCategory.add(new Level(id, category, level, mapXSize, mapYSize, map));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -109,9 +156,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return allLevelByCategory;
     }
 
-    public LevelModel selectLevelById(int levelId) {
+    public Level selectLevelById(int levelId) {
 
-        LevelModel levelModel = null;
+        Level levelModel = null;
         String getLevel = "SELECT * FROM Level WHERE id = " + levelId;
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -132,7 +179,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     mapText = mapText.substring(1);//delete first character
                 }
 
-            levelModel = new LevelModel(id, category, level, mapXSize, mapYSize, map);
+            levelModel = new Level(id, category, level, mapXSize, mapYSize, map);
         }
         cursor.close();
         db.close();
@@ -152,12 +199,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return levelId;
     }
 
-    public boolean addCategory(CategoryModel categoryModel) {
+    public boolean addLevel(Level level) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put("Category", categoryModel.getCategory());
-        long result = db.insert("Category", null, contentValues);
+        String mapString = "";//convert level in string
+        for (int i = 0; i < level.getMapYSize(); i++) {
+            for (int j = 0; j < level.getMapXSize(); j++) {
+                mapString += level.getMap()[i][j];
+            }
+        }
+
+        if (level.getId()>0)
+            contentValues.put("Id",level.getId());
+        contentValues.put("Category", level.getCategoryId());
+        contentValues.put("Level", level.getLevel());
+        contentValues.put("MapXSize", level.getMapXSize());
+        contentValues.put("MapYSize", level.getMapYSize());
+        contentValues.put("Map", mapString);
+        long result = db.insert("Level", null, contentValues);
 
         if (result == -1)
             return false;

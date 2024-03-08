@@ -2,12 +2,10 @@ package com.joc_educativ;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -15,6 +13,14 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.database.DatabaseError;
+import com.joc_educativ.CustomView.ProgressBarAnimation;
+import com.joc_educativ.Database.Category;
+import com.joc_educativ.Database.DatabaseHelper;
+import com.joc_educativ.Database.FirebaseDB;
+import com.joc_educativ.Database.Level;
+
+import java.util.List;
 import java.util.Locale;
 
 public class LoadingActivity extends AppCompatActivity {
@@ -24,8 +30,8 @@ public class LoadingActivity extends AppCompatActivity {
     private TextView percentageText;
     private Button playButton;
 
-    private int progressStatus = 0;
     private Context context = this;
+    List<Category> allCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,35 +76,71 @@ public class LoadingActivity extends AppCompatActivity {
     //---
 
     private void progressAnimation() {
-        final Handler handler = new Handler(Looper.getMainLooper());
-        new Thread(new Runnable() {
+
+        setLanguage(context);
+
+        updateDBData();
+
+        ProgressBarAnimation animation = new ProgressBarAnimation(this,progressBar,percentageText,0,100,playButton);
+        animation.setDuration(8000);
+        progressBar.setAnimation(animation);
+    }
+
+    public void updateDBData(){
+        FirebaseDB fdb = new FirebaseDB();
+        DatabaseHelper dbh = new DatabaseHelper(this);
+
+        //write in firebase
+        /*List<Category> categoryList = dbh.selectAllCategory();//get all category
+        for (Category category : categoryList){
+            fdb.saveCategory(category);
+        }*/
+
+        /*List<Level> levelList = dbh.selectAllLevelByCategory(1);
+        for (Level level : levelList){
+            fdb.saveLevel(level);
+        }*/
+
+        fdb.getDBVersion(new FirebaseDB.DBVersionCallback() {//get db version from firebase
             @Override
-            public void run() {
-                while (progressStatus < 100) {
-                    progressStatus += 1;
+            public void onDBVersionReceived(Long version) {
+                if (version != null) {
+                    if (version > dbh.getDbVersion()) {//update local db when exist new db version
+                        fdb.selectAllCategory(new FirebaseDB.CategoryCallback() {//select category from firebase
+                            @Override
+                            public void onCategoryListLoaded(List<Category> categories) {
+                                dbh.clearTable("Category");//clear category table data
 
-                    if (progressStatus == 5)
-                        setLanguage(context);
+                                for (Category category : categories) {//insert category from firebase
+                                    dbh.addCategory(category);
+                                }
+                            }
+                            @Override
+                            public void onCancelled(DatabaseError error) {
+                                Log.d("Loading", error.toString());
+                            }
+                        });
 
-                    handler.post(new Runnable() {// update progress bar
-                        @Override
-                        public void run() {
-                            progressBar.setProgress(progressStatus);
-                            percentageText.setText(progressBar.getProgress() + "%");
+                        fdb.selectAllLevel(new FirebaseDB.LevelCallback() {//select level from firebase
+                            @Override
+                            public void onLevelListLoaded(List<Level> levels) {
+                                dbh.clearTable("Level");//clear level table data
 
-                            if (progressBar.getProgress() == 100)
-                                playButton.setVisibility(View.VISIBLE);
-                        }
-                    });
+                                for (Level level : levels) {//insert level from firebase
+                                    dbh.addLevel(level);
+                                }
+                            }
+                            @Override
+                            public void onCancelled(DatabaseError error) {
+                                Log.d("Loading", error.toString());
+                            }
+                        });
 
-                    try {
-                        Thread.sleep(100); // wait 100 milliseconds
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        //dbh.updateDbVersion(version);//update db version in local db
                     }
                 }
             }
-        }).start();
+        });
     }
 
     public void setLanguage(Context context) {

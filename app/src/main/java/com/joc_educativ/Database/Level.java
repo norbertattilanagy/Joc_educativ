@@ -1,6 +1,7 @@
 package com.joc_educativ.Database;
 
-public class LevelModel {
+public class Level {
+    private String key;
     private int id;
     private int categoryId;
     private int level;
@@ -8,13 +9,16 @@ public class LevelModel {
     private int mapYSize;
     private String[][] map;
 
-    public LevelModel(int id, int categoryId, int level, int mapXSize, int mapYSize, String[][] map) {
+    public Level(int id, int categoryId, int level, int mapXSize, int mapYSize, String[][] map) {
         this.id = id;
         this.categoryId = categoryId;
         this.level = level;
         this.mapXSize = mapXSize;
         this.mapYSize = mapYSize;
         this.map = map;
+    }
+
+    public Level() {
     }
 
     @Override
@@ -24,6 +28,12 @@ public class LevelModel {
                 ", categoryId=" + categoryId +
                 ", level=" + level +
                 '}';
+    }
+
+    public String getKey(){ return key;}
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public int getId() {

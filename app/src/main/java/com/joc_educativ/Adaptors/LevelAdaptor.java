@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 
-import com.joc_educativ.Database.LevelModel;
+import com.joc_educativ.Database.Level;
 import com.joc_educativ.LevelMenuActivity;
 import com.joc_educativ.R;
 import com.joc_educativ.SetingsPreferencis;
@@ -17,10 +17,10 @@ import java.util.List;
 public class LevelAdaptor extends BaseAdapter {
 
     Context context;
-    List<List<LevelModel>> levelModels;
+    List<List<Level>> levelModels;
     LayoutInflater inflater;
 
-    public LevelAdaptor(Context context, List<List<LevelModel>> levelModels) {
+    public LevelAdaptor(Context context, List<List<Level>> levelModels) {
         this.context = context;
         this.levelModels = levelModels;
         inflater = LayoutInflater.from(context);
