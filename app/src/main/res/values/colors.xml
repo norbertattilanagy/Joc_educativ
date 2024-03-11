@@ -27,4 +27,6 @@
     <color name="code_green_selected">#72AA48</color>
     <color name="code_blue">#4355FA</color>
     <color name="code_blue_selected">#6473FA</color>
+    <color name="disable_blue">#6FCFFF</color>
+    <color name="disable_gray">#7C7C7C</color>
 </resources>

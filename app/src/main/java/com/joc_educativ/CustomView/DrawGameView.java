@@ -69,7 +69,6 @@ public class DrawGameView extends View {
         Drawable rock = getResources().getDrawable(R.drawable.rock);
         Drawable tree = getResources().getDrawable(R.drawable.tree);
 
-        System.out.println("map="+map);
         //GameActivity gameActivity = new GameActivity();
         for (int i = 0; i < xFieldNr; i++) {
             for (int j = 0; j < yFieldNr; j++) {

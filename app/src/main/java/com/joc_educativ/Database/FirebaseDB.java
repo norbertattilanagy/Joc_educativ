@@ -1,10 +1,9 @@
 package com.joc_educativ.Database;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,7 +24,7 @@ public class FirebaseDB {
         void onDBVersionReceived(Long dbVersion);
     }
 
-    public void getDBVersion(DBVersionCallback callback){
+    public void getDBVersion(DBVersionCallback callback) {
         databaseReference.child("appData").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -40,7 +39,7 @@ public class FirebaseDB {
         });
     }
 
-    public String saveCategory(Category category){
+    public String saveCategory(Category category) {
         databaseReference.child("category").push().setValue(category).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
@@ -52,21 +51,23 @@ public class FirebaseDB {
 
     public interface CategoryCallback {
         void onCategoryListLoaded(List<Category> allCategory);
+
         void onCancelled(DatabaseError error);
     }
 
-    public void selectAllCategory(CategoryCallback callback){
+    public void selectAllCategory(CategoryCallback callback) {
         List<Category> allCategory = new ArrayList<>();
         databaseReference.child("category").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Category category = dataSnapshot.getValue(Category.class);
                     Objects.requireNonNull(category).setKey(dataSnapshot.getKey());
                     allCategory.add(category);
                 }
                 callback.onCategoryListLoaded(allCategory);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 callback.onCancelled(error);
@@ -74,7 +75,7 @@ public class FirebaseDB {
         });
     }
 
-    public String saveLevel(Level level){
+    public String saveLevel(Level level) {
         String mapString = "";//convert level in string
         for (int i = 0; i < level.getMapYSize(); i++) {
             for (int j = 0; j < level.getMapXSize(); j++) {
@@ -82,13 +83,13 @@ public class FirebaseDB {
             }
         }
 
-        Map<String,Object> levelMap = new HashMap<>();//create level map
-        levelMap.put("id",level.getId());
+        Map<String, Object> levelMap = new HashMap<>();//create level map
+        levelMap.put("id", level.getId());
         levelMap.put("categoryId", level.getCategoryId());
         levelMap.put("level", level.getLevel());
-        levelMap.put("mapXSize",level.getMapXSize());
-        levelMap.put("mapYSize",level.getMapYSize());
-        levelMap.put("map",mapString);
+        levelMap.put("mapXSize", level.getMapXSize());
+        levelMap.put("mapYSize", level.getMapYSize());
+        levelMap.put("map", mapString);
 
         //put map in db
         databaseReference.child("level").push().setValue(levelMap).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -102,14 +103,16 @@ public class FirebaseDB {
 
     public interface LevelCallback {
         void onLevelListLoaded(List<Level> allLevel);
+
         void onCancelled(DatabaseError error);
     }
-    public void selectAllLevel(LevelCallback callback){
+
+    public void selectAllLevel(LevelCallback callback) {
         List<Level> allLevel = new ArrayList<>();
         databaseReference.child("level").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Level level = new Level();
                     level.setId(dataSnapshot.child("id").getValue(Integer.class));
                     level.setCategoryId(dataSnapshot.child("categoryId").getValue(Integer.class));
@@ -128,10 +131,10 @@ public class FirebaseDB {
                     level.setKey(dataSnapshot.getKey());
 
                     allLevel.add(level);
-                    System.out.println("daf");
                 }
                 callback.onLevelListLoaded(allLevel);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 callback.onCancelled(error);
@@ -139,4 +142,48 @@ public class FirebaseDB {
         });
     }
 
+    public void saveUserLevel(int categoryId, int unlockedLevel) {
+
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference userLevelRef = databaseReference.child("userLevel").child(userId);
+        userLevelRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                userLevelRef.child(String.valueOf(categoryId)).setValue(unlockedLevel);//update level
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public interface UnlockedLevelCallback {
+        void onUnlockedLevelReceived(int unlockedLevel);
+
+        void onCancelled(DatabaseError error);
+    }
+
+    public void selectUserLevel(int categoryId, UnlockedLevelCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference userReference = databaseReference.child("userLevel").child(userId).child(String.valueOf(categoryId));
+
+        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    int unlockedLevel = snapshot.getValue(Integer.class);
+                    callback.onUnlockedLevelReceived(unlockedLevel);
+                } else {
+                    callback.onUnlockedLevelReceived(1);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onCancelled(error);
+            }
+        });
+    }
 }

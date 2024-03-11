@@ -53,7 +53,7 @@
         android:layout_width="200sp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
-        android:background="@drawable/button"
+        android:background="@drawable/button_enable"
         android:text="@string/play"
         android:textColor="#FFFFFF"
         android:textSize="34sp"

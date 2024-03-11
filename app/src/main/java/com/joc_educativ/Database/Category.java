@@ -5,10 +5,12 @@ public class Category {
     private String key;
     private int id;
     private String Category;
+    private int unlockedLevel;
 
-    public Category(int id, String category) {
+    public Category(int id, String category, int unlockedLevel) {
         this.id = id;
-        this.Category = category;
+        Category = category;
+        this.unlockedLevel = unlockedLevel;
     }
 
     public Category() {
@@ -42,5 +44,13 @@ public class Category {
 
     public void setCategory(String category) {
         Category = category;
+    }
+
+    public int getUnlockedLevel() {
+        return unlockedLevel;
+    }
+
+    public void setUnlockedLevel(int unlockedLevel) {
+        this.unlockedLevel = unlockedLevel;
     }
 }

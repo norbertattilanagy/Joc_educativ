@@ -93,7 +93,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="128dp"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/button"
+                android:background="@drawable/button_enable"
                 android:text="@string/sign_up"
                 android:textAllCaps="false"
                 android:textColor="@color/white"

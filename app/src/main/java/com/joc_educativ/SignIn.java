@@ -33,6 +33,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
+import com.google.firebase.database.DatabaseError;
+import com.joc_educativ.Database.Category;
+import com.joc_educativ.Database.DatabaseHelper;
+import com.joc_educativ.Database.FirebaseDB;
+
+import java.util.List;
 
 public class SignIn extends AppCompatActivity {
 
@@ -136,14 +142,15 @@ public class SignIn extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
+                        syncUnlockedLevel();
                         openCategoryActivity();
                     } else {
                         Log.d("Sign In", task.getException().toString());
                         checkEmailExists();
                         if (existEmail)
-                            showError(passwordTextInputLayout,getString(R.string.incorrect_password));
+                            showError(passwordTextInputLayout, getString(R.string.incorrect_password));
                         else
-                            showError(emailTextInputLayout,getString(R.string.incorrect_email));
+                            showError(emailTextInputLayout, getString(R.string.incorrect_email));
                     }
                 }
             });
@@ -189,6 +196,7 @@ public class SignIn extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                            syncUnlockedLevel();
                             openCategoryActivity();
                         } else {
                             Log.d("SignIn", "fail ", task.getException());
@@ -199,11 +207,11 @@ public class SignIn extends AppCompatActivity {
     }
     //-----
 
-    void checkEmailExists(){
+    void checkEmailExists() {
         firebaseAuth.fetchSignInMethodsForEmail(emailEditText.getText().toString()).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
             @Override
             public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-                Log.d("Sign In",""+task.getResult().getSignInMethods().size());
+                Log.d("Sign In", "" + task.getResult().getSignInMethods().size());
                 if (task.getResult().getSignInMethods().size() == 0) {
                     existEmail = false;
                 }
@@ -224,6 +232,34 @@ public class SignIn extends AppCompatActivity {
         passwordEditText.clearFocus();
         passwordTextInputLayout.setHelperText("");
         passwordTextInputLayout.setHintEnabled(false);
+    }
+
+    private void syncUnlockedLevel() {
+        FirebaseDB fdb = new FirebaseDB();
+        DatabaseHelper dbh = new DatabaseHelper(this);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {//if connect User
+            List<Category> allLocalCategory = dbh.selectAllCategory();//sync unlocked level
+            for (Category category : allLocalCategory) {
+                fdb.selectUserLevel(category.getId(), new FirebaseDB.UnlockedLevelCallback() {
+                    @Override
+                    public void onUnlockedLevelReceived(int unlockedLevel) {
+                        if (unlockedLevel < category.getUnlockedLevel())
+                            fdb.saveUserLevel(category.getId(), category.getUnlockedLevel());//save in firebase
+                        else if (unlockedLevel > 2) {
+                            dbh.updateUnlockedLevel(category.getId(),2);
+                            //dbh.updateUnlockedLevel(category.getId(), unlockedLevel);//save in local db
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        Log.d("Loading", error.toString());
+                    }
+                });
+            }
+        }
     }
 
     public void openCategoryActivity() {

@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
 import com.joc_educativ.CustomView.ProgressBarAnimation;
 import com.joc_educativ.Database.Category;
@@ -81,16 +83,41 @@ public class LoadingActivity extends AppCompatActivity {
 
         updateDBData();
 
-        ProgressBarAnimation animation = new ProgressBarAnimation(this,progressBar,percentageText,0,100,playButton);
+        ProgressBarAnimation animation = new ProgressBarAnimation(this, progressBar, percentageText, 0, 100, playButton);
         animation.setDuration(8000);
         progressBar.setAnimation(animation);
     }
 
-    public void updateDBData(){
+    public void updateDBData() {
         FirebaseDB fdb = new FirebaseDB();
         DatabaseHelper dbh = new DatabaseHelper(this);
 
-        //write in firebase
+        if (NetworkConnection.isNetworkAvailable(this)) {//if exist network connection
+
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {//if connect User
+                List<Category> allLocalCategory = dbh.selectAllCategory();//sync unlocked level
+                for (Category category : allLocalCategory) {
+                    fdb.selectUserLevel(category.getId(), new FirebaseDB.UnlockedLevelCallback() {
+                        @Override
+                        public void onUnlockedLevelReceived(int unlockedLevel) {
+                            if (unlockedLevel < category.getUnlockedLevel())
+                                fdb.saveUserLevel(category.getId(), category.getUnlockedLevel());//save in firebase
+                            else if (unlockedLevel > category.getUnlockedLevel()) {
+                                dbh.updateUnlockedLevel(category.getId(), unlockedLevel);//save in local db
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError error) {
+                            Log.d("Loading", error.toString());
+                        }
+                    });
+                }
+            }
+
+
+            //write in firebase
         /*List<Category> categoryList = dbh.selectAllCategory();//get all category
         for (Category category : categoryList){
             fdb.saveCategory(category);
@@ -101,46 +128,50 @@ public class LoadingActivity extends AppCompatActivity {
             fdb.saveLevel(level);
         }*/
 
-        fdb.getDBVersion(new FirebaseDB.DBVersionCallback() {//get db version from firebase
-            @Override
-            public void onDBVersionReceived(Long version) {
-                if (version != null) {
-                    if (version > dbh.getDbVersion()) {//update local db when exist new db version
-                        fdb.selectAllCategory(new FirebaseDB.CategoryCallback() {//select category from firebase
-                            @Override
-                            public void onCategoryListLoaded(List<Category> categories) {
-                                dbh.clearTable("Category");//clear category table data
+            fdb.getDBVersion(new FirebaseDB.DBVersionCallback() {//get db version from firebase
+                @Override
+                public void onDBVersionReceived(Long version) {
+                    if (version != null) {
+                        if (version > dbh.getDbVersion()) {//update local db when exist new db version
+                            fdb.selectAllCategory(new FirebaseDB.CategoryCallback() {//select category from firebase
+                                @Override
+                                public void onCategoryListLoaded(List<Category> categories) {
+                                /*dbh.clearTable("Category");//clear category table data
 
                                 for (Category category : categories) {//insert category from firebase
                                     dbh.addCategory(category);
+                                }*/
                                 }
-                            }
-                            @Override
-                            public void onCancelled(DatabaseError error) {
-                                Log.d("Loading", error.toString());
-                            }
-                        });
 
-                        fdb.selectAllLevel(new FirebaseDB.LevelCallback() {//select level from firebase
-                            @Override
-                            public void onLevelListLoaded(List<Level> levels) {
-                                dbh.clearTable("Level");//clear level table data
-
-                                for (Level level : levels) {//insert level from firebase
-                                    dbh.addLevel(level);
+                                @Override
+                                public void onCancelled(DatabaseError error) {
+                                    Log.d("Loading", error.toString());
                                 }
-                            }
-                            @Override
-                            public void onCancelled(DatabaseError error) {
-                                Log.d("Loading", error.toString());
-                            }
-                        });
+                            });
 
-                        //dbh.updateDbVersion(version);//update db version in local db
+                            fdb.selectAllLevel(new FirebaseDB.LevelCallback() {//select level from firebase
+                                @Override
+                                public void onLevelListLoaded(List<Level> levels) {
+                                    dbh.clearTable("Level");//clear level table data
+
+                                    for (Level level : levels) {//insert level from firebase
+                                        dbh.addLevel(level);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError error) {
+                                    Log.d("Loading", error.toString());
+                                }
+                            });
+
+
+                            //dbh.updateDbVersion(version);//update db version in local db
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
     public void setLanguage(Context context) {

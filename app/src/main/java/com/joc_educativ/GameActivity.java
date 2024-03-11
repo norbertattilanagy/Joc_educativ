@@ -19,8 +19,10 @@ import android.widget.ScrollView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.joc_educativ.CustomView.DrawGameView;
 import com.joc_educativ.Database.DatabaseHelper;
+import com.joc_educativ.Database.FirebaseDB;
 import com.joc_educativ.Database.Level;
 
 import java.util.ArrayList;
@@ -366,8 +368,18 @@ public class GameActivity extends AppCompatActivity {
         Button nextLeveButton = dialog.findViewById(R.id.nextLevelButton);
         Button homeButton = dialog.findViewById(R.id.homeButton);
 
-        if (verifyNextLevel() == -1)
+        if (verifyNextLevel() == -1)//if exist next level
             nextLeveButton.setVisibility(View.GONE);
+        else {
+            DatabaseHelper db = new DatabaseHelper(this);//save next unlocked level
+            Level level = db.selectLevelById(levelId);
+            int unlockedLevel = db.selectUnlockedLevel(level.getCategoryId());//select unlocked level nr
+
+            if (verifyNextLevel() > unlockedLevel) {
+                db.updateUnlockedLevel(level.getCategoryId(), verifyNextLevel());
+                saveLevelInFirebase(level.getCategoryId(), verifyNextLevel());
+            }
+        }
 
         retryButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -483,6 +495,13 @@ public class GameActivity extends AppCompatActivity {
             MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.put_object);//sound
             mediaPlayer.seekTo(0);
             mediaPlayer.start();
+        }
+    }
+
+    private void saveLevelInFirebase(int CategoryId,int unlockedLevel){
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            FirebaseDB fdb = new FirebaseDB();
+            fdb.saveUserLevel(CategoryId,unlockedLevel);
         }
     }
 }

@@ -18,7 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CategoryTable = "CREATE TABLE Category (id INTEGER PRIMARY KEY AUTOINCREMENT, Category Text)";
+        String CategoryTable = "CREATE TABLE Category (id INTEGER PRIMARY KEY AUTOINCREMENT, Category Text, UnlockedLevel INTEGER)";
         String LevelTable = "CREATE TABLE Level (id INTEGER PRIMARY KEY AUTOINCREMENT, Category INTEGER, Level INTEGER, MapXSize INTEGER, MapYSize INTEGER, Map TEXT)";
         String appData = "CREATE TABLE AppData (id INTEGER PRIMARY KEY AUTOINCREMENT, DBVersion FLOAT,AppVersion FLOAT)";
 
@@ -28,20 +28,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(appData);
 
         //insert category type
-        String insertCategory = "INSERT INTO Category (Category) VALUES ('cars'),('people'),('algorithm')";
+        String insertCategory = "INSERT INTO Category (Category,UnlockedLevel) VALUES ('cars',2),('people',1),('algorithm',1)";
         db.execSQL(insertCategory);
 
         //insert level type
         String insertLevel = "INSERT INTO Level (Category,Level,MapXSize,MapYSize,Map) VALUES " +
-                "(1,1,6,4,'RXXXXTCXTTXTRRRTXHRRRRRR')" +
-                ",(1,2,8,5,'TTTTTTTTRXXXXTTTCXTRXRTHRRRTXXXXRRTTTTTT')" +
-                ",(1,3,8,5,'TRRXXXTTRRXXRXTTCXXTTXXHRRRTTTTTRRTTTTTT')" +
-                ",(1,4,8,5,'XXXXXXXXXXXXXXXXCXXXXXXHXXXXXXXXXXXXXXXX')";/* +
-                ",(1,4,,,)" +
-                ",(1,5,,,)" +
-                ",(1,6,,,)" +
+                "(1,1,6,4,'RRTTTTRTTTTTCXXXXHTTTTTT')" +
+                ",(1,2,6,4,'RXXXXTCXTTXTRRRTXHRRRRRR')" +
+                ",(1,3,6,4,'RXXXTTRXTXTTCXRXXHRRRRRR')" +
+                ",(1,4,8,5,'TTTTTTTTRXXXXTTTCXTRXRTHRRRTXXXXRRTTTTTT')" +
+                ",(1,5,8,5,'TRRXXXTTRRXXRXTTCXXTTXXHRRRTTTTTRRTTTTTT')" +
+                ",(1,6,8,5,'XXXXXXXXXXXXXXXXCXXXXXXHXXXXXXXXXXXXXXXX')";/* +
+                ",(1,6,8,5,)" +
                 ",(1,7,,,)" +
-                ",(1,55,,,)";*/
+                ",(1,10,,,)";*/
         db.execSQL(insertLevel);
 
         String insertAppData = "INSERT INTO AppData (DBVersion,AppVersion) VALUES (0.1,0.1)";
@@ -99,8 +99,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             do {
                 int id = cursor.getInt(0);
                 String category = cursor.getString(1);
-
-                allCategory.add(new Category(id, category));
+                int unlockedLevel = cursor.getInt(2);
+                allCategory.add(new Category(id, category,unlockedLevel));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -121,6 +121,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (result == -1)
             return false;
         return true;
+    }
+
+    public int selectUnlockedLevel(int categoryId){
+        int unlockedLevel=1;
+        String getLevel = "SELECT UnlockedLevel FROM Category WHERE id = " + categoryId;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(getLevel, null);
+
+        if (cursor.moveToFirst()) {
+            unlockedLevel = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return unlockedLevel;
+    }
+
+    public void updateUnlockedLevel(int categoryId, int unlockedLevel){//save next unlocked level
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("UnlockedLevel", unlockedLevel);
+        db.update("Category", values, "id = ?", new String[]{String.valueOf(categoryId)});
+        db.close();
     }
 
     public List<Level> selectAllLevelByCategory(int categoryId) {
