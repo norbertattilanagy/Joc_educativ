@@ -17,12 +17,12 @@
         android:theme="@style/Theme.Joc_educativ"
         tools:targetApi="31">
         <activity
-            android:name=".CreateAccount"
+            android:name=".CreateAccountActivity"
             android:exported="false"
             android:screenOrientation="landscape"
             tools:ignore="Instantiatable" />
         <activity
-            android:name=".SignIn"
+            android:name=".LogInActivity"
             android:exported="false"
             android:screenOrientation="landscape"
             tools:ignore="Instantiatable" />

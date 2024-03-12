@@ -7,15 +7,13 @@
     android:background="@drawable/blue_sky_background"
     tools:context=".LoadingActivity">
 
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="128dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="128dp"
-        app:layout_constraintBottom_toTopOf="@+id/percentageText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -27,13 +25,13 @@
         android:layout_width="0dp"
         android:layout_height="20dp"
         android:layout_marginStart="128dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="128dp"
-        android:layout_marginBottom="150dp"
         android:progressDrawable="@drawable/progress_bar"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.499"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <TextView
         android:id="@+id/percentageText"
@@ -50,18 +48,34 @@
 
     <Button
         android:id="@+id/playButton"
-        android:layout_width="200sp"
+        android:layout_width="250sp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginTop="24dp"
         android:background="@drawable/button_enable"
         android:text="@string/play"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/white"
         android:textSize="34sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.499"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
+    <Button
+        android:id="@+id/logInButton"
+        android:layout_width="200sp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/button_enable"
+        android:text="@string/log_in"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.499"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/playButton" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -23,7 +23,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
-public class CreateAccount extends AppCompatActivity {
+public class CreateAccountActivity extends AppCompatActivity {
 
     private View decorView;
     private EditText emailEditText, password1EditText, password2EditText;
@@ -55,6 +55,7 @@ public class CreateAccount extends AppCompatActivity {
         createAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(CreateAccountActivity.this);
                 createAccount();
             }
         });
@@ -62,6 +63,7 @@ public class CreateAccount extends AppCompatActivity {
         signInLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(CreateAccountActivity.this);
                 openSignInActivity();
             }
         });
@@ -145,7 +147,7 @@ public class CreateAccount extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-                        Toast.makeText(CreateAccount.this, "Successful create account", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateAccountActivity.this, "Successful create account", Toast.LENGTH_SHORT).show();
                         openCategoryActivity();
                     } else {
                         if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {//incorrect email format
@@ -188,7 +190,7 @@ public class CreateAccount extends AppCompatActivity {
     }
 
     public void openSignInActivity() {//open sign in page
-        Intent intent = new Intent(this, SignIn.class);
+        Intent intent = new Intent(this, LogInActivity.class);
         startActivity(intent);
     }
 }

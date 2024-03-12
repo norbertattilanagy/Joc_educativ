@@ -1,9 +1,5 @@
 package com.joc_educativ;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
-import static kotlin.jvm.internal.Reflection.function;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +11,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -206,7 +201,7 @@ public class Settings {
             closeButton.performClick();
         } else {
             closeButton.performClick();//close dialog
-            Intent intent = new Intent(context, SignIn.class);
+            Intent intent = new Intent(context, LogInActivity.class);
             context.startActivity(intent);
         }
     }

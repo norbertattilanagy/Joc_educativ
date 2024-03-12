@@ -1,5 +1,6 @@
 package com.joc_educativ;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -30,11 +31,11 @@ public class LoadingActivity extends AppCompatActivity {
     private View decorView;
     private ProgressBar progressBar;
     private TextView percentageText;
-    private Button playButton;
+    private Button playButton,logInButton;
 
-    private Context context = this;
     List<Category> allCategory;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +45,7 @@ public class LoadingActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         percentageText = findViewById(R.id.percentageText);
         playButton = findViewById(R.id.playButton);
+        logInButton = findViewById(R.id.logInButton);
 
         decorView = getWindow().getDecorView();//hide system bars
 
@@ -52,8 +54,16 @@ public class LoadingActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SetingsPreferencis.playClickSound(context);
+                SetingsPreferencis.playClickSound(LoadingActivity.this);
                 openCategoryActivity();
+            }
+        });
+
+        logInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SetingsPreferencis.playClickSound(LoadingActivity.this);
+                openLogInActivity();
             }
         });
     }
@@ -79,11 +89,10 @@ public class LoadingActivity extends AppCompatActivity {
 
     private void progressAnimation() {
 
-        setLanguage(context);
-
+        setLanguage(LoadingActivity.this);
         updateDBData();
 
-        ProgressBarAnimation animation = new ProgressBarAnimation(this, progressBar, percentageText, 0, 100, playButton);
+        ProgressBarAnimation animation = new ProgressBarAnimation(this, progressBar, percentageText, 0, 100, playButton, logInButton);
         animation.setDuration(8000);
         progressBar.setAnimation(animation);
     }
@@ -116,17 +125,16 @@ public class LoadingActivity extends AppCompatActivity {
                 }
             }
 
-
             //write in firebase
-        /*List<Category> categoryList = dbh.selectAllCategory();//get all category
-        for (Category category : categoryList){
-            fdb.saveCategory(category);
-        }*/
+            /*List<Category> categoryList = dbh.selectAllCategory();//get all category
+            for (Category category : categoryList){
+                fdb.saveCategory(category);
+            }*/
 
-        /*List<Level> levelList = dbh.selectAllLevelByCategory(1);
-        for (Level level : levelList){
-            fdb.saveLevel(level);
-        }*/
+            /*List<Level> levelList = dbh.selectAllLevelByCategory(1);
+            for (Level level : levelList){
+                fdb.saveLevel(level);
+            }*/
 
             fdb.getDBVersion(new FirebaseDB.DBVersionCallback() {//get db version from firebase
                 @Override
@@ -165,7 +173,6 @@ public class LoadingActivity extends AppCompatActivity {
                                 }
                             });
 
-
                             //dbh.updateDbVersion(version);//update db version in local db
                         }
                     }
@@ -189,6 +196,12 @@ public class LoadingActivity extends AppCompatActivity {
 
     public void openCategoryActivity() {
         Intent intent = new Intent(this, CategoryMenuActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void openLogInActivity(){
+        Intent intent = new Intent(this,LogInActivity.class);
         startActivity(intent);
         finish();
     }

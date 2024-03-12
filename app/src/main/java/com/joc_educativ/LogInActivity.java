@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,12 +41,13 @@ import com.joc_educativ.Database.FirebaseDB;
 
 import java.util.List;
 
-public class SignIn extends AppCompatActivity {
+public class LogInActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 100;
     private View decorView;
     private EditText emailEditText, passwordEditText;
     private TextInputLayout emailTextInputLayout, passwordTextInputLayout;
+    private ImageButton backButton;
     private Button authenticationButton;
     private SignInButton googleSignInButton;
     private TextView createAccountLink;
@@ -53,13 +55,15 @@ public class SignIn extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     Boolean existEmail = true;
 
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_in);
+        setContentView(R.layout.activity_log_in);
         decorView = getWindow().getDecorView();//hide system bars
 
+        backButton = findViewById(R.id.backButton);
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         emailTextInputLayout = findViewById(R.id.emailTextInputLayout);
@@ -70,9 +74,18 @@ public class SignIn extends AppCompatActivity {
 
         emailTextInputLayout.setHelperTextEnabled(false);
 
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SetingsPreferencis.playClickSound(LogInActivity.this);
+                openCategoryActivity();
+            }
+        });
+
         authenticationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(LogInActivity.this);
                 // Close the keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -83,24 +96,25 @@ public class SignIn extends AppCompatActivity {
         createAccountLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(LogInActivity.this);
                 openCreateAccountActivity();
             }
         });
 
         //init firebase auth
         firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
         //configure the google sign in
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.client_id))
                 .requestEmail()
                 .build();
-        googleSignInClient = GoogleSignIn.getClient(SignIn.this, googleSignInOptions);
+        googleSignInClient = GoogleSignIn.getClient(LogInActivity.this, googleSignInOptions);
 
         googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SetingsPreferencis.playClickSound(LogInActivity.this);
                 signOutAndSignIn();
             }
         });
@@ -195,12 +209,11 @@ public class SignIn extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                             syncUnlockedLevel();
                             openCategoryActivity();
                         } else {
                             Log.d("SignIn", "fail ", task.getException());
-                            Toast.makeText(SignIn.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LogInActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -247,9 +260,9 @@ public class SignIn extends AppCompatActivity {
                     public void onUnlockedLevelReceived(int unlockedLevel) {
                         if (unlockedLevel < category.getUnlockedLevel())
                             fdb.saveUserLevel(category.getId(), category.getUnlockedLevel());//save in firebase
-                        else if (unlockedLevel > 2) {
-                            dbh.updateUnlockedLevel(category.getId(),2);
-                            //dbh.updateUnlockedLevel(category.getId(), unlockedLevel);//save in local db
+                        else if (unlockedLevel > category.getUnlockedLevel()) {
+                            //dbh.updateUnlockedLevel(category.getId(), 2);
+                            dbh.updateUnlockedLevel(category.getId(), unlockedLevel);//save in local db
                         }
                     }
 
@@ -269,7 +282,7 @@ public class SignIn extends AppCompatActivity {
     }
 
     public void openCreateAccountActivity() {
-        Intent intent = new Intent(this, CreateAccount.class);
+        Intent intent = new Intent(this, CreateAccountActivity.class);
         startActivity(intent);
     }
 }
