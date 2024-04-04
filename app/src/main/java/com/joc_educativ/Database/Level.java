@@ -8,14 +8,16 @@ public class Level {
     private int mapXSize;
     private int mapYSize;
     private String[][] map;
+    private String codeElement;
 
-    public Level(int id, int categoryId, int level, int mapXSize, int mapYSize, String[][] map) {
+    public Level(int id, int categoryId, int level, int mapXSize, int mapYSize, String[][] map, String codeElement) {
         this.id = id;
         this.categoryId = categoryId;
         this.level = level;
         this.mapXSize = mapXSize;
         this.mapYSize = mapYSize;
         this.map = map;
+        this.codeElement = codeElement;
     }
 
     public Level() {
@@ -82,5 +84,13 @@ public class Level {
 
     public void setMap(String[][] map) {
         this.map = map;
+    }
+
+    public String getCodeElement() {
+        return codeElement;
+    }
+
+    public void setCodeElement(String codeElement) {
+        this.codeElement = codeElement;
     }
 }

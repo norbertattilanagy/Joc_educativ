@@ -90,6 +90,7 @@ public class FirebaseDB {
         levelMap.put("mapXSize", level.getMapXSize());
         levelMap.put("mapYSize", level.getMapYSize());
         levelMap.put("map", mapString);
+        levelMap.put("codeElement",level.getCodeElement());
 
         //put map in db
         databaseReference.child("level").push().setValue(levelMap).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -128,6 +129,7 @@ public class FirebaseDB {
                             mapString = mapString.substring(1);//delete first character
                         }
                     level.setMap(map);
+                    level.setCodeElement(dataSnapshot.child("codeElement").getValue(String.class));
                     level.setKey(dataSnapshot.getKey());
 
                     allLevel.add(level);

@@ -12,6 +12,7 @@ import android.widget.ListView;
 import com.joc_educativ.Adaptors.LevelAdaptor;
 import com.joc_educativ.Database.DatabaseHelper;
 import com.joc_educativ.Database.Level;
+import com.joc_educativ.Game.MoveGameActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +93,7 @@ public class LevelMenuActivity extends AppCompatActivity {
     }
 
     public void openGameActivity(Context context,int levelId){
-        Intent intent = new Intent(context,GameActivity.class);
+        Intent intent = new Intent(context, MoveGameActivity.class);
         intent.putExtra("levelId",levelId);//pass the category id in LevelActivity class
         context.startActivity(intent);
     }

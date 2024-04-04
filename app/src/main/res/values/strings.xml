@@ -32,4 +32,6 @@
     <string name="not_contain_lower_case">Not contain lower case</string>
     <string name="not_contain_digit">Not contain digit</string>
     <string name="registered_email">This email has been registered</string>
+    <string name="jump">Jump</string>
+    <string name="repeat">"Repeat "</string>
 </resources>

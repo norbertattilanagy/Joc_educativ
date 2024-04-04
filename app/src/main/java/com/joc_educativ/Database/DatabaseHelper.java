@@ -18,8 +18,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CategoryTable = "CREATE TABLE Category (id INTEGER PRIMARY KEY AUTOINCREMENT, Category Text, UnlockedLevel INTEGER)";
-        String LevelTable = "CREATE TABLE Level (id INTEGER PRIMARY KEY AUTOINCREMENT, Category INTEGER, Level INTEGER, MapXSize INTEGER, MapYSize INTEGER, Map TEXT)";
+        String CategoryTable = "CREATE TABLE Category (id INTEGER PRIMARY KEY AUTOINCREMENT, Category TEXT, UnlockedLevel INTEGER)";
+        String LevelTable = "CREATE TABLE Level (id INTEGER PRIMARY KEY AUTOINCREMENT, Category INTEGER, Level INTEGER, MapXSize INTEGER, MapYSize INTEGER, Map TEXT, CodeElement TEXT)";
         String appData = "CREATE TABLE AppData (id INTEGER PRIMARY KEY AUTOINCREMENT, DBVersion FLOAT,AppVersion FLOAT)";
 
         //create table in db
@@ -32,15 +32,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(insertCategory);
 
         //insert level type
-        String insertLevel = "INSERT INTO Level (Category,Level,MapXSize,MapYSize,Map) VALUES " +
-                "(1,1,6,4,'RRTTTTRTTTTTCXXXXHTTTTTT')" +
-                ",(1,2,6,4,'RXXXXTCXTTXTRRRTXHRRRRRR')" +
-                ",(1,3,6,4,'RXXXTTRXTXTTCXRXXHRRRRRR')" +
-                ",(1,4,8,5,'TTTTTTTTRXXXXTTTCXTRXRTHRRRTXXXXRRTTTTTT')" +
-                ",(1,5,8,5,'TRRXXXTTRRXXRXTTCXXTTXXHRRRTTTTTRRTTTTTT')" +
-                ",(1,6,8,5,'XXXXXXXXXXXXXXXXCXXXXXXHXXXXXXXXXXXXXXXX')";/* +
-                ",(1,6,8,5,)" +
-                ",(1,7,,,)" +
+        String insertLevel = "INSERT INTO Level (Category,Level,MapXSize,MapYSize,Map, CodeElement) VALUES " +
+                "(1,1,6,4,'RRTTTTRTTTTTCXXXXHTTTTTT','right;')" +
+                ",(1,2,6,4,'RXXXXTCXTTXTRRRTXHRRRRRR','right;up;down;')" +
+                ",(1,3,6,4,'RXXXTTRXTXTTCXRXXHRRRRRR','right;up;down;')" +
+                ",(1,4,8,5,'TTTTTTTTRXXXXTTTCXTRXRTHRRRTXXXXRRTTTTTT','right;up;down;')" +
+                ",(1,5,8,5,'TRRXXXTTRRXXRXTTCXXTTXXHRRRTTTTTRRTTTTTT','right;up;down;')" +
+                ",(1,6,8,5,'XXXXXXXXXXXXXXXXCXXXXXXHXXXXXXXXXXXXXXXX','right;left;up;down;')" +
+                ",(2,1,6,4,'RRTTTTRTTTTTCXLXXHTTTTTT','right;jump;')";/* +
+                ",(2,7,,,)" +
                 ",(1,10,,,)";*/
         db.execSQL(insertLevel);
 
@@ -108,6 +108,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return allCategory;
     }
 
+    public Category selectCategoryById(int categoryId){
+        Category category = null;
+        String getLevel = "SELECT * FROM Category WHERE id = " + categoryId;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(getLevel, null);
+
+        if (cursor.moveToFirst()) {
+            int id = cursor.getInt(0);
+            String cat = cursor.getString(1);
+            int unlockedLevel = cursor.getInt(2);
+            category = new Category(id,cat,unlockedLevel);
+        }
+        cursor.close();
+        db.close();
+        return category;
+    }
+
     public boolean addCategory(Category category) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -161,6 +178,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 int mapXSize = cursor.getInt(3);//8
                 int mapYSize = cursor.getInt(4);//5
                 String mapText = cursor.getString(5);
+                String codeElement = cursor.getString(6);
 
                 String[][] map = new String[mapYSize][mapXSize];
                 int index = 0;
@@ -170,7 +188,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         mapText = mapText.substring(1);//delete first character
                     }
                 }
-                allLevelByCategory.add(new Level(id, category, level, mapXSize, mapYSize, map));
+                allLevelByCategory.add(new Level(id, category, level, mapXSize, mapYSize, map, codeElement));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -193,6 +211,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int mapXSize = cursor.getInt(3);
             int mapYSize = cursor.getInt(4);
             String mapText = cursor.getString(5);
+            String codeElement = cursor.getString(6);
 
             String[][] map = new String[mapYSize][mapXSize];
             for (int i = 0; i < mapYSize; i++)
@@ -201,7 +220,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     mapText = mapText.substring(1);//delete first character
                 }
 
-            levelModel = new Level(id, category, level, mapXSize, mapYSize, map);
+            levelModel = new Level(id, category, level, mapXSize, mapYSize, map, codeElement);
         }
         cursor.close();
         db.close();
@@ -239,6 +258,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put("MapXSize", level.getMapXSize());
         contentValues.put("MapYSize", level.getMapYSize());
         contentValues.put("Map", mapString);
+        contentValues.put("CodeElement",level.getCodeElement());
         long result = db.insert("Level", null, contentValues);
 
         if (result == -1)

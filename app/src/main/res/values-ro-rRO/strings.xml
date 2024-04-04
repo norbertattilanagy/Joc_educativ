@@ -10,7 +10,7 @@
     <string name="up">Sus</string>
     <string name="down">Jos</string>
     <string name="completed">Completat</string>
-    <string name="next_level">Nivelul următor</string>
+    <string name="next_level">Următorul</string>
     <string name="game_over">Game Over</string>
     <string name="settings">Setări</string>
     <string name="language">Română</string>
@@ -29,4 +29,6 @@
     <string name="not_contain_lower_case">Nu conține litere mici</string>
     <string name="not_contain_digit">Nu conține cifre</string>
     <string name="registered_email">Această adresă de email este înregistrat</string>
+    <string name="jump">Sari</string>
+    <string name="repeat">Repetă</string>
 </resources>

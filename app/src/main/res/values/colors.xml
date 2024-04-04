@@ -23,6 +23,10 @@
     <color name="code_yellow_selected">#FFEB3B</color>
     <color name="code_red">#FF3434</color>
     <color name="code_red_selected">#FF5252</color>
+    <color name="code_orange">#FF6822</color>
+    <color name="code_orange_selected">#FF8222</color>
+    <color name="code_purple">#9F9822FF</color>
+    <color name="code_purple_selected">#9FFF22FB</color>
     <color name="code_green">#47AA01</color>
     <color name="code_green_selected">#72AA48</color>
     <color name="code_blue">#4355FA</color>

@@ -37,7 +37,7 @@
             android:screenOrientation="landscape"
             tools:ignore="Instantiatable" />
         <activity
-            android:name=".GameActivity"
+            android:name=".Game.MoveGameActivity"
             android:exported="false"
             android:screenOrientation="landscape"
             tools:ignore="Instantiatable" />
