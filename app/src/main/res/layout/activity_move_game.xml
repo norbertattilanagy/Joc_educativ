@@ -84,16 +84,27 @@
 
     </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/scrollLeftButton"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/left_scroll_button"
+        android:src="@drawable/baseline_keyboard_arrow_left_48"
+        app:layout_constraintTop_toBottomOf="@+id/gameView"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <HorizontalScrollView
         android:id="@+id/codeElementScroll"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_marginHorizontal="32dp"
+        android:layout_marginHorizontal="56dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gameView"
-        android:visibility="visible">
+        android:visibility="visible"
+        app:layout_constraintEnd_toStartOf="@+id/scrollRightButton"
+        app:layout_constraintStart_toEndOf="@+id/scrollLeftButton"
+        app:layout_constraintTop_toBottomOf="@+id/gameView">
 
         <LinearLayout
             android:id="@+id/codeElementView"
@@ -186,8 +197,53 @@
                 android:drawableStart="@drawable/ic_baseline_360_48"
                 android:drawableEnd="@drawable/for_number_36"
                 android:onClick="addRepeat"
-                android:paddingEnd="16dp"
+                android:paddingEnd="8dp"
                 android:text="@string/repeat"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/endRepeatButton"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginHorizontal="8dp"
+                android:background="@drawable/code_for_element_default"
+                android:onClick="addEndRepeat"
+                android:text="@string/end_repeat"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/ifButton"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginHorizontal="8dp"
+                android:background="@drawable/code_if_element_default"
+                android:drawableStart="@drawable/ic_baseline_filter_alt_48"
+                android:drawableEnd="@drawable/if_condition_36"
+                android:onClick="addIf"
+                android:paddingEnd="8dp"
+                android:text="@string/condition"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/endIfButton"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginHorizontal="8dp"
+                android:background="@drawable/code_if_element_default"
+                android:onClick="addEndIf"
+                android:text="@string/end_condition"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="20sp"
@@ -196,14 +252,25 @@
         </LinearLayout>
     </HorizontalScrollView>
 
+    <ImageButton
+        android:id="@+id/scrollRightButton"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/right_scroll_button"
+        android:src="@drawable/baseline_keyboard_arrow_right_48"
+        app:layout_constraintTop_toBottomOf="@+id/gameView"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <HorizontalScrollView
         android:id="@+id/nrElementScroll"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_marginHorizontal="32dp"
+        android:layout_marginHorizontal="56dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/scrollRightButton"
+        app:layout_constraintStart_toEndOf="@+id/scrollLeftButton"
         app:layout_constraintTop_toBottomOf="@+id/gameView"
         android:visibility="gone">
 
@@ -224,7 +291,7 @@
                 android:text="1"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/nr2Button"
@@ -237,7 +304,7 @@
                 android:text="2"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/nr3Button"
@@ -250,7 +317,7 @@
                 android:text="3"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/nr4Button"
@@ -263,7 +330,7 @@
                 android:text="4"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/nr5Button"
@@ -276,7 +343,7 @@
                 android:text="5"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/nr6Button"
@@ -289,7 +356,7 @@
                 android:text="6"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/nr7Button"
@@ -302,7 +369,7 @@
                 android:text="7"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/nr8Button"
@@ -315,7 +382,7 @@
                 android:text="8"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/nr9Button"
@@ -328,7 +395,22 @@
                 android:text="9"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/logButton"
+                android:layout_width="84dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginHorizontal="8dp"
+                android:background="@drawable/code_number_element"
+                android:onClick="addLog"
+                android:text="@string/log"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
 
         </LinearLayout>
     </HorizontalScrollView>

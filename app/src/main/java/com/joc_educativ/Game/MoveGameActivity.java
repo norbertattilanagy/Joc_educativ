@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.util.TypedValue;
 import android.view.DragEvent;
@@ -43,17 +44,23 @@ public class MoveGameActivity extends AppCompatActivity {
     public LinearLayout codeView;
     ScrollView codeScrollView;
     HorizontalScrollView codeElementScroll, nrElementScroll;
+    ImageButton scrollLeftButton, scrollRightButton;
     ImageButton homeButton, playButton, stopButton;
-    Button rightButton, leftButton, upButton, downButton, jumpButton, repeatButton;
+    Button rightButton, leftButton, upButton, downButton, jumpButton, repeatButton, endRepeatButton, ifButton, endIfButton;
     Button nr1Button, nr2Button, nr3Button, nr4Button, nr5Button, nr6Button, nr7Button, nr8Button, nr9Button;
+
+    Button logButton;
     private int btnOrderInList = -1, btnOrderInCode = -1;
     private static int levelId;
     public static int x, y;
     public static Thread animationThread;
     public boolean isRunning = true;
+    boolean gameOver = false;
+    boolean isScrolling = false;
+    private Handler scrollHandler = new Handler();
     List<String> executeCodeList = new ArrayList<>();
 
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +76,9 @@ public class MoveGameActivity extends AppCompatActivity {
         codeElementScroll = findViewById(R.id.codeElementScroll);
         nrElementScroll = findViewById(R.id.nrElementScroll);
 
+        scrollLeftButton = findViewById(R.id.scrollLeftButton);
+        scrollRightButton = findViewById(R.id.scrollRightButton);
+
         homeButton = findViewById(R.id.homeButton);
         playButton = findViewById(R.id.playButton);
         stopButton = findViewById(R.id.stopButton);
@@ -79,6 +89,9 @@ public class MoveGameActivity extends AppCompatActivity {
         downButton = findViewById(R.id.downButton);
         jumpButton = findViewById(R.id.jumpButton);
         repeatButton = findViewById(R.id.repeatButton);
+        endRepeatButton = findViewById(R.id.endRepeatButton);
+        ifButton = findViewById(R.id.ifButton);
+        endIfButton = findViewById(R.id.endIfButton);
 
         nr1Button = findViewById(R.id.nr1Button);
         nr2Button = findViewById(R.id.nr2Button);
@@ -89,6 +102,8 @@ public class MoveGameActivity extends AppCompatActivity {
         nr7Button = findViewById(R.id.nr7Button);
         nr8Button = findViewById(R.id.nr8Button);
         nr9Button = findViewById(R.id.nr9Button);
+
+        logButton = findViewById(R.id.logButton);
 
         gameView.setLevelId(levelId);
 
@@ -121,6 +136,39 @@ public class MoveGameActivity extends AppCompatActivity {
                     isRunning = false;
                     animationThread = null;
                 }
+            }
+        });
+
+        scrollLeftButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        isScrolling = true;
+                        scrollLeft();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        isScrolling = false;
+                        break;
+                }
+                return true;
+            }
+        });
+        scrollRightButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        System.out.println("ACTION_DOWN=");
+                        isScrolling = true;
+                        scrollRight();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        System.out.println("ACTION_UP=");
+                        isScrolling = false;
+                        break;
+                }
+                return true;
             }
         });
 
@@ -157,6 +205,27 @@ public class MoveGameActivity extends AppCompatActivity {
         });
 
         repeatButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+
+        endRepeatButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+
+        ifButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+
+        endIfButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 return moveCodeElement(view, motionEvent);
@@ -226,9 +295,17 @@ public class MoveGameActivity extends AppCompatActivity {
             }
         });
 
+        logButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+
         codeView.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View view, DragEvent dragEvent) {
+
                 Button draggedButton = (Button) dragEvent.getLocalState();
 
                 //if draggedButton.getTag() != null then is from codeView
@@ -236,12 +313,14 @@ public class MoveGameActivity extends AppCompatActivity {
                     addNewElementInCode(view, dragEvent);
                 }
                 //remove element from code
-                if (dragEvent.getAction() == DragEvent.ACTION_DRAG_EXITED && draggedButton.getTag() != null && codeView.getChildCount() > 0) {
-
+                if (dragEvent.getAction() == DragEvent.ACTION_DRAG_EXITED && draggedButton.getTag() != null && codeView.getChildCount() > 0
+                        && (nrElementScroll.getVisibility() == View.GONE || draggedButton.getText().equals(getString(R.string.repeat)) || draggedButton.getText().equals(getString(R.string.condition)))) {
                     if (draggedButton.getParent() instanceof ConstraintLayout) {
-                        int locCodeView =codeView.indexOfChild((ConstraintLayout) draggedButton.getParent());
+                        int locCodeView = codeView.indexOfChild((ConstraintLayout) draggedButton.getParent());
                         int loc = getRepeatLocationInCode(codeView.indexOfChild((ConstraintLayout) draggedButton.getParent()));//get repeat location in executeCodeList
-                        if (draggedButton.getText().equals(getString(R.string.repeat))) {
+                        if (draggedButton.getText().equals(getString(R.string.repeat)) || draggedButton.getText().equals(getString(R.string.condition))) {
+
+                            //remove repeat/if button
                             ConstraintLayout constraintLayout = (ConstraintLayout) draggedButton.getParent();
                             if (constraintLayout.getChildCount() > 1) {
                                 executeCodeList.remove(codeView.indexOfChild((ConstraintLayout) draggedButton.getParent()) + loc + 1);//remove the nr from for
@@ -249,27 +328,19 @@ public class MoveGameActivity extends AppCompatActivity {
                             executeCodeList.remove(codeView.indexOfChild((ConstraintLayout) draggedButton.getParent()) + loc);//remove for
                             codeView.removeView((ConstraintLayout) draggedButton.getParent());//remove for parent, ConstraintLayout, from code View
 
-                            //realign the button
+                            //remove end button
+                            if (getEndIndex(loc, 1) != -1) {//if exist end button
+                                int repeatIndex = getEndIndex(loc, 1);
+                                codeView.removeView(codeView.getChildAt(getCodeViewIndex(repeatIndex)));
+                                executeCodeList.remove(repeatIndex);
+                            }
 
-                            while (codeView.getChildAt(locCodeView) instanceof ConstraintLayout){
-                                ConstraintLayout con = (ConstraintLayout) codeView.getChildAt(locCodeView);
-                                //set left margin
-                                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) con.getLayoutParams();
-                                layoutParams.leftMargin = (int) (layoutParams.leftMargin - 40 * getResources().getDisplayMetrics().density + 0.5f);
-                                con.setLayoutParams(layoutParams);
-                                locCodeView++;
-                            }
-                            if (codeView.getChildAt(locCodeView) != null) {
-                                //set left margin for next button after repeat
-                                Button button = (Button) codeView.getChildAt(locCodeView);
-                                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) button.getLayoutParams();
-                                layoutParams.leftMargin = (int) (layoutParams.leftMargin - 40 * getResources().getDisplayMetrics().density + 0.5f);
-                                button.setLayoutParams(layoutParams);
-                            }
+                            realign();//realign the button
 
                         } else if (draggedButton.getText().equals("1") || draggedButton.getText().equals("2") || draggedButton.getText().equals("3")
                                 || draggedButton.getText().equals("4") || draggedButton.getText().equals("5") || draggedButton.getText().equals("6")
-                                || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")) {
+                                || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")
+                                || draggedButton.getText().equals(getString(R.string.log))) {
 
                             btnOrderInList = codeView.indexOfChild((ConstraintLayout) draggedButton.getParent()) + loc + 1;
                             executeCodeList.remove(btnOrderInList);//remove the nr from executeCodeList
@@ -277,8 +348,10 @@ public class MoveGameActivity extends AppCompatActivity {
                             ((ConstraintLayout) draggedButton.getParent()).removeView(draggedButton);//remove nr from codeView
 
                         }
+                    } else if (draggedButton.getText().equals(getString(R.string.end_repeat)) || draggedButton.getText().equals(getString(R.string.end_condition))) {
+                        removeAfter(draggedButton);//remove all element after dragged button
                     } else {
-                        executeCodeList.remove(codeView.indexOfChild(draggedButton));
+                        executeCodeList.remove(getExecuteCodeListIndex(codeView.indexOfChild(draggedButton)));
                         codeView.removeView(draggedButton);
                     }
                     putObjectSound();
@@ -286,7 +359,8 @@ public class MoveGameActivity extends AppCompatActivity {
                     //if remove nr button
                     if (draggedButton.getText().equals("1") || draggedButton.getText().equals("2") || draggedButton.getText().equals("3")
                             || draggedButton.getText().equals("4") || draggedButton.getText().equals("5") || draggedButton.getText().equals("6")
-                            || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")) {
+                            || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")
+                            || draggedButton.getText().equals(getString(R.string.log))) {
                         nrElementScroll.setVisibility(View.VISIBLE);
                         codeElementScroll.setVisibility(View.GONE);
                     } else {
@@ -352,23 +426,34 @@ public class MoveGameActivity extends AppCompatActivity {
                         }
                     });
 
-                    //set default background for code element
-                    int finalJ = j;
+                    //set select background for code element
+                    final int finalJ = j;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            int k = 0;
-                            while (codeView.getChildAt(finalJ + k) instanceof ConstraintLayout) {//if repeat button
-                                ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(finalJ + k);
-                                Button btn = (Button) constraintLayout.getChildAt(0);
-                                codeElementSelect(btn, executeCodeList.get(currentIndex + 2 * k));
-                                k++;
-                            }
-                            if (k > 0) {//if repeat button
-                                Button btn = (Button) codeView.getChildAt(k);
-                                codeElementSelect(btn, executeCodeList.get(currentIndex + 2 * k));
-                            }
                             codeElementSelect(button, executeCodeList.get(currentIndex));
+                            int btnNr = 0;
+                            int repeatNr = 0;//number from repeat
+                            while (finalJ + btnNr < codeView.getChildCount() && (codeView.getChildAt(finalJ + btnNr).getLeft() > 0 || codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout)) {//if repeat button
+                                if (codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout) {
+                                    ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(finalJ + btnNr);
+                                    Button btn = (Button) constraintLayout.getChildAt(0);
+                                    codeElementSelect(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
+                                    repeatNr++;
+                                } else {
+                                    Button btn = (Button) codeView.getChildAt(finalJ + btnNr);
+                                    codeElementSelect(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
+                                }
+                                btnNr++;
+                            }
+                            if (codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout) {
+                                ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(finalJ + btnNr);
+                                Button btn = (Button) constraintLayout.getChildAt(0);
+                                codeElementSelect(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
+                            } else if (currentIndex + btnNr + repeatNr < executeCodeList.size()) {//if not OutOfBandsException
+                                Button btn = (Button) codeView.getChildAt(finalJ + btnNr);
+                                codeElementSelect(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
+                            }
                         }
                     });
 
@@ -390,49 +475,62 @@ public class MoveGameActivity extends AppCompatActivity {
                             jump(level.getMap());
                             break;
                         case "repeat":
-                            repeat(Integer.parseInt(executeCodeList.get(i + 1)), executeCodeList.get(i + 2), level);
-                            int repeatNr = getConsecutiveRepeatNr(i);
-                            i = i + repeatNr * 2;
-                            j += repeatNr;
+                            gameOver = repeat(Integer.parseInt(executeCodeList.get(i + 1)), i, level);
+                            i = getEndIndex(i, 0);
+                            j = getCodeViewIndex(i);
+                            break;
+                        case "if":
+                            gameOver = condition(i, level);
+                            i = getEndIndex(i, 0);
+                            j = getCodeViewIndex(i);
                             break;
                     }
 
-                    //run operations on the main thread
-                    runOnUiThread(new Runnable() {//verify game over / completed game
-                        @Override
-                        public void run() {
-                            if (level.getMap()[y][x].equals("R")
-                                    || level.getMap()[y][x].equals("T")
-                                    || (level.getMap()[y][x].equals("L") && !executeCodeList.get(currentIndex).equals("jump"))) {//game over
-                                isRunning = false;
-                                animationThread = null;
-                                gameOver(MoveGameActivity.this);
-                            } else if (level.getMap()[y][x].equals("H")) {//completed
-                                isRunning = false;
-                                animationThread = null;
-                                completed(MoveGameActivity.this);
-                            }
-                        }
-                    });
+                    moveAndWait(500);
 
-                    moveAndWait(1000);
+
+                    //run operations on the main thread
+                    final int finalI = i;
+
+                    if (gameOver || ifGameOver(level, i)) {//game over
+                        isRunning = false;
+                        animationThread = null;
+                        gameOver(MoveGameActivity.this);
+                    } else if (level.getMap()[y][x].equals("H")) {//completed
+                        isRunning = false;
+                        animationThread = null;
+                        completed(MoveGameActivity.this);
+                    }
+
 
                     //set default background for code element
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            int k = 0;
-                            while (codeView.getChildAt(finalJ + k) instanceof ConstraintLayout) {
-                                ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(finalJ + k);
-                                Button btn = (Button) constraintLayout.getChildAt(0);
-                                codeElementDefault(btn, executeCodeList.get(currentIndex + 2 * k));
-                                k++;
-                            }
-                            if (k > 0) {//if repeat button
-                                Button btn = (Button) codeView.getChildAt(k);
-                                codeElementDefault(btn, executeCodeList.get(currentIndex + 2 * k));
-                            }
                             codeElementDefault(button, executeCodeList.get(currentIndex));
+                            int btnNr = 0;
+                            int repeatNr = 0;//number from repeat
+                            while (finalJ + btnNr < codeView.getChildCount() && (codeView.getChildAt(finalJ + btnNr).getLeft() > 0 || codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout)) {//if repeat button
+                                if (codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout) {
+                                    ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(finalJ + btnNr);
+                                    Button btn = (Button) constraintLayout.getChildAt(0);
+                                    codeElementDefault(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
+                                    repeatNr++;
+                                } else {
+                                    Button btn = (Button) codeView.getChildAt(finalJ + btnNr);
+                                    codeElementDefault(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
+                                }
+                                btnNr++;
+                            }
+                            if (codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout) {
+                                ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(finalJ + btnNr);
+                                Button btn = (Button) constraintLayout.getChildAt(0);
+                                codeElementDefault(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
+                            } else if (currentIndex + btnNr + repeatNr < executeCodeList.size()) {//if not OutOfBandsException
+                                Button btn = (Button) codeView.getChildAt(finalJ + btnNr);
+                                codeElementDefault(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
+                            }
+
                         }
                     });
 
@@ -506,31 +604,104 @@ public class MoveGameActivity extends AppCompatActivity {
         gameView.redraw(x, y, jump);
     }
 
-    private void repeat(int n, String code, Level level) {
-
-        for (int j = 0; j < n; j++) {
-            switch (code) {
-                case "right":
-                    right(level.getMap());
-                    break;
-                case "left":
-                    left();
-                    break;
-                case "up":
-                    up();
-                    break;
-                case "down":
-                    down(level.getMap());
-                    break;
-                case "jump":
-                    jump(level.getMap());
-                    break;
-                case "repeat":
-                    repeat(Integer.parseInt(executeCodeList.get(n + 2)), executeCodeList.get(n + 3), level);
-                    break;
-            }
-            moveAndWait(1000);
+    private boolean verifyIfLog(String[][] map) {
+        if (x + 1 < map[y].length && map[y][x + 1].equals("L")) {
+            return true;
+        } else if (x > 0 && map[y][x - 1].equals("L")) {
+            return true;
+        } else if (y + 1 < map.length && map[y + 1][x].equals("L")) {
+            return true;
+        } else if (y > 0 && map[y - 1][x].equals("L")) {
+            return true;
         }
+        return false;
+    }
+
+    private boolean repeat(int n, int startIndex, Level level) {
+        startIndex += 2;
+        for (int j = 0; j < n; j++) {
+            int index = startIndex;
+            while (index < executeCodeList.size() && !executeCodeList.get(index).equals("endRepeat")) {
+                switch (executeCodeList.get(index)) {
+                    case "right":
+                        right(level.getMap());
+                        break;
+                    case "left":
+                        left();
+                        break;
+                    case "up":
+                        up();
+                        break;
+                    case "down":
+                        down(level.getMap());
+                        break;
+                    case "jump":
+                        jump(level.getMap());
+                        break;
+                    case "repeat":
+                        if (repeat(Integer.parseInt(executeCodeList.get(n + 2)), index, level))
+                            return true;
+                        index = getEndIndex(index, 0);
+                        break;
+                    case "if":
+                        if (condition(index, level)) {
+                            return true;
+                        }
+                        index = getEndIndex(index, 0);
+                        break;
+                }
+                moveAndWait(500);
+
+                if (ifGameOver(level, index)) {
+                    return true;
+                }
+                index++;
+            }
+        }
+        return false;
+    }
+
+    private boolean condition(int startIndex, Level level) {
+        String cond = executeCodeList.get(startIndex + 1);
+        startIndex += 2;
+
+        if (verifyIfLog(level.getMap()) && cond.equals("log")) {//verify condition
+            while (startIndex < executeCodeList.size() && !executeCodeList.get(startIndex).equals("endIf")) {
+                switch (executeCodeList.get(startIndex)) {
+                    case "right":
+                        right(level.getMap());
+                        break;
+                    case "left":
+                        left();
+                        break;
+                    case "up":
+                        up();
+                        break;
+                    case "down":
+                        down(level.getMap());
+                        break;
+                    case "jump":
+                        jump(level.getMap());
+                        break;
+                    case "repeat":
+                        if (repeat(Integer.parseInt(executeCodeList.get(startIndex + 1)), startIndex, level))
+                            return true;
+                        startIndex = getEndIndex(startIndex, 0);
+                        break;
+                    case "if":
+                        if (condition(startIndex, level))
+                            return true;
+                        startIndex = getEndIndex(startIndex, 0);
+                        break;
+                }
+                moveAndWait(500);
+                if (ifGameOver(level, startIndex)) {
+                    return true;
+                }
+                startIndex++;
+            }
+        }
+        return false;
     }
 
     private void reset() {
@@ -559,6 +730,14 @@ public class MoveGameActivity extends AppCompatActivity {
             case "repeat":
                 button.setBackgroundResource(R.drawable.code_for_element_selected);
                 break;
+            case "endRepeat":
+                button.setBackgroundResource(R.drawable.code_for_element_selected);
+                break;
+            case "if":
+                button.setBackgroundResource(R.drawable.code_if_element_selected);
+                break;
+            case "endIf":
+                button.setBackgroundResource(R.drawable.code_if_element_selected);
         }
     }
 
@@ -583,6 +762,14 @@ public class MoveGameActivity extends AppCompatActivity {
             case "repeat":
                 button.setBackgroundResource(R.drawable.code_for_element_default);
                 break;
+            case "endRepeat":
+                button.setBackgroundResource(R.drawable.code_for_element_default);
+                break;
+            case "if":
+                button.setBackgroundResource(R.drawable.code_if_element_default);
+                break;
+            case "endIf":
+                button.setBackgroundResource(R.drawable.code_if_element_default);
         }
     }
 
@@ -617,8 +804,9 @@ public class MoveGameActivity extends AppCompatActivity {
                 case "jump":
                     jumpButton.setVisibility(View.VISIBLE);
                     break;
-                case "for":
+                case "repeat":
                     repeatButton.setVisibility(View.VISIBLE);
+                    endRepeatButton.setVisibility(View.VISIBLE);
                     nr1Button.setVisibility(View.VISIBLE);
                     nr2Button.setVisibility(View.VISIBLE);
                     nr3Button.setVisibility(View.VISIBLE);
@@ -629,9 +817,23 @@ public class MoveGameActivity extends AppCompatActivity {
                     nr8Button.setVisibility(View.VISIBLE);
                     nr9Button.setVisibility(View.VISIBLE);
                     break;
-
+                case "if":
+                    ifButton.setVisibility(View.VISIBLE);
+                    endIfButton.setVisibility(View.VISIBLE);
+                    logButton.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    private boolean ifGameOver(Level level, int index) {
+        if (level.getMap()[y][x].equals("R")
+                || level.getMap()[y][x].equals("T")
+                || (level.getMap()[y][x].equals("L") && !executeCodeList.get(index).equals("jump")
+                && !executeCodeList.get(index).equals("if") && !executeCodeList.get(index).equals("endIf")
+                && !executeCodeList.get(index).equals("repeat") && !executeCodeList.get(index).equals("endRepeat"))) {
+            return true;
+        }
+        return false;
     }
 
     public void gameOver(Context context) {
@@ -647,72 +849,83 @@ public class MoveGameActivity extends AppCompatActivity {
             mediaPlayer.start();
         }
 
-        Dialog dialog = new Dialog(context, R.style.CustomDialog);
-        dialog.setContentView(R.layout.game_over_dialog);
-        dialog.setCancelable(false);
-
-        Button retryButton = dialog.findViewById(R.id.retryButton);
-        Button homeButton = dialog.findViewById(R.id.homeButton);
-
-        retryButton.setOnClickListener(new View.OnClickListener() {
+        runOnUiThread(new Runnable() {//verify game over / completed game
             @Override
-            public void onClick(View view) {
-                dialog.cancel();
+            public void run() {
+                Dialog dialog = new Dialog(context, R.style.CustomDialog);
+                dialog.setContentView(R.layout.game_over_dialog);
+                dialog.setCancelable(false);
+
+                Button retryButton = dialog.findViewById(R.id.retryButton);
+                Button homeButton = dialog.findViewById(R.id.homeButton);
+
+                retryButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.cancel();
+                    }
+                });
+
+                homeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        openLevelActivity();
+                    }
+                });
+                dialog.show();//open dialog
             }
         });
-
-        homeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openLevelActivity();
-            }
-        });
-        dialog.show();//open dialog
     }
 
     private void completed(Context context) {
-        Dialog dialog = new Dialog(context, R.style.CustomDialog);
-        dialog.setContentView(R.layout.completed_dialog);
-        dialog.setCancelable(false);
-
-        Button retryButton = dialog.findViewById(R.id.retryButton);
-        Button nextLeveButton = dialog.findViewById(R.id.nextLevelButton);
-        Button homeButton = dialog.findViewById(R.id.homeButton);
-
-        if (verifyNextLevel() == -1)//if exist next level
-            nextLeveButton.setVisibility(View.GONE);
-        else {
-            DatabaseHelper db = new DatabaseHelper(this);//save next unlocked level
-            Level level = db.selectLevelById(levelId);
-            int unlockedLevel = db.selectUnlockedLevel(level.getCategoryId());//select unlocked level nr
-
-            if (verifyNextLevel() > unlockedLevel) {
-                db.updateUnlockedLevel(level.getCategoryId(), verifyNextLevel());
-                saveLevelInFirebase(level.getCategoryId(), verifyNextLevel());
-            }
-        }
-
-        retryButton.setOnClickListener(new View.OnClickListener() {
+        runOnUiThread(new Runnable() {//verify game over / completed game
             @Override
-            public void onClick(View view) {
-                dialog.cancel();
+            public void run() {
+                Dialog dialog = new Dialog(context, R.style.CustomDialog);
+                dialog.setContentView(R.layout.completed_dialog);
+                dialog.setCancelable(false);
+
+                Button retryButton = dialog.findViewById(R.id.retryButton);
+                Button nextLeveButton = dialog.findViewById(R.id.nextLevelButton);
+                Button homeButton = dialog.findViewById(R.id.homeButton);
+
+                if (verifyNextLevel() == -1)//if exist next level
+                    nextLeveButton.setVisibility(View.GONE);
+                else {
+                    DatabaseHelper db = new DatabaseHelper(MoveGameActivity.this);//save next unlocked level
+                    Level level = db.selectLevelById(levelId);
+                    int unlockedLevel = db.selectUnlockedLevel(level.getCategoryId());//select unlocked level nr
+
+                    if (verifyNextLevel() > unlockedLevel) {
+                        db.updateUnlockedLevel(level.getCategoryId(), verifyNextLevel());
+                        saveLevelInFirebase(level.getCategoryId(), verifyNextLevel());
+                    }
+                }
+
+                retryButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.cancel();
+                    }
+                });
+
+                nextLeveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        openNextLevel();
+                    }
+                });
+
+                homeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        openLevelActivity();
+                    }
+                });
+                dialog.show();//open dialog
             }
         });
 
-        nextLeveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openNextLevel();
-            }
-        });
-
-        homeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openLevelActivity();
-            }
-        });
-        dialog.show();//open dialog
     }
 
     private int verifyNextLevel() {
@@ -766,35 +979,44 @@ public class MoveGameActivity extends AppCompatActivity {
         copiedButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, draggedButton.getTextSize());//textSize
         copiedButton.setTag(true);//is from codeView
 
-        if (executeCodeList.size() > 1 && executeCodeList.get(executeCodeList.size() - 2).equals("repeat")) {
-
-            //set left margin +40dp than the previous
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(draggedButton.getWidth(), draggedButton.getHeight());
-            layoutParams.leftMargin = (int) (getRepeatNr(false) * 40 * getResources().getDisplayMetrics().density + 0.5f);
-            copiedButton.setLayoutParams(layoutParams);
-        }
-
         if (draggedButton.getText().equals("1") || draggedButton.getText().equals("2") || draggedButton.getText().equals("3")
                 || draggedButton.getText().equals("4") || draggedButton.getText().equals("5") || draggedButton.getText().equals("6")
                 || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")) {
             Button repeatButton;
             if (btnOrderInList == -1) {
-                repeatButton = getLastRepeatButton(codeView);
+                repeatButton = getLastButton(codeView);
             } else {
                 ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(btnOrderInCode);
                 repeatButton = (Button) constraintLayout.getChildAt(0);
             }
             placeNrButtonOnRepeatButton(repeatButton, copiedButton);
+        } else if (draggedButton.getText().equals(getString(R.string.log))) {
+            Button ifButton;
+            if (btnOrderInList == -1) {
+                ifButton = getLastButton(codeView);
+            } else {
+                ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(btnOrderInCode);
+                ifButton = (Button) constraintLayout.getChildAt(0);
+            }
+            placeButtonOnIfButton(ifButton, copiedButton);
         } else {
             codeView.addView(copiedButton);
         }
 
+        realign();
+
         if (btnOrderInList != -1) {
-            addNr(draggedButton, btnOrderInList);
+            if (draggedButton.getText().equals("1") || draggedButton.getText().equals("2") || draggedButton.getText().equals("3")
+                    || draggedButton.getText().equals("4") || draggedButton.getText().equals("5") || draggedButton.getText().equals("6")
+                    || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")) {
+                addNr(draggedButton, btnOrderInList);
+            } else {//if button
+                addCondition(draggedButton, btnOrderInList);
+            }
         } else {
             draggedButton.performClick();//add command in executeCodeList
         }
-
+        System.out.println("ex=" + executeCodeList);
         copiedButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -802,7 +1024,7 @@ public class MoveGameActivity extends AppCompatActivity {
             }
         });
 
-        if (draggedButton.getText().equals(getString(R.string.repeat))) {
+        if (draggedButton.getText().equals(getString(R.string.repeat)) || draggedButton.getText().equals(getString(R.string.condition))) {
             codeElementScroll.setVisibility(View.GONE);
             nrElementScroll.setVisibility(View.VISIBLE);
         } else {
@@ -845,17 +1067,32 @@ public class MoveGameActivity extends AppCompatActivity {
         executeCodeList.add("repeat");
     }
 
+    public void addEndRepeat(View view) {
+        executeCodeList.add("endRepeat");
+    }
+
     public void addNr(View view) {
         Button button = (Button) view;
         executeCodeList.add(button.getText().toString());
     }
 
-    public void addNr(View view, int order) {
+    public void addIf(View view) {
+        executeCodeList.add("if");
+    }
 
+    public void addEndIf(View view) {
+        executeCodeList.add("endIf");
+    }
+
+    public void addLog(View view) {
+        executeCodeList.add("log");
+    }
+
+    public void addNr(View view, int order) {
         Button button = (Button) view;
         if (order < executeCodeList.size()) {//if put in last position
             executeCodeList.add(executeCodeList.get(executeCodeList.size() - 1));//set last position
-            for (int i = executeCodeList.size() - 2; i > order; i--)
+            for (int i = executeCodeList.size() - 2; i >= order; i--)
                 executeCodeList.set(i + 1, executeCodeList.get(i));//move 1 position
             executeCodeList.set(order, button.getText().toString());//add nr
         } else {
@@ -865,20 +1102,43 @@ public class MoveGameActivity extends AppCompatActivity {
         btnOrderInCode = -1;
     }
 
-    private Button getLastRepeatButton(LinearLayout view) {
-        Button lastRepeatButton = null;
+    public void addCondition(View view, int order) {
+        Button button = (Button) view;
+        if (order < executeCodeList.size()) {//if put in last position
+            executeCodeList.add(executeCodeList.get(executeCodeList.size() - 1));//set last position
+            for (int i = executeCodeList.size() - 2; i >= order; i--)
+                executeCodeList.set(i + 1, executeCodeList.get(i));//move 1 position
+
+            executeCodeList.set(order, getExecuteCodeFromButton(button));
+        } else {
+            executeCodeList.add(getExecuteCodeFromButton(button));
+        }
+        btnOrderInList = -1;
+        btnOrderInCode = -1;
+    }
+
+    private String getExecuteCodeFromButton(Button button) {//return execute code list text
+        String text = "";
+        if (button.getText().equals(getString(R.string.log))) {
+            text = "log";
+        }
+        return text;
+    }
+
+    private Button getLastButton(LinearLayout view) {
+        Button lastButton = null;
         int childCount = view.getChildCount();
         for (int i = childCount - 1; i >= 0; i--) {
             View childView = view.getChildAt(i);
             if (childView instanceof Button) {
                 Button button = (Button) childView;
                 if (button.getTag() != null && (boolean) button.getTag()) {
-                    lastRepeatButton = button;
+                    lastButton = button;
                     break;
                 }
             }
         }
-        return lastRepeatButton;
+        return lastButton;
     }
 
     private int getRepeatLocationInCode(int btnOrder) {
@@ -895,26 +1155,71 @@ public class MoveGameActivity extends AppCompatActivity {
         return nr;
     }
 
-    private int getRepeatNr(boolean redraw) {//get consecutive repeat for space
-        int nr = 0;
-        int j = executeCodeList.size() - 2;
-        if (redraw)//the button if exist in list
-            j--;
-
-        while (j >= 0 && executeCodeList.get(j).equals("repeat")) {//get repeat nr
-            nr++;
-            j -= 2;//next for and nr
+    private int getEndIndex(int start, int repeatNr) {
+        int index = -1;
+        for (int i = start; i < executeCodeList.size(); i++) {
+            if (executeCodeList.get(i).equals("repeat") || executeCodeList.get(i).equals("if"))
+                repeatNr++;
+            else if (executeCodeList.get(i).equals("endRepeat") || executeCodeList.get(i).equals("endIf")) {
+                repeatNr--;
+            }
+            if (repeatNr == 0) {
+                index = i;
+                break;
+            }
         }
-        return nr;
+        if (repeatNr == 1)//no exist end button go to end
+            return executeCodeList.size() - 1;
+        return index;
     }
 
-    private int getConsecutiveRepeatNr(int i){
-        int nr=0;
-        while (executeCodeList.get(i).equals("repeat")){
-            nr++;
-            i+=2;
+    private int getCodeViewIndex(int i) {
+        for (int j = i; j >= 0; j--) {
+            if (executeCodeList.get(j).equals("repeat") || executeCodeList.get(j).equals("if")) {
+                j--;
+                i--;
+            }
         }
-        return nr;
+        return i;
+    }
+
+    private int getExecuteCodeListIndex(int n) {
+        int nr = 0;
+        for (int i = 0; i <= n; i++) {
+            if (executeCodeList.get(i).equals("repeat") || executeCodeList.get(i).equals("if"))
+                nr++;
+        }
+        return nr + n;
+    }
+
+    private void realign() {
+        int nrSpace = 0;
+        System.out.println("nnr=" + nrSpace);
+        for (int j = 0; j < codeView.getChildCount(); j++) {
+            System.out.println("nr=" + nrSpace);
+            if (codeView.getChildAt(j) instanceof Button) {
+                Button btn = (Button) codeView.getChildAt(j);
+                if (btn.getText().equals(getString(R.string.end_repeat)) || btn.getText().equals(getString(R.string.end_condition))) {
+                    nrSpace--;
+                }
+            }
+
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) codeView.getChildAt(j).getLayoutParams();
+            layoutParams.leftMargin = (int) (nrSpace * 40 * getResources().getDisplayMetrics().density + 0.5f);
+            codeView.getChildAt(j).setLayoutParams(layoutParams);
+
+            if (codeView.getChildAt(j) instanceof ConstraintLayout) {//start repeat/if
+                nrSpace++;
+            }
+        }
+    }
+
+    private void removeAfter(Button btn) {
+        int start = codeView.indexOfChild(btn);
+        for (int i = codeView.getChildCount() - 1; i >= start; i--) {
+            executeCodeList.remove(getExecuteCodeListIndex(i));
+            codeView.removeViewAt(i);
+        }
     }
 
     private void placeNrButtonOnRepeatButton(Button repeatButton, Button nrButton) {
@@ -935,7 +1240,7 @@ public class MoveGameActivity extends AppCompatActivity {
 
             // set left margin +40dp than the previous
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            layoutParams.leftMargin = (int) (getRepeatNr(true) * 40 * getResources().getDisplayMetrics().density + 0.5f);
+            layoutParams.leftMargin = (int) repeatButton.getLeft();
             constraintLayout.setLayoutParams(layoutParams);
         } else {
             constraintLayout = (ConstraintLayout) repeatButton.getParent();
@@ -946,7 +1251,7 @@ public class MoveGameActivity extends AppCompatActivity {
 
         //set nrButton size and margins end
         ConstraintLayout.LayoutParams nrParams = new ConstraintLayout.LayoutParams(Math.round(36 * dp), Math.round(36 * dp));
-        nrParams.setMarginEnd(Math.round(16 * dp));
+        nrParams.setMarginEnd(Math.round(8 * dp));
         nrButton.setLayoutParams(nrParams);
 
         ConstraintSet constraintSet = new ConstraintSet();
@@ -957,6 +1262,47 @@ public class MoveGameActivity extends AppCompatActivity {
         constraintSet.connect(nrButton.getId(), ConstraintSet.TOP, repeatButton.getId(), ConstraintSet.TOP);
         constraintSet.connect(nrButton.getId(), ConstraintSet.BOTTOM, repeatButton.getId(), ConstraintSet.BOTTOM);
         constraintSet.setVerticalBias(nrButton.getId(), 0.5f);//centered vertically
+        constraintSet.applyTo(constraintLayout);
+    }
+
+    private void placeButtonOnIfButton(Button ifButton, Button conditionButton) {
+        float dp = getResources().getDisplayMetrics().density;
+        ConstraintLayout constraintLayout;//create ConstraintLayout
+
+        if (btnOrderInList == -1) {//add ifButton in ConstraintLayout
+            constraintLayout = new ConstraintLayout(this);
+            constraintLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            codeView.removeView(ifButton);//remove from linearLayout
+            codeView.addView(constraintLayout);//add in constraintLayout
+
+            ifButton.setId(ViewCompat.generateViewId());//set random id for ConstraintSet
+            constraintLayout.addView(ifButton);//add buttons in constraintLayout
+
+            // set left margin +40dp than the previous
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.leftMargin = (int) ifButton.getLeft();
+            constraintLayout.setLayoutParams(layoutParams);
+        } else { //get ConstraintLayout
+            constraintLayout = (ConstraintLayout) ifButton.getParent();
+        }
+
+        conditionButton.setId(ViewCompat.generateViewId());//set random id for ConstraintSet
+        constraintLayout.addView(conditionButton);//add buttons in constraintLayout
+
+        //set nrButton size and margins end
+        ConstraintLayout.LayoutParams conditionParams = new ConstraintLayout.LayoutParams(Math.round(72 * dp), Math.round(36 * dp));
+        conditionParams.setMarginEnd(Math.round(8 * dp));
+        conditionButton.setLayoutParams(conditionParams);
+
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(constraintLayout);
+
+        //nrButton constraints
+        constraintSet.connect(conditionButton.getId(), ConstraintSet.END, ifButton.getId(), ConstraintSet.END);
+        constraintSet.connect(conditionButton.getId(), ConstraintSet.TOP, ifButton.getId(), ConstraintSet.TOP);
+        constraintSet.connect(conditionButton.getId(), ConstraintSet.BOTTOM, ifButton.getId(), ConstraintSet.BOTTOM);
+        constraintSet.setVerticalBias(conditionButton.getId(), 0.5f);//centered vertically
         constraintSet.applyTo(constraintLayout);
     }
 
@@ -973,5 +1319,37 @@ public class MoveGameActivity extends AppCompatActivity {
             FirebaseDB fdb = new FirebaseDB();
             fdb.saveUserLevel(CategoryId, unlockedLevel);
         }
+    }
+
+    private void scrollLeft() {
+        scrollHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (isScrolling) {
+                    if (codeElementScroll.getVisibility() == View.VISIBLE) {
+                        codeElementScroll.scrollBy(-10, 0);
+                    } else if (nrElementScroll.getVisibility() == View.VISIBLE) {
+                        nrElementScroll.scrollBy(-10, 0);
+                    }
+                    scrollHandler.postDelayed(this, 5);//repeat scrolling
+                }
+            }
+        }, 10);//delay the initial scrolling
+    }
+
+    private void scrollRight() {
+        scrollHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (isScrolling) {
+                    if (codeElementScroll.getVisibility() == View.VISIBLE) {
+                        codeElementScroll.scrollBy(10, 0);
+                    } else if (nrElementScroll.getVisibility() == View.VISIBLE) {
+                        nrElementScroll.scrollBy(10, 0);
+                    }
+                    scrollHandler.postDelayed(this, 5);//repeat scrolling
+                }
+            }
+        }, 10);//delay the initial scrolling
     }
 }

@@ -31,4 +31,8 @@
     <string name="registered_email">Această adresă de email este înregistrat</string>
     <string name="jump">Sari</string>
     <string name="repeat">Repetă</string>
+    <string name="condition">Dacă</string>
+    <string name="log">Buștean</string>
+    <string name="end_repeat">Sfârșit repetare</string>
+    <string name="end_condition">Sfârșit dacă</string>
 </resources>

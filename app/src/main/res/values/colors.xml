@@ -27,6 +27,8 @@
     <color name="code_orange_selected">#FF8222</color>
     <color name="code_purple">#9F9822FF</color>
     <color name="code_purple_selected">#9FFF22FB</color>
+    <color name="code_p">#A1009688</color>
+    <color name="code_p_selected">#00AE9D</color>
     <color name="code_green">#47AA01</color>
     <color name="code_green_selected">#72AA48</color>
     <color name="code_blue">#4355FA</color>

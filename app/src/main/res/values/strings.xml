@@ -34,4 +34,8 @@
     <string name="registered_email">This email has been registered</string>
     <string name="jump">Jump</string>
     <string name="repeat">"Repeat "</string>
+    <string name="condition">If</string>
+    <string name="log">Log</string>
+    <string name="end_repeat">End repeat</string>
+    <string name="end_condition">End condition</string>
 </resources>
