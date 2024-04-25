@@ -28,7 +28,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(appData);
 
         //insert category type
-        String insertCategory = "INSERT INTO Category (Category,UnlockedLevel) VALUES ('cars',2),('people',1),('algorithm',1)";
+        String insertCategory = "INSERT INTO Category (Category,UnlockedLevel) VALUES ('cars',1),('people',1),('algorithm',1)";
         db.execSQL(insertCategory);
 
         //insert level type
@@ -38,8 +38,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ",(1,3,6,4,'RXXXTTRXTXTTCXRXXHRRRRRR','right;up;down;')" +
                 ",(1,4,8,5,'TTTTTTTTRXXXXTTTCXTRXRTHRRRTXXXXRRTTTTTT','right;up;down;')" +
                 ",(1,5,8,5,'TRRXXXTTRRXXRXTTCXXTTXXHRRRTTTTTRRTTTTTT','right;up;down;')" +
-                ",(1,6,8,5,'XXXXXXXXXXXXXXXXCXXXXXXHXXXXXXXXXXXXXXXX','right;left;up;down;')" +
-                ",(2,1,6,4,'RRTTTTRTTTTTCXLXXHTTTTTT','right;jump;')";/* +
+                ",(1,6,8,5,'XXXXXXXXXXXXXXXXCXXXXXXHXXXXXXXXXXXXXXXX','right;left;up;down;jump;repeat;if;')" +
+                ",(2,1,6,4,'RRTTTTRTTTTTPXLXXHTTTTTT','right;jump;repeat;if;')";/* +
                 ",(2,7,,,)" +
                 ",(1,10,,,)";*/
         db.execSQL(insertLevel);

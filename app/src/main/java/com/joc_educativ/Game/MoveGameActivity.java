@@ -14,6 +14,7 @@ import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
@@ -45,7 +46,7 @@ public class MoveGameActivity extends AppCompatActivity {
     ScrollView codeScrollView;
     HorizontalScrollView codeElementScroll, nrElementScroll;
     ImageButton scrollLeftButton, scrollRightButton;
-    ImageButton homeButton, playButton, stopButton;
+    ImageButton homeButton, replayButton, playButton, stopButton;
     Button rightButton, leftButton, upButton, downButton, jumpButton, repeatButton, endRepeatButton, ifButton, endIfButton;
     Button nr1Button, nr2Button, nr3Button, nr4Button, nr5Button, nr6Button, nr7Button, nr8Button, nr9Button;
 
@@ -80,6 +81,7 @@ public class MoveGameActivity extends AppCompatActivity {
         scrollRightButton = findViewById(R.id.scrollRightButton);
 
         homeButton = findViewById(R.id.homeButton);
+        replayButton = findViewById(R.id.replayButton);
         playButton = findViewById(R.id.playButton);
         stopButton = findViewById(R.id.stopButton);
 
@@ -114,6 +116,14 @@ public class MoveGameActivity extends AppCompatActivity {
             public void onClick(View view) {
                 SetingsPreferencis.playClickSound(MoveGameActivity.this);
                 openLevelActivity();
+            }
+        });
+
+        replayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SetingsPreferencis.playClickSound(MoveGameActivity.this);
+                refreshActivity();
             }
         });
 
@@ -348,24 +358,32 @@ public class MoveGameActivity extends AppCompatActivity {
                             ((ConstraintLayout) draggedButton.getParent()).removeView(draggedButton);//remove nr from codeView
 
                         }
-                    } else if (draggedButton.getText().equals(getString(R.string.end_repeat)) || draggedButton.getText().equals(getString(R.string.end_condition))) {
+                    } else if (draggedButton.getText().equals(getString(R.string.end_repeat))) {
                         removeAfter(draggedButton);//remove all element after dragged button
+                        endRepeatButton.setVisibility(View.VISIBLE);
+                    } else if (draggedButton.getText().equals(getString(R.string.end_condition))) {
+                        removeAfter(draggedButton);//remove all element after dragged button
+                        endIfButton.setVisibility(View.VISIBLE);
                     } else {
-                        executeCodeList.remove(getExecuteCodeListIndex(codeView.indexOfChild(draggedButton)));
+                        executeCodeList.remove(codeView.indexOfChild(draggedButton));
                         codeView.removeView(draggedButton);
                     }
                     putObjectSound();
+
+                    if (draggedButton.getText().equals(getString(R.string.repeat))) {
+                        endRepeatButton.setVisibility(View.GONE);
+                    } else if (draggedButton.getText().equals(getString(R.string.condition))) {
+                        endIfButton.setVisibility(View.GONE);
+                    }
 
                     //if remove nr button
                     if (draggedButton.getText().equals("1") || draggedButton.getText().equals("2") || draggedButton.getText().equals("3")
                             || draggedButton.getText().equals("4") || draggedButton.getText().equals("5") || draggedButton.getText().equals("6")
                             || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")
                             || draggedButton.getText().equals(getString(R.string.log))) {
-                        nrElementScroll.setVisibility(View.VISIBLE);
-                        codeElementScroll.setVisibility(View.GONE);
+                        changeScrollVisibility(false);
                     } else {
-                        nrElementScroll.setVisibility(View.GONE);
-                        codeElementScroll.setVisibility(View.VISIBLE);
+                        changeScrollVisibility(true);
                     }
                 }
                 return true;
@@ -656,6 +674,9 @@ public class MoveGameActivity extends AppCompatActivity {
                     return true;
                 }
                 index++;
+
+                if (!isRunning)//press stop button
+                    return false;
             }
         }
         return false;
@@ -699,6 +720,9 @@ public class MoveGameActivity extends AppCompatActivity {
                     return true;
                 }
                 startIndex++;
+
+                if (!isRunning)//press stop button
+                    return false;
             }
         }
         return false;
@@ -806,7 +830,6 @@ public class MoveGameActivity extends AppCompatActivity {
                     break;
                 case "repeat":
                     repeatButton.setVisibility(View.VISIBLE);
-                    endRepeatButton.setVisibility(View.VISIBLE);
                     nr1Button.setVisibility(View.VISIBLE);
                     nr2Button.setVisibility(View.VISIBLE);
                     nr3Button.setVisibility(View.VISIBLE);
@@ -819,10 +842,46 @@ public class MoveGameActivity extends AppCompatActivity {
                     break;
                 case "if":
                     ifButton.setVisibility(View.VISIBLE);
-                    endIfButton.setVisibility(View.VISIBLE);
                     logButton.setVisibility(View.VISIBLE);
             }
         }
+
+        changeScrollVisibility(true);
+    }
+
+    private void changeScrollVisibility(Boolean codeElementVisible) {
+        codeElementScroll.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                // Remove the listener so it doesn't get called multiple times
+                codeElementScroll.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+
+                if (codeElementVisible) {
+                    nrElementScroll.setVisibility(View.GONE);
+                    codeElementScroll.setVisibility(View.VISIBLE);
+
+                    if (codeElementScroll.getChildAt(0).getWidth() > codeElementScroll.getWidth()) {//scroll button visibility
+                        scrollLeftButton.setVisibility(View.VISIBLE);
+                        scrollRightButton.setVisibility(View.VISIBLE);
+                    } else {
+                        scrollLeftButton.setVisibility(View.GONE);
+                        scrollRightButton.setVisibility(View.GONE);
+                    }
+                } else {
+                    nrElementScroll.setVisibility(View.VISIBLE);
+                    codeElementScroll.setVisibility(View.GONE);
+
+                    if (nrElementScroll.getChildAt(0).getWidth() > nrElementScroll.getWidth()) {//scroll button visibility
+                        scrollLeftButton.setVisibility(View.VISIBLE);
+                        scrollRightButton.setVisibility(View.VISIBLE);
+                    } else {
+                        scrollLeftButton.setVisibility(View.GONE);
+                        scrollRightButton.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
     }
 
     private boolean ifGameOver(Level level, int index) {
@@ -863,6 +922,7 @@ public class MoveGameActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dialog.cancel();
+                        refreshActivity();
                     }
                 });
 
@@ -906,6 +966,7 @@ public class MoveGameActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dialog.cancel();
+                        refreshActivity();
                     }
                 });
 
@@ -932,6 +993,12 @@ public class MoveGameActivity extends AppCompatActivity {
         DatabaseHelper db = new DatabaseHelper(this);
         Level level = db.selectLevelById(levelId);//get level data
         return db.selectNextLevelId(level.getCategoryId(), level.getLevel() + 1);//return next level Id
+    }
+
+    public void refreshActivity() {
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
     }
 
     private void openNextLevel() {
@@ -1016,7 +1083,7 @@ public class MoveGameActivity extends AppCompatActivity {
         } else {
             draggedButton.performClick();//add command in executeCodeList
         }
-        System.out.println("ex=" + executeCodeList);
+
         copiedButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -1024,12 +1091,20 @@ public class MoveGameActivity extends AppCompatActivity {
             }
         });
 
+        if (draggedButton.getText().equals(getString(R.string.repeat))) {
+            endRepeatButton.setVisibility(View.VISIBLE);
+        } else if (draggedButton.getText().equals(getString(R.string.end_repeat))) {
+            endRepeatButton.setVisibility(View.GONE);
+        } else if (draggedButton.getText().equals(getString(R.string.condition))) {
+            endIfButton.setVisibility(View.VISIBLE);
+        } else if (draggedButton.getText().equals(getString(R.string.end_condition))) {
+            endIfButton.setVisibility(View.GONE);
+        }
+
         if (draggedButton.getText().equals(getString(R.string.repeat)) || draggedButton.getText().equals(getString(R.string.condition))) {
-            codeElementScroll.setVisibility(View.GONE);
-            nrElementScroll.setVisibility(View.VISIBLE);
+            changeScrollVisibility(false);
         } else {
-            codeElementScroll.setVisibility(View.VISIBLE);
-            nrElementScroll.setVisibility(View.GONE);
+            changeScrollVisibility(true);
         }
 
         //scroll down after add new element
@@ -1168,8 +1243,6 @@ public class MoveGameActivity extends AppCompatActivity {
                 break;
             }
         }
-        if (repeatNr == 1)//no exist end button go to end
-            return executeCodeList.size() - 1;
         return index;
     }
 
@@ -1194,9 +1267,7 @@ public class MoveGameActivity extends AppCompatActivity {
 
     private void realign() {
         int nrSpace = 0;
-        System.out.println("nnr=" + nrSpace);
         for (int j = 0; j < codeView.getChildCount(); j++) {
-            System.out.println("nr=" + nrSpace);
             if (codeView.getChildAt(j) instanceof Button) {
                 Button btn = (Button) codeView.getChildAt(j);
                 if (btn.getText().equals(getString(R.string.end_repeat)) || btn.getText().equals(getString(R.string.end_condition))) {
@@ -1217,6 +1288,15 @@ public class MoveGameActivity extends AppCompatActivity {
     private void removeAfter(Button btn) {
         int start = codeView.indexOfChild(btn);
         for (int i = codeView.getChildCount() - 1; i >= start; i--) {
+            if (codeView.getChildAt(i) instanceof Button) {//if remove end button
+                Button button = (Button) codeView.getChildAt(i);
+                if (button.getText().equals(getString(R.string.end_repeat))) {
+                    endRepeatButton.setVisibility(View.VISIBLE);
+                } else if (button.getText().equals(getString(R.string.end_condition))) {
+                    endIfButton.setVisibility(View.VISIBLE);
+                }
+            }
+
             executeCodeList.remove(getExecuteCodeListIndex(i));
             codeView.removeViewAt(i);
         }
