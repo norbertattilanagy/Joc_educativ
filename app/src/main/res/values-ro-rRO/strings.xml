@@ -36,4 +36,7 @@
     <string name="end_repeat">Sfârșit repetare</string>
     <string name="end_condition">Sfârșit dacă</string>
     <string name="people">Persoană</string>
+    <string name="yes">Da</string>
+    <string name="no">Nu</string>
+    <string name="question_user_progress">Doriți să actualizați progresul utilizatorului?</string>
 </resources>

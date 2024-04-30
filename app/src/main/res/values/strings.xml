@@ -39,4 +39,7 @@
     <string name="end_repeat">End repeat</string>
     <string name="end_condition">End condition</string>
     <string name="people">Person</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="question_user_progress">Want to update user progress?</string>
 </resources>

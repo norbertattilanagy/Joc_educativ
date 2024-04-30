@@ -1,6 +1,7 @@
 package com.joc_educativ;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -156,8 +157,19 @@ public class LogInActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-                        syncUnlockedLevel();
-                        openCategoryActivity();
+                        questionProgress(new DialogCallback() {
+                            @Override
+                            public void onYesClicked() {
+                                syncUnlockedLevel(true);//save in firebase
+                                openCategoryActivity();
+                            }
+
+                            @Override
+                            public void onNoClicked() {
+                                syncUnlockedLevel(false);//save in local DB
+                                openCategoryActivity();
+                            }
+                        });
                     } else {
                         Log.d("Sign In", task.getException().toString());
                         checkEmailExists();
@@ -209,8 +221,19 @@ public class LogInActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            syncUnlockedLevel();
-                            openCategoryActivity();
+                            questionProgress(new DialogCallback() {
+                                @Override
+                                public void onYesClicked() {
+                                    syncUnlockedLevel(true);//save in firebase
+                                    openCategoryActivity();
+                                }
+
+                                @Override
+                                public void onNoClicked() {
+                                    syncUnlockedLevel(false);//save in local DB
+                                    openCategoryActivity();
+                                }
+                            });
                         } else {
                             Log.d("SignIn", "fail ", task.getException());
                             Toast.makeText(LogInActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
@@ -247,7 +270,7 @@ public class LogInActivity extends AppCompatActivity {
         passwordTextInputLayout.setHintEnabled(false);
     }
 
-    private void syncUnlockedLevel() {
+    private void syncUnlockedLevel(Boolean syncFirebase) {
         FirebaseDB fdb = new FirebaseDB();
         DatabaseHelper dbh = new DatabaseHelper(this);
 
@@ -258,10 +281,14 @@ public class LogInActivity extends AppCompatActivity {
                 fdb.selectUserLevel(category.getId(), new FirebaseDB.UnlockedLevelCallback() {
                     @Override
                     public void onUnlockedLevelReceived(int unlockedLevel) {
-                        if (unlockedLevel < category.getUnlockedLevel())
-                            fdb.saveUserLevel(category.getId(), category.getUnlockedLevel());//save in firebase
-                        else if (unlockedLevel > category.getUnlockedLevel()) {
-                            //dbh.updateUnlockedLevel(category.getId(), 2);
+                        if (syncFirebase) {
+                            if (unlockedLevel < category.getUnlockedLevel())
+                                fdb.saveUserLevel(category.getId(), category.getUnlockedLevel());//save in firebase
+                            else if (unlockedLevel > category.getUnlockedLevel()) {
+                                //dbh.updateUnlockedLevel(category.getId(), 2);
+                                dbh.updateUnlockedLevel(category.getId(), unlockedLevel);//save in local db
+                            }
+                        } else {
                             dbh.updateUnlockedLevel(category.getId(), unlockedLevel);//save in local db
                         }
                     }
@@ -273,6 +300,40 @@ public class LogInActivity extends AppCompatActivity {
                 });
             }
         }
+    }
+
+
+    public interface DialogCallback {
+        void onYesClicked();
+        void onNoClicked();
+    }
+
+    private void questionProgress(DialogCallback callback){
+
+        Dialog dialog = new Dialog(this, R.style.CustomDialog);
+        dialog.setContentView(R.layout.question_dialog);
+        dialog.setCancelable(false);
+
+        Button yesButton = dialog.findViewById(R.id.yesButton);
+        Button noButton = dialog.findViewById(R.id.homeButton);
+
+        yesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                callback.onYesClicked();
+                dialog.cancel();
+            }
+        });
+
+        noButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                callback.onNoClicked();
+                dialog.cancel();
+            }
+        });
+
+        dialog.show();
     }
 
     public void openCategoryActivity() {

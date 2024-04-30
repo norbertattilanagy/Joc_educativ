@@ -915,7 +915,7 @@ public class MoveGameActivity extends AppCompatActivity {
                 dialog.setContentView(R.layout.game_over_dialog);
                 dialog.setCancelable(false);
 
-                Button retryButton = dialog.findViewById(R.id.retryButton);
+                Button retryButton = dialog.findViewById(R.id.yesButton);
                 Button homeButton = dialog.findViewById(R.id.homeButton);
 
                 retryButton.setOnClickListener(new View.OnClickListener() {
@@ -945,7 +945,7 @@ public class MoveGameActivity extends AppCompatActivity {
                 dialog.setContentView(R.layout.completed_dialog);
                 dialog.setCancelable(false);
 
-                Button retryButton = dialog.findViewById(R.id.retryButton);
+                Button retryButton = dialog.findViewById(R.id.replayButton);
                 Button nextLeveButton = dialog.findViewById(R.id.nextLevelButton);
                 Button homeButton = dialog.findViewById(R.id.homeButton);
 
