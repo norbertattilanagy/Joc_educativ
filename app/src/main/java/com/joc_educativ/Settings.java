@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -56,7 +57,8 @@ public class Settings {
             vibrationButton.setImageResource(R.drawable.ic_baseline_mobile_off_48);
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            authenticationButton.setText(R.string.log_out);
+            authenticationButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            authenticationButton.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail() + "\n" + context.getString(R.string.log_out));
         }
 
         closeButton.setOnClickListener(new View.OnClickListener() {

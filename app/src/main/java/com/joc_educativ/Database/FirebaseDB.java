@@ -75,6 +75,11 @@ public class FirebaseDB {
         });
     }
 
+    public void deleteAllLevel() {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("level");
+        reference.removeValue();
+    }
+
     public String saveLevel(Level level) {
         String mapString = "";//convert level in string
         for (int i = 0; i < level.getMapYSize(); i++) {
@@ -90,7 +95,7 @@ public class FirebaseDB {
         levelMap.put("mapXSize", level.getMapXSize());
         levelMap.put("mapYSize", level.getMapYSize());
         levelMap.put("map", mapString);
-        levelMap.put("codeElement",level.getCodeElement());
+        levelMap.put("codeElement", level.getCodeElement());
 
         //put map in db
         databaseReference.child("level").push().setValue(levelMap).addOnSuccessListener(new OnSuccessListener<Void>() {

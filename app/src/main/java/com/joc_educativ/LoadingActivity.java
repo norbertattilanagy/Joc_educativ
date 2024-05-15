@@ -132,6 +132,7 @@ public class LoadingActivity extends AppCompatActivity {
             }*/
 
             /*List<Level> levelList = dbh.selectAllLevelByCategory(1);
+            //fdb.deleteAllLevel();
             for (Level level : levelList){
                 fdb.saveLevel(level);
             }*/

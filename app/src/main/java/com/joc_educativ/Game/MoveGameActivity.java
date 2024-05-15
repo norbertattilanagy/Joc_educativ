@@ -371,9 +371,11 @@ public class MoveGameActivity extends AppCompatActivity {
                     putObjectSound();
 
                     if (draggedButton.getText().equals(getString(R.string.repeat))) {
-                        endRepeatButton.setVisibility(View.GONE);
+                        if (getEndIndex(0, 0) != -1)
+                            endRepeatButton.setVisibility(View.GONE);
                     } else if (draggedButton.getText().equals(getString(R.string.condition))) {
-                        endIfButton.setVisibility(View.GONE);
+                        if (getEndIndex(0, 0) != -1)
+                            endIfButton.setVisibility(View.GONE);
                     }
 
                     //if remove nr button
@@ -429,18 +431,21 @@ public class MoveGameActivity extends AppCompatActivity {
                 for (int i = 0; i < executeCodeList.size(); i++) {
                     final int currentIndex = i;
                     final Button button;
-                    if (codeView.getChildAt(j) instanceof Button)
+                    final int yButton;
+                    if (codeView.getChildAt(j) instanceof Button) {
                         button = (Button) codeView.getChildAt(j);//get  current code element
-                    else {
+                        yButton = button.getTop() - button.getHeight();
+                    } else {
                         ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(j);
                         button = (Button) constraintLayout.getChildAt(0);
+                        yButton = constraintLayout.getTop() - constraintLayout.getHeight();
                     }
 
                     //scroll in selected element
                     scrollview.post(new Runnable() {
                         @Override
                         public void run() {
-                            scrollview.smoothScrollTo(0, button.getTop() - button.getHeight());//view including the previous button
+                            scrollview.smoothScrollTo(0, yButton);//view including the previous button
                         }
                     });
 
@@ -922,7 +927,7 @@ public class MoveGameActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dialog.cancel();
-                        refreshActivity();
+                        //refreshActivity();
                     }
                 });
 
@@ -1094,11 +1099,13 @@ public class MoveGameActivity extends AppCompatActivity {
         if (draggedButton.getText().equals(getString(R.string.repeat))) {
             endRepeatButton.setVisibility(View.VISIBLE);
         } else if (draggedButton.getText().equals(getString(R.string.end_repeat))) {
-            endRepeatButton.setVisibility(View.GONE);
+            if (getEndIndex(0, 0) != -1)
+                endRepeatButton.setVisibility(View.GONE);
         } else if (draggedButton.getText().equals(getString(R.string.condition))) {
             endIfButton.setVisibility(View.VISIBLE);
         } else if (draggedButton.getText().equals(getString(R.string.end_condition))) {
-            endIfButton.setVisibility(View.GONE);
+            if (getEndIndex(0, 0) != -1)
+                endIfButton.setVisibility(View.GONE);
         }
 
         if (draggedButton.getText().equals(getString(R.string.repeat)) || draggedButton.getText().equals(getString(R.string.condition))) {
@@ -1243,6 +1250,9 @@ public class MoveGameActivity extends AppCompatActivity {
                 break;
             }
         }
+        if (repeatNr==0)//-2 not exist repeat; -1 not close repeat
+            index = -2;
+
         return index;
     }
 

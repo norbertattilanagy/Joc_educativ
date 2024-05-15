@@ -37,8 +37,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ",(1,2,6,4,'RXXXXTCXTTXTRRRTXHRRRRRR','right;up;down;')" +
                 ",(1,3,6,4,'RXXXTTRXTXTTCXRXXHRRRRRR','right;up;down;')" +
                 ",(1,4,8,5,'TTTTTTTTRXXXXTTTCXTRXRTHRRRTXXXXRRTTTTTT','right;up;down;')" +
-                ",(1,5,8,5,'TRRXXXTTRRXXRXTTCXXTTXXHRRRTTTTTRRTTTTTT','right;up;down;')" +
-                ",(1,6,8,5,'XXXXXXXXXXXXXXXXCXXXXXXHXXXXXXXXXXXXXXXX','right;left;up;down;jump;repeat;if;')" +
+                ",(1,5,8,5,'TRRRRRTTRRXXXXTTCXXTTXXHRRRTTTTTRRTTTTTT','right;up;down;')" +
+                ",(1,6,8,5,'RRRTTTTTRRTTTTTTCXXTTXXHRRXXRXTTTRRXXXTT','right;up;down;')" +
+                ",(1,7,8,5,'TTTXXXXHTTTXRRRRTTTXXRRRTTTTXRRRCXXXXRRR','right;left;up;')" +
+                ",(1,8,8,5,'TTTTTTRRTTTTRRRRCXXXXXXHTTTTTRRRTTTTRRRR','right;repeat;')" +
+                ",(1,9,8,5,'RRTXXXXHRRTXTTTTRRTXXXXTRRTTTTXTCXXXXXXT','right;left;up;repeat;')" +
+                ",(1,10,10,6,'RRTTXXXXXHRRTTXTTTRRRRTTXTTTRRRRTTXTTTRRRRTTXTTTRRCXXXXTTTRR','right;up;repeat;')" +
+                //",(1,11,8,5,'XXXXXXXXXXXXXXXXCXXXXXXHXXXXXXXXXXXXXXXX','right;left;up;down;jump;repeat;if;')" +
+
                 ",(2,1,6,4,'RRTTTTRTTTTTPXLXXHTTTTTT','right;jump;repeat;if;')";/* +
                 ",(2,7,,,)" +
                 ",(1,10,,,)";*/
