@@ -432,6 +432,10 @@ public class MoveGameActivity extends AppCompatActivity {
                     final int currentIndex = i;
                     final Button button;
                     final int yButton;
+                    if (codeView.getChildAt(j) == null) {
+                        break;
+                    }
+
                     if (codeView.getChildAt(j) instanceof Button) {
                         button = (Button) codeView.getChildAt(j);//get  current code element
                         yButton = button.getTop() - button.getHeight();
@@ -499,21 +503,23 @@ public class MoveGameActivity extends AppCompatActivity {
                             break;
                         case "repeat":
                             gameOver = repeat(Integer.parseInt(executeCodeList.get(i + 1)), i, level);
-                            i = getEndIndex(i, 0);
+                            if (getEndIndex(i, 0) > 0)
+                                i = getEndIndex(i, 0);
+                            else
+                                i = executeCodeList.size() - 1;
                             j = getCodeViewIndex(i);
                             break;
                         case "if":
                             gameOver = condition(i, level);
-                            i = getEndIndex(i, 0);
+                            if (getEndIndex(i, 0) > 0)
+                                i = getEndIndex(i, 0);
+                            else
+                                i = executeCodeList.size() - 1;
                             j = getCodeViewIndex(i);
                             break;
                     }
 
                     moveAndWait(500);
-
-
-                    //run operations on the main thread
-                    final int finalI = i;
 
                     if (gameOver || ifGameOver(level, i)) {//game over
                         isRunning = false;
@@ -524,7 +530,6 @@ public class MoveGameActivity extends AppCompatActivity {
                         animationThread = null;
                         completed(MoveGameActivity.this);
                     }
-
 
                     //set default background for code element
                     runOnUiThread(new Runnable() {
@@ -907,11 +912,17 @@ public class MoveGameActivity extends AppCompatActivity {
             vibrator.vibrate(500);
         }
 
-        if (SetingsPreferencis.getSound(context)) {
-            MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.crash);
-            mediaPlayer.seekTo(0); // Rewind sound to beginning
-            mediaPlayer.start();
-        }
+        /*if (SetingsPreferencis.getSound(context)) {
+            DatabaseHelper db = new DatabaseHelper(context);
+            Level level = db.selectLevelById(levelId);//get level data
+            Category category = db.selectCategoryById(level.getCategoryId());
+
+            if (category.getCategory().equals("cars")) {
+                MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.crash);
+                mediaPlayer.seekTo(0); // Rewind sound to beginning
+                mediaPlayer.start();
+            }
+        }*/
 
         runOnUiThread(new Runnable() {//verify game over / completed game
             @Override
@@ -1250,7 +1261,7 @@ public class MoveGameActivity extends AppCompatActivity {
                 break;
             }
         }
-        if (repeatNr==0)//-2 not exist repeat; -1 not close repeat
+        if (repeatNr == 0 && index == -1)//-2 not exist repeat; -1 not close repeat
             index = -2;
 
         return index;
