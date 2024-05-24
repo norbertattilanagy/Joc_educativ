@@ -31,9 +31,10 @@ public class LoadingActivity extends AppCompatActivity {
     private View decorView;
     private ProgressBar progressBar;
     private TextView percentageText;
-    private Button playButton,logInButton;
+    private Button playButton, logInButton;
 
     List<Category> allCategory;
+    String lastAppVersion = "";
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -137,19 +138,37 @@ public class LoadingActivity extends AppCompatActivity {
                 fdb.saveLevel(level);
             }*/
 
+            fdb.getAppVersion(new FirebaseDB.appVersionCallback() {
+                @Override
+                public void onAppVersionReceived(String appVersion) {
+                    lastAppVersion = appVersion;
+                }
+            });
+
             fdb.getDBVersion(new FirebaseDB.DBVersionCallback() {//get db version from firebase
                 @Override
-                public void onDBVersionReceived(Long version) {
-                    if (version != null) {
-                        if (version > dbh.getDbVersion()) {//update local db when exist new db version
+                public void onDBVersionReceived(String DBversion) {
+                    if (DBversion != null) {
+                        if (compareVersion(DBversion, dbh.getDbVersion()) == 1) {//update local db when exist new db version
                             fdb.selectAllCategory(new FirebaseDB.CategoryCallback() {//select category from firebase
                                 @Override
                                 public void onCategoryListLoaded(List<Category> categories) {
-                                /*dbh.clearTable("Category");//clear category table data
 
-                                for (Category category : categories) {//insert category from firebase
-                                    dbh.addCategory(category);
-                                }*/
+                                    if (compareVersion(lastAppVersion, BuildConfig.VERSION_NAME) == 0) {//the last version
+                                        for (Category category : categories) {//insert category from firebase
+                                            dbh.updateCategory(category.getId(),category.getCategory(),category.getRoCategory(),category.getEnCategory());
+
+                                            if(dbh.selectCategoryById(category.getId())==null){
+                                                category.setUnlockedLevel(1);
+                                                dbh.addCategory(category);
+                                            }
+                                        }
+                                    } else {
+                                        for (Category category : categories) {//update category from firebase in db and XML file
+                                            dbh.updateCategory(category.getId(),category.getCategory(),category.getRoCategory(),category.getEnCategory());
+
+                                        }
+                                    }
                                 }
 
                                 @Override
@@ -201,9 +220,37 @@ public class LoadingActivity extends AppCompatActivity {
         finish();
     }
 
-    public void openLogInActivity(){
-        Intent intent = new Intent(this,LogInActivity.class);
+    public void openLogInActivity() {
+        Intent intent = new Intent(this, LogInActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    public static int compareVersion(String version1, String version2) {
+        String[] parts1 = version1.split("\\.");
+        String[] parts2 = version2.split("\\.");
+
+        int length = Math.max(parts1.length, parts2.length);
+
+        for (int i = 0; i < length; i++) {
+            int part1 = 0;
+            int part2 = 0;
+
+            if (i < parts1.length) {
+                part1 = Integer.parseInt(parts1[i]);
+            }
+            if (i < parts2.length) {
+                part2 = Integer.parseInt(parts2[i]);
+            }
+
+
+            if (part1 < part2) {
+                return -1; //version1 is smaller
+            }
+            if (part1 > part2) {
+                return 1; //version1 is bigger
+            }
+        }
+        return 0; //versions are equal
     }
 }

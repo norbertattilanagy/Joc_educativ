@@ -21,15 +21,35 @@ public class FirebaseDB {
     String successMsg;
 
     public interface DBVersionCallback {
-        void onDBVersionReceived(Long dbVersion);
+        void onDBVersionReceived(String dbVersion);
     }
+
+
 
     public void getDBVersion(DBVersionCallback callback) {
         databaseReference.child("appData").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Long dbVersion = snapshot.child("dbVersion").getValue(Long.class);
+                String dbVersion = snapshot.child("dbVersion").getValue(String.class);
                 callback.onDBVersionReceived(dbVersion);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public interface appVersionCallback {
+        void onAppVersionReceived(String appVersion);
+    }
+    public void getAppVersion(appVersionCallback callback){
+        databaseReference.child("appData").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String appVersion = snapshot.child("appVersion").getValue(String.class);
+                callback.onAppVersionReceived(appVersion);
             }
 
             @Override

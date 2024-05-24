@@ -7,10 +7,21 @@ public class Category {
     private String Category;
     private int unlockedLevel;
 
+    private String roCategory;
+    private String enCategory;
+
     public Category(int id, String category, int unlockedLevel) {
         this.id = id;
         Category = category;
         this.unlockedLevel = unlockedLevel;
+    }
+
+    public Category(int id, String category, int unlockedLevel, String roCategory, String enCategory) {
+        this.id = id;
+        Category = category;
+        this.unlockedLevel = unlockedLevel;
+        this.roCategory = roCategory;
+        this.enCategory = enCategory;
     }
 
     public Category() {
@@ -52,5 +63,21 @@ public class Category {
 
     public void setUnlockedLevel(int unlockedLevel) {
         this.unlockedLevel = unlockedLevel;
+    }
+
+    public String getRoCategory() {
+        return roCategory;
+    }
+
+    public void setRoCategory(String roCategory) {
+        this.roCategory = roCategory;
+    }
+
+    public String getEnCategory() {
+        return enCategory;
+    }
+
+    public void setEnCategory(String enCategory) {
+        this.enCategory = enCategory;
     }
 }

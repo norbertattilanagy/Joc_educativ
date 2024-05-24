@@ -36,11 +36,14 @@ public class CategoryMenuActivity extends AppCompatActivity {
         DatabaseHelper dbh = new DatabaseHelper(this);
         List<Category> categoryList = dbh.selectAllCategory();//get all category
 
-        for (Category category : categoryList) {
-            int resourceId = getResources().getIdentifier(category.getCategory(), "string", getResources().getResourcePackageName(R.string.app_name));
+        for (Category category : categoryList) {//set category text
 
-            if (resourceId != 0)//if exist resource
-                category.setCategory(getResources().getString(resourceId));
+            if (context.getResources().getConfiguration().locale.getLanguage().equals("ro") && category.getRoCategory() != null) {
+                category.setCategory(category.getRoCategory());
+            } else if (context.getResources().getConfiguration().locale.getLanguage().equals("en") && category.getEnCategory() != null) {
+                category.setCategory(category.getEnCategory());
+            }
+            System.out.println(category.getCategory());
         }
 
         CategoryAdaptor categoryAdaptor = new CategoryAdaptor(getApplicationContext(), categoryList);

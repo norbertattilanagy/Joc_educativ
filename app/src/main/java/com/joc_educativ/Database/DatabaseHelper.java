@@ -8,6 +8,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +23,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CategoryTable = "CREATE TABLE Category (id INTEGER PRIMARY KEY AUTOINCREMENT, Category TEXT, UnlockedLevel INTEGER)";
+        String CategoryTable = "CREATE TABLE Category (id INTEGER PRIMARY KEY AUTOINCREMENT, Category TEXT, UnlockedLevel INTEGER, roCategory TEXT, enCategory TEXT)";
         String LevelTable = "CREATE TABLE Level (id INTEGER PRIMARY KEY AUTOINCREMENT, Category INTEGER, Level INTEGER, MapXSize INTEGER, MapYSize INTEGER, Map TEXT, CodeElement TEXT)";
-        String appData = "CREATE TABLE AppData (id INTEGER PRIMARY KEY AUTOINCREMENT, DBVersion FLOAT,AppVersion FLOAT)";
+        String appData = "CREATE TABLE AppData (id INTEGER PRIMARY KEY AUTOINCREMENT, DBVersion TEXT)";
 
         //create table in db
         db.execSQL(CategoryTable);
@@ -28,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(appData);
 
         //insert category type
-        String insertCategory = "INSERT INTO Category (Category,UnlockedLevel) VALUES ('cars',1),('people',1),('algorithm',1)";
+        String insertCategory = "INSERT INTO Category (Category,UnlockedLevel,roCategory,enCategory) VALUES ('cars',1,'Mașini','Cars'),('people',1,'Persoană','People')";
         db.execSQL(insertCategory);
 
         //insert level type
@@ -50,7 +55,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ",(1,10,,,)";*/
         db.execSQL(insertLevel);
 
-        String insertAppData = "INSERT INTO AppData (DBVersion,AppVersion) VALUES (0.1,0.1)";
+        String insertAppData = "INSERT INTO AppData (DBVersion) VALUES ('0.1')";
         db.execSQL(insertAppData);
 
         System.out.println("CREATE DB");
@@ -67,14 +72,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public Float getDbVersion(){
-        float version = 0;
+    public String getDbVersion(){
+        String version = "";
         String query = "SELECT DBVersion FROM AppData";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.moveToFirst()) {//put all level in level list
-            version = cursor.getFloat(0);
+            version = cursor.getString(0);
         }
         return version;
     }
@@ -106,7 +111,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 int id = cursor.getInt(0);
                 String category = cursor.getString(1);
                 int unlockedLevel = cursor.getInt(2);
-                allCategory.add(new Category(id, category,unlockedLevel));
+                String roCategory = cursor.getString(3);
+                String enCategory = cursor.getString(4);
+                allCategory.add(new Category(id, category,unlockedLevel,roCategory,enCategory));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -124,7 +131,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int id = cursor.getInt(0);
             String cat = cursor.getString(1);
             int unlockedLevel = cursor.getInt(2);
-            category = new Category(id,cat,unlockedLevel);
+            String roCategory = cursor.getString(3);
+            String enCategory = cursor.getString(4);
+            category = new Category(id, cat,unlockedLevel,roCategory,enCategory);
         }
         cursor.close();
         db.close();
@@ -139,12 +148,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             contentValues.put("Id",category.getId());
 
         contentValues.put("Category", category.getCategory());
+        contentValues.put("roCategory",category.getRoCategory());
+        contentValues.put("enCategory",category.getEnCategory());
         long result = db.insert("Category", null, contentValues);
 
         if (result == -1)
             return false;
         return true;
     }
+
+
 
     public int selectUnlockedLevel(int categoryId){
         int unlockedLevel=1;
@@ -158,6 +171,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return unlockedLevel;
+    }
+
+
+    public void updateCategory(int categoryId, String category, String roCategory, String enCategory){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("Category", category);
+        values.put("roCategory",roCategory);
+        values.put("enCategory",enCategory);
+        db.update("Category", values, "id = ?", new String[]{String.valueOf(categoryId)});
     }
 
     public void updateUnlockedLevel(int categoryId, int unlockedLevel){//save next unlocked level
