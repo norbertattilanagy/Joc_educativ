@@ -84,7 +84,6 @@ public class LevelMenuActivity extends AppCompatActivity {
             int nrButton = levelListByCategory.size() % 5;//set nr button in line
             if (i < levelListByCategory.size()-nrButton)
                 nrButton=5;
-
             levelMatrix.add(levelListByCategory.subList(i,i+nrButton));//add button in matrix
         }
 

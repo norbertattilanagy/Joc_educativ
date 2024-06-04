@@ -48,7 +48,6 @@ public class LevelAdaptor extends BaseAdapter {
 
         DatabaseHelper db= new DatabaseHelper(context);
         int unlockedLevel = db.selectUnlockedLevel(levelModels.get(i).get(0).getCategoryId());
-        System.out.println("cur="+levelModels.get(i).get(0).getCategoryId());
 
         Button button1 = view.findViewById(R.id.button1);
         Button button2 = view.findViewById(R.id.button2);

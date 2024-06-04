@@ -9,6 +9,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.MotionEvent;
@@ -339,8 +340,8 @@ public class MoveGameActivity extends AppCompatActivity {
                             codeView.removeView((ConstraintLayout) draggedButton.getParent());//remove for parent, ConstraintLayout, from code View
 
                             //remove end button
-                            if (getEndIndex(loc, 1) != -1) {//if exist end button
-                                int repeatIndex = getEndIndex(loc, 1);
+                            if (getEndIndex(0, 1) != -1) {//if exist end button
+                                int repeatIndex = getEndIndex(0, 1);
                                 codeView.removeView(codeView.getChildAt(getCodeViewIndex(repeatIndex)));
                                 executeCodeList.remove(repeatIndex);
                             }
@@ -365,7 +366,7 @@ public class MoveGameActivity extends AppCompatActivity {
                         removeAfter(draggedButton);//remove all element after dragged button
                         endIfButton.setVisibility(View.VISIBLE);
                     } else {
-                        executeCodeList.remove(codeView.indexOfChild(draggedButton));
+                        executeCodeList.remove(getExecuteCodeListIndex(codeView.indexOfChild(draggedButton)));
                         codeView.removeView(draggedButton);
                     }
                     putObjectSound();
@@ -461,7 +462,9 @@ public class MoveGameActivity extends AppCompatActivity {
                             codeElementSelect(button, executeCodeList.get(currentIndex));
                             int btnNr = 0;
                             int repeatNr = 0;//number from repeat
-                            while (finalJ + btnNr < codeView.getChildCount() && (codeView.getChildAt(finalJ + btnNr).getLeft() > 0 || codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout)) {//if repeat button
+                            while (finalJ + btnNr < codeView.getChildCount() && (codeView.getChildAt(finalJ + btnNr).getLeft() > 0
+                                    || codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout)) {//if repeat button
+
                                 if (codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout) {
                                     ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(finalJ + btnNr);
                                     Button btn = (Button) constraintLayout.getChildAt(0);
@@ -667,9 +670,11 @@ public class MoveGameActivity extends AppCompatActivity {
                         jump(level.getMap());
                         break;
                     case "repeat":
-                        if (repeat(Integer.parseInt(executeCodeList.get(n + 2)), index, level))
+                        if (repeat(Integer.parseInt(executeCodeList.get(index + 1)), index, level))
                             return true;
                         index = getEndIndex(index, 0);
+                        if (index == -1)
+                            index = executeCodeList.size() - 1;
                         break;
                     case "if":
                         if (condition(index, level)) {
@@ -679,12 +684,10 @@ public class MoveGameActivity extends AppCompatActivity {
                         break;
                 }
                 moveAndWait(500);
-
                 if (ifGameOver(level, index)) {
                     return true;
                 }
                 index++;
-
                 if (!isRunning)//press stop button
                     return false;
             }
@@ -718,6 +721,8 @@ public class MoveGameActivity extends AppCompatActivity {
                         if (repeat(Integer.parseInt(executeCodeList.get(startIndex + 1)), startIndex, level))
                             return true;
                         startIndex = getEndIndex(startIndex, 0);
+                        if (startIndex == -1)
+                            startIndex = executeCodeList.size() - 1;
                         break;
                     case "if":
                         if (condition(startIndex, level))
@@ -871,6 +876,18 @@ public class MoveGameActivity extends AppCompatActivity {
                     nrElementScroll.setVisibility(View.GONE);
                     codeElementScroll.setVisibility(View.VISIBLE);
 
+                    ViewGroup.LayoutParams layoutParams = nrElementScroll.getLayoutParams();
+
+                    if (layoutParams instanceof ViewGroup.MarginLayoutParams) {
+                        ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+
+                        int leftMargin = marginLayoutParams.leftMargin;
+                        int rightMargin = marginLayoutParams.rightMargin;
+
+                        Log.d("MarginHorizontal", "Left Margin: " + leftMargin + ", Right Margin: " + rightMargin);
+                        Log.d("size", codeElementScroll.getChildAt(0).getWidth() + ">" + codeElementScroll.getWidth());
+                    }
+
                     if (codeElementScroll.getChildAt(0).getWidth() > codeElementScroll.getWidth()) {//scroll button visibility
                         scrollLeftButton.setVisibility(View.VISIBLE);
                         scrollRightButton.setVisibility(View.VISIBLE);
@@ -931,6 +948,13 @@ public class MoveGameActivity extends AppCompatActivity {
                 dialog.setContentView(R.layout.game_over_dialog);
                 dialog.setCancelable(false);
 
+                if (dialog.getWindow() != null) {//hide system bars
+                    dialog.getWindow().getDecorView().setSystemUiVisibility(
+                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                    | View.SYSTEM_UI_FLAG_FULLSCREEN);
+                }
+
                 Button retryButton = dialog.findViewById(R.id.yesButton);
                 Button homeButton = dialog.findViewById(R.id.homeButton);
 
@@ -961,6 +985,13 @@ public class MoveGameActivity extends AppCompatActivity {
                 dialog.setContentView(R.layout.completed_dialog);
                 dialog.setCancelable(false);
 
+                if (dialog.getWindow() != null) {//hide system bars
+                    dialog.getWindow().getDecorView().setSystemUiVisibility(
+                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                    | View.SYSTEM_UI_FLAG_FULLSCREEN);
+                }
+
                 Button retryButton = dialog.findViewById(R.id.replayButton);
                 Button nextLeveButton = dialog.findViewById(R.id.nextLevelButton);
                 Button homeButton = dialog.findViewById(R.id.homeButton);
@@ -973,8 +1004,8 @@ public class MoveGameActivity extends AppCompatActivity {
                     int unlockedLevel = db.selectUnlockedLevel(level.getCategoryId());//select unlocked level nr
 
                     if (verifyNextLevel() > unlockedLevel) {
-                        db.updateUnlockedLevel(level.getCategoryId(), verifyNextLevel());
-                        saveLevelInFirebase(level.getCategoryId(), verifyNextLevel());
+                        db.updateUnlockedLevel(level.getCategoryId(), unlockedLevel + 1);
+                        saveLevelInFirebase(level.getCategoryId(), unlockedLevel + 1);
                     }
                 }
 
@@ -1372,7 +1403,8 @@ public class MoveGameActivity extends AppCompatActivity {
 
         if (btnOrderInList == -1) {//add ifButton in ConstraintLayout
             constraintLayout = new ConstraintLayout(this);
-            constraintLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            constraintLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
 
             codeView.removeView(ifButton);//remove from linearLayout
             codeView.addView(constraintLayout);//add in constraintLayout
@@ -1381,7 +1413,8 @@ public class MoveGameActivity extends AppCompatActivity {
             constraintLayout.addView(ifButton);//add buttons in constraintLayout
 
             // set left margin +40dp than the previous
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
             layoutParams.leftMargin = (int) ifButton.getLeft();
             constraintLayout.setLayoutParams(layoutParams);
         } else { //get ConstraintLayout

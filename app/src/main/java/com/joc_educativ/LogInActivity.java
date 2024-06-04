@@ -163,7 +163,6 @@ public class LogInActivity extends AppCompatActivity {
                                 syncUnlockedLevel(true);//save in firebase
                                 openCategoryActivity();
                             }
-
                             @Override
                             public void onNoClicked() {
                                 syncUnlockedLevel(false);//save in local DB
@@ -236,7 +235,7 @@ public class LogInActivity extends AppCompatActivity {
                             });
                         } else {
                             Log.d("SignIn", "fail ", task.getException());
-                            Toast.makeText(LogInActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LogInActivity.this, getString(R.string.authentication_failed), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

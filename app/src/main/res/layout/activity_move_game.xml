@@ -111,7 +111,7 @@
         android:id="@+id/codeElementScroll"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_marginHorizontal="56dp"
+        android:layout_marginHorizontal="52dp"
         android:layout_marginTop="16dp"
         android:visibility="visible"
         app:layout_constraintEnd_toStartOf="@+id/scrollRightButton"

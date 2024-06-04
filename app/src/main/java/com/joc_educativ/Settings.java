@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -35,8 +36,16 @@ public class Settings {
 
     public void openSettings() {
         Dialog dialog = new Dialog(context, R.style.CustomDialog);
+        dialog.setCancelable(false);//prevents closing when touching outside the dialog
         dialog.setContentView(R.layout.settings_dialog);
         //dialog.setCancelable(false);
+
+        if (dialog.getWindow() != null) {//hide system bars
+            dialog.getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        }
 
         closeButton = dialog.findViewById(R.id.closeButton);
         soundButton = dialog.findViewById(R.id.soundButton);

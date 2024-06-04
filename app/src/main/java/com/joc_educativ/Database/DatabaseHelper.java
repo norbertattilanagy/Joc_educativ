@@ -50,9 +50,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ",(1,10,10,6,'RRTTXXXXXHRRTTXTTTRRRRTTXTTTRRRRTTXTTTRRRRTTXTTTRRCXXXXTTTRR','right;up;repeat;')" +
                 //",(1,11,8,5,'XXXXXXXXXXXXXXXXCXXXXXXHXXXXXXXXXXXXXXXX','right;left;up;down;jump;repeat;if;')" +
 
-                ",(2,1,6,4,'RRTTTTRTTTTTPXLXXHTTTTTT','right;jump;repeat;if;')";/* +
-                ",(2,7,,,)" +
-                ",(1,10,,,)";*/
+                ",(2,1,6,4,'RRTTTTRTXXXHPXXTTTTTTTTT','right;up;')" +
+                ",(2,2,6,4,'RRXLXHRTXTTTPXXTTTTTTTTT','right;up;jump;')" +
+                ",(2,3,6,4,'RRTTTTRTTTTTPXLXXHTTTTTT','right;jump;')" +
+                ",(2,4,8,5,'RRRRXXXHRRRRXTTTPXXLXTTTRRRTTTTTRRTTTTTT','right;up;jump;repeat;')" +
+                ",(2,5,8,5,'RRRRRTTTRRRRTTTTPXXLXXXHRRRTTTTTRRTTTTTT','right;jump;repeat;if;')" +
+                ",(2,6,8,5,'RRRRXXXHRRRTXTTTTTTTLTRRRRRTXTTTPXXXXTTT','right;up;jump;repeat;if;')" +
+                ",(2,7,8,5,'PXLXXXLXRRRTTTTXRRTLTTTXRRRTLTTXRRRRTTTH','right;down;jump;repeat;if;')" +
+                ",(2,8,8,5,'PXLXXXLXRRRTTTTXRRTLTTTXRRRTTTTXHXXXLXXX','right;left;down;jump;repeat;if;')" +
+                ",(2,9,10,6,'PXLXXXXXTRRRRTTTTXTTRRTTTTTXXHRRRLTTTTTTRRRRTLTTTTRRRRRTTTRR','right;down;jump;repeat;if;')" +
+                ",(2,10,10,6,'PXLXXLXXTRRRRTTTTXTTRRTTXXXXTTRRRLXTTTTTRRRRXXXXXHRRRRRTTTRR','right;left;down;jump;repeat;if;')";
+
         db.execSQL(insertLevel);
 
         String insertAppData = "INSERT INTO AppData (DBVersion) VALUES ('0.1')";

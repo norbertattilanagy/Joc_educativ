@@ -153,11 +153,9 @@ public class LoadingActivity extends AppCompatActivity {
                             fdb.selectAllCategory(new FirebaseDB.CategoryCallback() {//select category from firebase
                                 @Override
                                 public void onCategoryListLoaded(List<Category> categories) {
-
                                     if (compareVersion(lastAppVersion, BuildConfig.VERSION_NAME) == 0) {//the last version
                                         for (Category category : categories) {//insert category from firebase
                                             dbh.updateCategory(category.getId(),category.getCategory(),category.getRoCategory(),category.getEnCategory());
-
                                             if(dbh.selectCategoryById(category.getId())==null){
                                                 category.setUnlockedLevel(1);
                                                 dbh.addCategory(category);
@@ -166,11 +164,9 @@ public class LoadingActivity extends AppCompatActivity {
                                     } else {
                                         for (Category category : categories) {//update category from firebase in db and XML file
                                             dbh.updateCategory(category.getId(),category.getCategory(),category.getRoCategory(),category.getEnCategory());
-
                                         }
                                     }
                                 }
-
                                 @Override
                                 public void onCancelled(DatabaseError error) {
                                     Log.d("Loading", error.toString());
