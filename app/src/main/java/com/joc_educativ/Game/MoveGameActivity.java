@@ -45,7 +45,7 @@ public class MoveGameActivity extends AppCompatActivity {
     private DrawMoveGameView gameView;
     public LinearLayout codeView;
     ScrollView codeScrollView;
-    HorizontalScrollView codeElementScroll, nrElementScroll;
+    HorizontalScrollView codeElementScroll, nrElementScroll, conditionElementScroll;
     ImageButton scrollLeftButton, scrollRightButton;
     ImageButton homeButton, replayButton, playButton, stopButton;
     Button rightButton, leftButton, upButton, downButton, jumpButton, repeatButton, endRepeatButton, ifButton, endIfButton;
@@ -77,6 +77,7 @@ public class MoveGameActivity extends AppCompatActivity {
         codeScrollView = findViewById(R.id.codeScrollView);
         codeElementScroll = findViewById(R.id.codeElementScroll);
         nrElementScroll = findViewById(R.id.nrElementScroll);
+        conditionElementScroll = findViewById(R.id.conditionElementScroll);
 
         scrollLeftButton = findViewById(R.id.scrollLeftButton);
         scrollRightButton = findViewById(R.id.scrollRightButton);
@@ -111,6 +112,17 @@ public class MoveGameActivity extends AppCompatActivity {
         gameView.setLevelId(levelId);
 
         setCodeElementVisibility(levelId);
+
+        LinearLayout codeOutlineView = findViewById(R.id.codeOutlineView);
+        codeOutlineView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {//get the real height of the LinearLayout
+            @Override
+            public void onGlobalLayout() {
+                codeOutlineView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                int realHeight = codeOutlineView.getHeight();
+                codeView.setMinimumHeight(realHeight-50);
+            }
+        });
+
 
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -325,7 +337,7 @@ public class MoveGameActivity extends AppCompatActivity {
                 }
                 //remove element from code
                 if (dragEvent.getAction() == DragEvent.ACTION_DRAG_EXITED && draggedButton.getTag() != null && codeView.getChildCount() > 0
-                        && (nrElementScroll.getVisibility() == View.GONE || draggedButton.getText().equals(getString(R.string.repeat)) || draggedButton.getText().equals(getString(R.string.condition)))) {
+                        && (nrElementScroll.getVisibility() == View.GONE || conditionElementScroll.getVisibility() == View.GONE || draggedButton.getText().equals(getString(R.string.repeat)) || draggedButton.getText().equals(getString(R.string.condition)))) {
                     if (draggedButton.getParent() instanceof ConstraintLayout) {
                         int locCodeView = codeView.indexOfChild((ConstraintLayout) draggedButton.getParent());
                         int loc = getRepeatLocationInCode(codeView.indexOfChild((ConstraintLayout) draggedButton.getParent()));//get repeat location in executeCodeList
@@ -382,17 +394,19 @@ public class MoveGameActivity extends AppCompatActivity {
                     //if remove nr button
                     if (draggedButton.getText().equals("1") || draggedButton.getText().equals("2") || draggedButton.getText().equals("3")
                             || draggedButton.getText().equals("4") || draggedButton.getText().equals("5") || draggedButton.getText().equals("6")
-                            || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")
-                            || draggedButton.getText().equals(getString(R.string.log))) {
-                        changeScrollVisibility(false);
+                            || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")) {
+                        changeScrollVisibility(1);
+                    } else if (draggedButton.getText().equals(getString(R.string.log))) {
+                        changeScrollVisibility(2);
                     } else {
-                        changeScrollVisibility(true);
+                        changeScrollVisibility(0);
                     }
                 }
                 return true;
             }
         });
     }
+
 
 
     //hide system bars
@@ -845,26 +859,46 @@ public class MoveGameActivity extends AppCompatActivity {
                     break;
                 case "repeat":
                     repeatButton.setVisibility(View.VISIBLE);
-                    nr1Button.setVisibility(View.VISIBLE);
-                    nr2Button.setVisibility(View.VISIBLE);
-                    nr3Button.setVisibility(View.VISIBLE);
-                    nr4Button.setVisibility(View.VISIBLE);
-                    nr5Button.setVisibility(View.VISIBLE);
-                    nr6Button.setVisibility(View.VISIBLE);
-                    nr7Button.setVisibility(View.VISIBLE);
-                    nr8Button.setVisibility(View.VISIBLE);
-                    nr9Button.setVisibility(View.VISIBLE);
                     break;
                 case "if":
                     ifButton.setVisibility(View.VISIBLE);
+                    break;
+                case "nr1":
+                    nr1Button.setVisibility(View.VISIBLE);
+                    break;
+                case "nr2":
+                    nr2Button.setVisibility(View.VISIBLE);
+                    break;
+                case "nr3":
+                    nr3Button.setVisibility(View.VISIBLE);
+                    break;
+                case "nr4":
+                    nr4Button.setVisibility(View.VISIBLE);
+                    break;
+                case "nr5":
+                    nr5Button.setVisibility(View.VISIBLE);
+                    break;
+                case "nr6":
+                    nr6Button.setVisibility(View.VISIBLE);
+                    break;
+                case "nr7":
+                    nr7Button.setVisibility(View.VISIBLE);
+                    break;
+                case "nr8":
+                    nr8Button.setVisibility(View.VISIBLE);
+                    break;
+                case "nr9":
+                    nr9Button.setVisibility(View.VISIBLE);
+                    break;
+                case "log":
                     logButton.setVisibility(View.VISIBLE);
             }
         }
 
-        changeScrollVisibility(true);
+        changeScrollVisibility(0);
     }
 
-    private void changeScrollVisibility(Boolean codeElementVisible) {
+    private void changeScrollVisibility(int codeListVisibility) {
         codeElementScroll.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -872,21 +906,10 @@ public class MoveGameActivity extends AppCompatActivity {
                 codeElementScroll.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
 
-                if (codeElementVisible) {
+                if (codeListVisibility==0) {
                     nrElementScroll.setVisibility(View.GONE);
+                    conditionElementScroll.setVisibility(View.GONE);
                     codeElementScroll.setVisibility(View.VISIBLE);
-
-                    ViewGroup.LayoutParams layoutParams = nrElementScroll.getLayoutParams();
-
-                    if (layoutParams instanceof ViewGroup.MarginLayoutParams) {
-                        ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-
-                        int leftMargin = marginLayoutParams.leftMargin;
-                        int rightMargin = marginLayoutParams.rightMargin;
-
-                        Log.d("MarginHorizontal", "Left Margin: " + leftMargin + ", Right Margin: " + rightMargin);
-                        Log.d("size", codeElementScroll.getChildAt(0).getWidth() + ">" + codeElementScroll.getWidth());
-                    }
 
                     if (codeElementScroll.getChildAt(0).getWidth() > codeElementScroll.getWidth()) {//scroll button visibility
                         scrollLeftButton.setVisibility(View.VISIBLE);
@@ -895,11 +918,25 @@ public class MoveGameActivity extends AppCompatActivity {
                         scrollLeftButton.setVisibility(View.GONE);
                         scrollRightButton.setVisibility(View.GONE);
                     }
-                } else {
+                } else if (codeListVisibility == 1){
+
                     nrElementScroll.setVisibility(View.VISIBLE);
-                    codeElementScroll.setVisibility(View.GONE);
+                    conditionElementScroll.setVisibility(View.GONE);
+                    codeElementScroll.setVisibility(View.INVISIBLE);
 
                     if (nrElementScroll.getChildAt(0).getWidth() > nrElementScroll.getWidth()) {//scroll button visibility
+                        scrollLeftButton.setVisibility(View.VISIBLE);
+                        scrollRightButton.setVisibility(View.VISIBLE);
+                    } else {
+                        scrollLeftButton.setVisibility(View.GONE);
+                        scrollRightButton.setVisibility(View.GONE);
+                    }
+                } else if (codeListVisibility == 2) {
+                    nrElementScroll.setVisibility(View.GONE);
+                    conditionElementScroll.setVisibility(View.VISIBLE);
+                    codeElementScroll.setVisibility(View.INVISIBLE);
+
+                    if (conditionElementScroll.getChildAt(0).getWidth() > conditionElementScroll.getWidth()) {//scroll button visibility
                         scrollLeftButton.setVisibility(View.VISIBLE);
                         scrollRightButton.setVisibility(View.VISIBLE);
                     } else {
@@ -1150,10 +1187,12 @@ public class MoveGameActivity extends AppCompatActivity {
                 endIfButton.setVisibility(View.GONE);
         }
 
-        if (draggedButton.getText().equals(getString(R.string.repeat)) || draggedButton.getText().equals(getString(R.string.condition))) {
-            changeScrollVisibility(false);
+        if (draggedButton.getText().equals(getString(R.string.repeat))) {
+            changeScrollVisibility(1);
+        } else if (draggedButton.getText().equals(getString(R.string.condition))) {
+            changeScrollVisibility(2);
         } else {
-            changeScrollVisibility(true);
+            changeScrollVisibility(0);
         }
 
         //scroll down after add new element
@@ -1310,7 +1349,7 @@ public class MoveGameActivity extends AppCompatActivity {
 
     private int getExecuteCodeListIndex(int n) {
         int nr = 0;
-        for (int i = 0; i <= n; i++) {
+        for (int i = 0; i < n; i++) {
             if (executeCodeList.get(i).equals("repeat") || executeCodeList.get(i).equals("if"))
                 nr++;
         }
@@ -1348,6 +1387,9 @@ public class MoveGameActivity extends AppCompatActivity {
                     endIfButton.setVisibility(View.VISIBLE);
                 }
             }
+
+            if (executeCodeList.get(i).equals("repeat") || executeCodeList.get(i).equals("if"))
+                executeCodeList.remove(getExecuteCodeListIndex(i));//remove nr or condition
 
             executeCodeList.remove(getExecuteCodeListIndex(i));
             codeView.removeViewAt(i);
@@ -1464,6 +1506,8 @@ public class MoveGameActivity extends AppCompatActivity {
                         codeElementScroll.scrollBy(-10, 0);
                     } else if (nrElementScroll.getVisibility() == View.VISIBLE) {
                         nrElementScroll.scrollBy(-10, 0);
+                    } else if (codeElementScroll.getVisibility() == View.VISIBLE) {
+                        codeElementScroll.scrollBy(-10,0);
                     }
                     scrollHandler.postDelayed(this, 5);//repeat scrolling
                 }
@@ -1480,6 +1524,8 @@ public class MoveGameActivity extends AppCompatActivity {
                         codeElementScroll.scrollBy(10, 0);
                     } else if (nrElementScroll.getVisibility() == View.VISIBLE) {
                         nrElementScroll.scrollBy(10, 0);
+                    } else if (codeElementScroll.getVisibility() == View.VISIBLE){
+                        codeElementScroll.scrollBy(10,0);
                     }
                     scrollHandler.postDelayed(this, 5);//repeat scrolling
                 }

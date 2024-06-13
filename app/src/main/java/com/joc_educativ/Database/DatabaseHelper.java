@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -45,28 +46,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ",(1,5,8,5,'TRRRRRTTRRXXXXTTCXXTTXXHRRRTTTTTRRTTTTTT','right;up;down;')" +
                 ",(1,6,8,5,'RRRTTTTTRRTTTTTTCXXTTXXHRRXXRXTTTRRXXXTT','right;up;down;')" +
                 ",(1,7,8,5,'TTTXXXXHTTTXRRRRTTTXXRRRTTTTXRRRCXXXXRRR','right;left;up;')" +
-                ",(1,8,8,5,'TTTTTTRRTTTTRRRRCXXXXXXHTTTTTRRRTTTTRRRR','right;repeat;')" +
-                ",(1,9,8,5,'RRTXXXXHRRTXTTTTRRTXXXXTRRTTTTXTCXXXXXXT','right;left;up;repeat;')" +
-                ",(1,10,10,6,'RRTTXXXXXHRRTTXTTTRRRRTTXTTTRRRRTTXTTTRRRRTTXTTTRRCXXXXTTTRR','right;up;repeat;')" +
+                ",(1,8,8,5,'TTTTTTRRTTTTRRRRCXXXXXXHTTTTTRRRTTTTRRRR','right;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;')" +
+                ",(1,9,8,5,'RRTXXXXHRRTXTTTTRRTXXXXTRRTTTTXTCXXXXXXT','right;left;up;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;')" +
+                ",(1,10,10,6,'RRTTXXXXXHRRTTXTTTRRRRTTXTTTRRRRTTXTTTRRRRTTXTTTRRCXXXXTTTRR','right;up;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;')" +
                 //",(1,11,8,5,'XXXXXXXXXXXXXXXXCXXXXXXHXXXXXXXXXXXXXXXX','right;left;up;down;jump;repeat;if;')" +
 
                 ",(2,1,6,4,'RRTTTTRTXXXHPXXTTTTTTTTT','right;up;')" +
                 ",(2,2,6,4,'RRXLXHRTXTTTPXXTTTTTTTTT','right;up;jump;')" +
                 ",(2,3,6,4,'RRTTTTRTTTTTPXLXXHTTTTTT','right;jump;')" +
-                ",(2,4,8,5,'RRRRXXXHRRRRXTTTPXXLXTTTRRRTTTTTRRTTTTTT','right;up;jump;repeat;')" +
-                ",(2,5,8,5,'RRRRRTTTRRRRTTTTPXXLXXXHRRRTTTTTRRTTTTTT','right;jump;repeat;if;')" +
-                ",(2,6,8,5,'RRRRXXXHRRRTXTTTTTTTLTRRRRRTXTTTPXXXXTTT','right;up;jump;repeat;if;')" +
-                ",(2,7,8,5,'PXLXXXLXRRRTTTTXRRTLTTTXRRRTLTTXRRRRTTTH','right;down;jump;repeat;if;')" +
-                ",(2,8,8,5,'PXLXXXLXRRRTTTTXRRTLTTTXRRRTTTTXHXXXLXXX','right;left;down;jump;repeat;if;')" +
-                ",(2,9,10,6,'PXLXXXXXTRRRRTTTTXTTRRTTTTTXXHRRRLTTTTTTRRRRTLTTTTRRRRRTTTRR','right;down;jump;repeat;if;')" +
-                ",(2,10,10,6,'PXLXXLXXTRRRRTTTTXTTRRTTXXXXTTRRRLXTTTTTRRRRXXXXXHRRRRRTTTRR','right;left;down;jump;repeat;if;')";
+                ",(2,4,8,5,'RRRRXXXHRRRRXTTTPXXLXTTTRRRTTTTTRRTTTTTT','right;up;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;')" +
+                ",(2,5,8,5,'RRRRRTTTRRRRTTTTPXXLXXXHRRRTTTTTRRTTTTTT','right;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')" +
+                ",(2,6,8,5,'RRRRXXXHRRRTXTTTTTTTLTRRRRRTXTTTPXXXXTTT','right;up;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')" +
+                ",(2,7,8,5,'PXLXXXLXRRRTTTTXRRTLTTTXRRRTLTTXRRRRTTTH','right;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')" +
+                ",(2,8,8,5,'PXLXXXLXRRRTTTTXRRTLTTTXRRRTTTTXHXXXLXXX','right;left;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')" +
+                ",(2,9,10,6,'PXLXXXXXTRRRRTTTTXTTRRTTTTTXXHRRRLTTTTTTRRRRTLTTTTRRRRRTTTRR','right;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')" +
+                ",(2,10,10,6,'PXLXXLXXTRRRRTTTTXTTRRTTXXXXTTRRRLXTTTTTRRRRXXXXXHRRRRRTTTRR','right;left;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')";
 
         db.execSQL(insertLevel);
 
         String insertAppData = "INSERT INTO AppData (DBVersion) VALUES ('0.1')";
         db.execSQL(insertAppData);
 
-        System.out.println("CREATE DB");
+        Log.d("db","CREATE DB");
     }
 
     @Override
@@ -75,7 +76,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS Category");
         db.execSQL("DROP TABLE IF EXISTS Level");
 
-        System.out.println("UPDATE");
+        Log.d("db","UPDATE");
         //create table again
         onCreate(db);
     }

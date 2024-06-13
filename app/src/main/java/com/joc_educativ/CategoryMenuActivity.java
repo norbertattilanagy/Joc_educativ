@@ -40,10 +40,9 @@ public class CategoryMenuActivity extends AppCompatActivity {
 
             if (context.getResources().getConfiguration().locale.getLanguage().equals("ro") && category.getRoCategory() != null) {
                 category.setCategory(category.getRoCategory());
-            } else if (context.getResources().getConfiguration().locale.getLanguage().equals("en") && category.getEnCategory() != null) {
+            } else if (category.getEnCategory() != null) {
                 category.setCategory(category.getEnCategory());
             }
-            System.out.println(category.getCategory());
         }
 
         CategoryAdaptor categoryAdaptor = new CategoryAdaptor(getApplicationContext(), categoryList);

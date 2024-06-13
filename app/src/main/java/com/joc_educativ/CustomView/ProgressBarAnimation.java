@@ -1,6 +1,8 @@
 package com.joc_educativ.CustomView;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
@@ -10,6 +12,9 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.joc_educativ.NetworkConnection;
+import com.joc_educativ.SetingsPreferencis;
+
+import java.util.Locale;
 
 public class ProgressBarAnimation extends Animation {
     private Context context;
@@ -40,6 +45,19 @@ public class ProgressBarAnimation extends Animation {
             playButton.setVisibility(View.VISIBLE);
             if (NetworkConnection.isNetworkAvailable(context) && FirebaseAuth.getInstance().getCurrentUser() == null)
                 logInButton.setVisibility(View.VISIBLE);
+            setLanguage(context);
+        }
+
+    }
+
+    public void setLanguage(Context context) {
+        String languageCode = SetingsPreferencis.getLanguage(context);
+        if (languageCode != null) {
+            //set new language
+            Resources resources = context.getResources();
+            Configuration config = resources.getConfiguration();
+            config.setLocale(new Locale(languageCode));
+            resources.updateConfiguration(config, resources.getDisplayMetrics());
         }
     }
 }

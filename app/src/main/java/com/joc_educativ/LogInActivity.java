@@ -209,6 +209,7 @@ public class LogInActivity extends AppCompatActivity {
             } catch (ApiException e) {
                 // Google Sign In failed
                 Log.w("Sign In", "Google sign in failed", e);
+                Toast.makeText(LogInActivity.this, getString(R.string.authentication_failed), Toast.LENGTH_SHORT).show();
             }
         }
     }

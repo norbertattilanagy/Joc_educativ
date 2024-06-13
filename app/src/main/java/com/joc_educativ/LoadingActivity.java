@@ -89,8 +89,6 @@ public class LoadingActivity extends AppCompatActivity {
     //---
 
     private void progressAnimation() {
-
-        setLanguage(LoadingActivity.this);
         updateDBData();
 
         ProgressBarAnimation animation = new ProgressBarAnimation(this, progressBar, percentageText, 0, 100, playButton, logInButton);
@@ -197,18 +195,6 @@ public class LoadingActivity extends AppCompatActivity {
         }
     }
 
-    public void setLanguage(Context context) {
-        String languageCode = SetingsPreferencis.getLanguage(context);
-        if (languageCode != null) {
-            //set new language
-            Locale locale = new Locale(languageCode);
-            locale.setDefault(locale);
-            Resources resources = context.getResources();
-            Configuration config = resources.getConfiguration();
-            config.setLocale(locale);
-            resources.updateConfiguration(config, resources.getDisplayMetrics());
-        }
-    }
 
     public void openCategoryActivity() {
         Intent intent = new Intent(this, CategoryMenuActivity.class);
