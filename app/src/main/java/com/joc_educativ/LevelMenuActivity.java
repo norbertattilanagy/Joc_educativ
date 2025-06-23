@@ -28,7 +28,9 @@ public class LevelMenuActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_level_menu);
+
         decorView = getWindow().getDecorView();//hide system bars
+        decorView.setSystemUiVisibility(hideSystemBars());
 
         levelButtonListView = findViewById(R.id.levelButtonListView);
 
@@ -95,17 +97,20 @@ public class LevelMenuActivity extends AppCompatActivity {
         Intent intent = new Intent(context, MoveGameActivity.class);
         intent.putExtra("levelId",levelId);//pass the category id in LevelActivity class
         context.startActivity(intent);
+        overridePendingTransition(0,0);
     }
 
     public void openCategoryActivity(){
         Intent intent = new Intent(this, CategoryMenuActivity.class);
         startActivity(intent);
+        overridePendingTransition(0,0);
     }
 
     public void refreshActivity(){
         Intent intent = getIntent();
         finish();
         startActivity(intent);
+        overridePendingTransition(0,0);
     }
 
 }

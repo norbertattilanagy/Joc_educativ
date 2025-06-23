@@ -67,7 +67,9 @@ public class MoveGameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_move_game);
+
         decorView = getWindow().getDecorView();//hide system bars
+        decorView.setSystemUiVisibility(hideSystemBars());
 
         Intent intent = getIntent();//get submitted level id
         levelId = intent.getIntExtra("levelId", -1);
@@ -1083,12 +1085,14 @@ public class MoveGameActivity extends AppCompatActivity {
         Intent intent = getIntent();
         finish();
         startActivity(intent);
+        overridePendingTransition(0,0);
     }
 
     private void openNextLevel() {
         Intent intent = new Intent(this, MoveGameActivity.class);
         intent.putExtra("levelId", verifyNextLevel());//pass the category id in LevelActivity class
         this.startActivity(intent);
+        overridePendingTransition(0,0);
     }
 
     private void openLevelActivity() {
@@ -1099,6 +1103,7 @@ public class MoveGameActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LevelMenuActivity.class);
         intent.putExtra("categoryId", categoryId);//pass the category id in LevelActivity class
         startActivity(intent);
+        overridePendingTransition(0,0);
     }
 
     private Boolean moveCodeElement(View view, MotionEvent motionEvent) {

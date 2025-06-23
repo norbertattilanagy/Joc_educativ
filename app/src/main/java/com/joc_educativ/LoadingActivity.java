@@ -200,12 +200,14 @@ public class LoadingActivity extends AppCompatActivity {
         Intent intent = new Intent(this, CategoryMenuActivity.class);
         startActivity(intent);
         finish();
+        overridePendingTransition(0,0);
     }
 
     public void openLogInActivity() {
         Intent intent = new Intent(this, LogInActivity.class);
         startActivity(intent);
         finish();
+        overridePendingTransition(0,0);
     }
 
     public static int compareVersion(String version1, String version2) {

@@ -62,7 +62,9 @@ public class LogInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
+
         decorView = getWindow().getDecorView();//hide system bars
+        decorView.setSystemUiVisibility(hideSystemBars());
 
         backButton = findViewById(R.id.backButton);
         emailEditText = findViewById(R.id.emailEditText);
@@ -340,10 +342,12 @@ public class LogInActivity extends AppCompatActivity {
         Intent intent = new Intent(this, CategoryMenuActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+        overridePendingTransition(0,0);
     }
 
     public void openCreateAccountActivity() {
         Intent intent = new Intent(this, CreateAccountActivity.class);
         startActivity(intent);
+        overridePendingTransition(0,0);
     }
 }

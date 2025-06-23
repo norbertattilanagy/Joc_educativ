@@ -38,7 +38,9 @@ public class CreateAccountActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_account);
+
         decorView = getWindow().getDecorView();//hide system bars
+        decorView.setSystemUiVisibility(hideSystemBars());
 
         emailEditText = findViewById(R.id.emailEditText);
         password1EditText = findViewById(R.id.password1EditText);
@@ -187,10 +189,12 @@ public class CreateAccountActivity extends AppCompatActivity {
         Intent intent = new Intent(this, CategoryMenuActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+        overridePendingTransition(0,0);
     }
 
     public void openSignInActivity() {//open sign in page
         Intent intent = new Intent(this, LogInActivity.class);
         startActivity(intent);
+        overridePendingTransition(0,0);
     }
 }

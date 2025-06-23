@@ -28,7 +28,9 @@ public class CategoryMenuActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category_menu);
+
         decorView = getWindow().getDecorView();//hide system bars
+        decorView.setSystemUiVisibility(hideSystemBars());
 
         categoryButtonListView = findViewById(R.id.categoryButtonListView);
         settingsButton = findViewById(R.id.settingsButton);
@@ -91,5 +93,6 @@ public class CategoryMenuActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LevelMenuActivity.class);
         intent.putExtra("categoryId", id);//pass the category id in LevelActivity class
         startActivity(intent);
+        overridePendingTransition(0,0);
     }
 }

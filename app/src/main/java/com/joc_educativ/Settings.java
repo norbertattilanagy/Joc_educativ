@@ -1,5 +1,6 @@
 package com.joc_educativ;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -202,6 +203,10 @@ public class Settings {
             if (categoryId != -1)
                 intent.putExtra("categoryId", categoryId);//pass the category id in LevelActivity class
             context.startActivity(intent);
+
+            if (context instanceof Activity) {
+                ((Activity) context).overridePendingTransition(0, 0);
+            }
         }
     }
 
@@ -214,6 +219,9 @@ public class Settings {
             closeButton.performClick();//close dialog
             Intent intent = new Intent(context, LogInActivity.class);
             context.startActivity(intent);
+            if (context instanceof Activity) {
+                ((Activity) context).overridePendingTransition(0, 0);
+            }
         }
     }
 }
