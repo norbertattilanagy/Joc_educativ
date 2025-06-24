@@ -4,8 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
@@ -27,6 +29,14 @@ public class LevelMenuActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //remove notch area
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+            layoutParams.layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow().setAttributes(layoutParams);
+        }
+
         setContentView(R.layout.activity_level_menu);
 
         decorView = getWindow().getDecorView();//hide system bars
@@ -97,7 +107,7 @@ public class LevelMenuActivity extends AppCompatActivity {
         Intent intent = new Intent(context, MoveGameActivity.class);
         intent.putExtra("levelId",levelId);//pass the category id in LevelActivity class
         context.startActivity(intent);
-        overridePendingTransition(0,0);
+        //overridePendingTransition(0,0);
     }
 
     public void openCategoryActivity(){

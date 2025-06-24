@@ -19,6 +19,7 @@ import java.util.Objects;
 public class FirebaseDB {
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
     String successMsg;
+    Boolean updateLevel;
 
     public interface DBVersionCallback {
         void onDBVersionReceived(String dbVersion);
@@ -210,6 +211,27 @@ public class FirebaseDB {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 callback.onCancelled(error);
+            }
+        });
+    }
+
+    public interface UpdateLevelCallback {
+        void onUpdateLevelResult(Boolean updateLevel);
+    }
+
+    public void getUpdateLevel(UpdateLevelCallback callback) {
+        DatabaseReference updateLevelRef = databaseReference.child("updateLevel");
+
+        updateLevelRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Boolean updateLevel = snapshot.getValue(Boolean.class);
+                callback.onUpdateLevelResult(updateLevel);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
