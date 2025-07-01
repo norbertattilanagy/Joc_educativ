@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.MotionEvent;
@@ -27,9 +26,11 @@ import android.widget.ScrollView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.joc_educativ.CustomButton;
 import com.joc_educativ.CustomView.DrawMoveGameView;
 import com.joc_educativ.Database.DatabaseHelper;
 import com.joc_educativ.Database.FirebaseDB;
@@ -50,10 +51,11 @@ public class MoveGameActivity extends AppCompatActivity {
     HorizontalScrollView codeElementScroll, nrElementScroll, conditionElementScroll;
     ImageButton scrollLeftButton, scrollRightButton;
     ImageButton homeButton, replayButton, playButton, stopButton;
-    Button rightButton, leftButton, upButton, downButton, jumpButton, repeatButton, endRepeatButton, ifButton, endIfButton;
-    Button nr1Button, nr2Button, nr3Button, nr4Button, nr5Button, nr6Button, nr7Button, nr8Button, nr9Button;
+    CustomButton rightButton, leftButton, upButton, downButton, jumpButton, repeatButton, endRepeatButton, ifButton, endIfButton;
+    CustomButton nr1Button, nr2Button, nr3Button, nr4Button, nr5Button, nr6Button, nr7Button, nr8Button, nr9Button;
 
-    Button logButton;
+    CustomButton logButton;
+    CustomButton logRightButton, logLeftButton, logUpButton, logDownButton;
     private int btnOrderInList = -1, btnOrderInCode = -1;
     private static int levelId;
     public static int x, y;
@@ -120,6 +122,10 @@ public class MoveGameActivity extends AppCompatActivity {
         nr9Button = findViewById(R.id.nr9Button);
 
         logButton = findViewById(R.id.logButton);
+        logRightButton = findViewById(R.id.logRightButton);
+        logLeftButton = findViewById(R.id.logLeftButton);
+        logUpButton = findViewById(R.id.logUpButton);
+        logDownButton = findViewById(R.id.logDownButton);
 
         gameView.setLevelId(levelId);
 
@@ -131,7 +137,7 @@ public class MoveGameActivity extends AppCompatActivity {
             public void onGlobalLayout() {
                 codeOutlineView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 int realHeight = codeOutlineView.getHeight();
-                codeView.setMinimumHeight(realHeight-50);
+                codeView.setMinimumHeight(realHeight - 50);
             }
         });
 
@@ -337,11 +343,36 @@ public class MoveGameActivity extends AppCompatActivity {
             }
         });
 
+        logRightButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+        logLeftButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+        logUpButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+        logDownButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return moveCodeElement(view, motionEvent);
+            }
+        });
+
         codeView.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View view, DragEvent dragEvent) {
 
-                Button draggedButton = (Button) dragEvent.getLocalState();
+                CustomButton draggedButton = (CustomButton) dragEvent.getLocalState();
 
                 //if draggedButton.getTag() != null then is from codeView
                 if (dragEvent.getAction() == DragEvent.ACTION_DROP && draggedButton.getTag() == null) {
@@ -349,7 +380,8 @@ public class MoveGameActivity extends AppCompatActivity {
                 }
                 //remove element from code
                 if (dragEvent.getAction() == DragEvent.ACTION_DRAG_EXITED && draggedButton.getTag() != null && codeView.getChildCount() > 0
-                        && (nrElementScroll.getVisibility() == View.GONE || conditionElementScroll.getVisibility() == View.GONE || draggedButton.getText().equals(getString(R.string.repeat)) || draggedButton.getText().equals(getString(R.string.condition)))) {
+                        && (nrElementScroll.getVisibility() == View.GONE || conditionElementScroll.getVisibility() == View.GONE ||
+                        draggedButton.getText().equals(getString(R.string.repeat)) || draggedButton.getText().equals(getString(R.string.condition)))) {
                     if (draggedButton.getParent() instanceof ConstraintLayout) {
                         int locCodeView = codeView.indexOfChild((ConstraintLayout) draggedButton.getParent());
                         int loc = getRepeatLocationInCode(codeView.indexOfChild((ConstraintLayout) draggedButton.getParent()));//get repeat location in executeCodeList
@@ -375,7 +407,9 @@ public class MoveGameActivity extends AppCompatActivity {
                         } else if (draggedButton.getText().equals("1") || draggedButton.getText().equals("2") || draggedButton.getText().equals("3")
                                 || draggedButton.getText().equals("4") || draggedButton.getText().equals("5") || draggedButton.getText().equals("6")
                                 || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")
-                                || draggedButton.getText().equals(getString(R.string.log))) {
+                                || draggedButton.getText().equals(getString(R.string.log))
+                                || "logRight".equals(draggedButton.getHideText()) || "logLeft".equals(draggedButton.getHideText())
+                                || "logUp".equals(draggedButton.getHideText()) || "logDown".equals(draggedButton.getHideText())) {
 
                             btnOrderInList = codeView.indexOfChild((ConstraintLayout) draggedButton.getParent()) + loc + 1;
                             executeCodeList.remove(btnOrderInList);//remove the nr from executeCodeList
@@ -408,7 +442,8 @@ public class MoveGameActivity extends AppCompatActivity {
                             || draggedButton.getText().equals("4") || draggedButton.getText().equals("5") || draggedButton.getText().equals("6")
                             || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")) {
                         changeScrollVisibility(1);
-                    } else if (draggedButton.getText().equals(getString(R.string.log))) {
+                    } else if (draggedButton.getText().equals(getString(R.string.log)) || "logRight".equals(draggedButton.getHideText()) || "logLeft".equals(draggedButton.getHideText())
+                            || "logUp".equals(draggedButton.getHideText()) || "logDown".equals(draggedButton.getHideText())) {
                         changeScrollVisibility(2);
                     } else {
                         changeScrollVisibility(0);
@@ -418,7 +453,6 @@ public class MoveGameActivity extends AppCompatActivity {
             }
         });
     }
-
 
 
     //hide system bars
@@ -457,18 +491,18 @@ public class MoveGameActivity extends AppCompatActivity {
                 final ScrollView scrollview = ((ScrollView) findViewById(R.id.codeScrollView));
                 for (int i = 0; i < executeCodeList.size(); i++) {
                     final int currentIndex = i;
-                    final Button button;
+                    final CustomButton button;
                     final int yButton;
                     if (codeView.getChildAt(j) == null) {
                         break;
                     }
 
-                    if (codeView.getChildAt(j) instanceof Button) {
-                        button = (Button) codeView.getChildAt(j);//get  current code element
+                    if (codeView.getChildAt(j) instanceof CustomButton) {
+                        button = (CustomButton) codeView.getChildAt(j);//get  current code element
                         yButton = button.getTop() - button.getHeight();
                     } else {
                         ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(j);
-                        button = (Button) constraintLayout.getChildAt(0);
+                        button = (CustomButton) constraintLayout.getChildAt(0);
                         yButton = constraintLayout.getTop() - constraintLayout.getHeight();
                     }
 
@@ -493,21 +527,21 @@ public class MoveGameActivity extends AppCompatActivity {
 
                                 if (codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout) {
                                     ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(finalJ + btnNr);
-                                    Button btn = (Button) constraintLayout.getChildAt(0);
+                                    CustomButton btn = (CustomButton) constraintLayout.getChildAt(0);
                                     codeElementSelect(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
                                     repeatNr++;
                                 } else {
-                                    Button btn = (Button) codeView.getChildAt(finalJ + btnNr);
+                                    CustomButton btn = (CustomButton) codeView.getChildAt(finalJ + btnNr);
                                     codeElementSelect(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
                                 }
                                 btnNr++;
                             }
                             if (codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout) {
                                 ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(finalJ + btnNr);
-                                Button btn = (Button) constraintLayout.getChildAt(0);
+                                CustomButton btn = (CustomButton) constraintLayout.getChildAt(0);
                                 codeElementSelect(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
                             } else if (currentIndex + btnNr + repeatNr < executeCodeList.size()) {//if not OutOfBandsException
-                                Button btn = (Button) codeView.getChildAt(finalJ + btnNr);
+                                CustomButton btn = (CustomButton) codeView.getChildAt(finalJ + btnNr);
                                 codeElementSelect(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
                             }
                         }
@@ -570,21 +604,21 @@ public class MoveGameActivity extends AppCompatActivity {
                             while (finalJ + btnNr < codeView.getChildCount() && (codeView.getChildAt(finalJ + btnNr).getLeft() > 0 || codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout)) {//if repeat button
                                 if (codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout) {
                                     ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(finalJ + btnNr);
-                                    Button btn = (Button) constraintLayout.getChildAt(0);
+                                    CustomButton btn = (CustomButton) constraintLayout.getChildAt(0);
                                     codeElementDefault(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
                                     repeatNr++;
                                 } else {
-                                    Button btn = (Button) codeView.getChildAt(finalJ + btnNr);
+                                    CustomButton btn = (CustomButton) codeView.getChildAt(finalJ + btnNr);
                                     codeElementDefault(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
                                 }
                                 btnNr++;
                             }
                             if (codeView.getChildAt(finalJ + btnNr) instanceof ConstraintLayout) {
                                 ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(finalJ + btnNr);
-                                Button btn = (Button) constraintLayout.getChildAt(0);
+                                CustomButton btn = (CustomButton) constraintLayout.getChildAt(0);
                                 codeElementDefault(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
                             } else if (currentIndex + btnNr + repeatNr < executeCodeList.size()) {//if not OutOfBandsException
-                                Button btn = (Button) codeView.getChildAt(finalJ + btnNr);
+                                CustomButton btn = (CustomButton) codeView.getChildAt(finalJ + btnNr);
                                 codeElementDefault(btn, executeCodeList.get(currentIndex + btnNr + repeatNr));
                             }
 
@@ -661,14 +695,14 @@ public class MoveGameActivity extends AppCompatActivity {
         gameView.redraw(x, y, jump);
     }
 
-    private boolean verifyIfLog(String[][] map) {
-        if (x + 1 < map[y].length && map[y][x + 1].equals("L")) {
+    private boolean verifyIfLog(String[][] map, String condition) {
+        if (x + 1 < map[y].length && map[y][x + 1].equals("L") && condition.equals("logRight")) {
             return true;
-        } else if (x > 0 && map[y][x - 1].equals("L")) {
+        } else if (x > 0 && map[y][x - 1].equals("L") && condition.equals("logLeft")) {
             return true;
-        } else if (y + 1 < map.length && map[y + 1][x].equals("L")) {
+        } else if (y + 1 < map.length && map[y + 1][x].equals("L") && condition.equals("logDown")) {
             return true;
-        } else if (y > 0 && map[y - 1][x].equals("L")) {
+        } else if (y > 0 && map[y - 1][x].equals("L") && condition.equals("logUp")) {
             return true;
         }
         return false;
@@ -724,8 +758,9 @@ public class MoveGameActivity extends AppCompatActivity {
     private boolean condition(int startIndex, Level level) {
         String cond = executeCodeList.get(startIndex + 1);
         startIndex += 2;
+        Boolean addedEndIf = false;
 
-        if (verifyIfLog(level.getMap()) && cond.equals("log")) {//verify condition
+        if (verifyIfLog(level.getMap(), cond)) {//verify condition
             while (startIndex < executeCodeList.size() && !executeCodeList.get(startIndex).equals("endIf")) {
                 switch (executeCodeList.get(startIndex)) {
                     case "right":
@@ -760,10 +795,18 @@ public class MoveGameActivity extends AppCompatActivity {
                 if (ifGameOver(level, startIndex)) {
                     return true;
                 }
+
+                if (startIndex + 1 >= executeCodeList.size()) {//not add endIf button
+                    executeCodeList.add("endIf");
+                    addedEndIf = true;
+                }
                 startIndex++;
 
                 if (!isRunning)//press stop button
                     return false;
+            }
+            if (addedEndIf){
+                executeCodeList.remove(executeCodeList.size()-1);
             }
         }
         return false;
@@ -775,7 +818,7 @@ public class MoveGameActivity extends AppCompatActivity {
     }
 
     //set select background for code element
-    private void codeElementSelect(Button button, String action) {
+    private void codeElementSelect(CustomButton button, String action) {
         switch (action) {
             case "right":
                 button.setBackgroundResource(R.drawable.code_right_element_selected);
@@ -807,7 +850,10 @@ public class MoveGameActivity extends AppCompatActivity {
     }
 
     //set default background for code element
-    private void codeElementDefault(Button button, String action) {
+    private void codeElementDefault(CustomButton button, String action) {
+        /*CustomButton btn = (CustomButton) codeView.getChildAt(codeView.getChildCount() - 1);
+        System.out.println("exx="+btn.getText());
+        if (btn.getText().equals(getString(R.string.end_condition)) || !action.equals("endIf")) {//not add endIf button in codeView*/
         switch (action) {
             case "right":
                 button.setBackgroundResource(R.drawable.code_right_element_default);
@@ -836,6 +882,10 @@ public class MoveGameActivity extends AppCompatActivity {
             case "endIf":
                 button.setBackgroundResource(R.drawable.code_if_element_default);
         }
+        /*} else {
+            executeCodeList.remove(executeCodeList.size()-1);
+            System.out.println("exx="+executeCodeList);
+        }*/
     }
 
     private void setCodeElementVisibility(int levelId) {//set visible the code button
@@ -904,6 +954,14 @@ public class MoveGameActivity extends AppCompatActivity {
                     break;
                 case "log":
                     logButton.setVisibility(View.VISIBLE);
+                case "logRight":
+                    logRightButton.setVisibility(View.VISIBLE);
+                case "logLeft":
+                    logLeftButton.setVisibility(View.VISIBLE);
+                case "logUp":
+                    logUpButton.setVisibility(View.VISIBLE);
+                case "logDown":
+                    logDownButton.setVisibility(View.VISIBLE);
             }
         }
 
@@ -918,7 +976,7 @@ public class MoveGameActivity extends AppCompatActivity {
                 codeElementScroll.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
 
-                if (codeListVisibility==0) {
+                if (codeListVisibility == 0) {
                     nrElementScroll.setVisibility(View.GONE);
                     conditionElementScroll.setVisibility(View.GONE);
                     codeElementScroll.setVisibility(View.VISIBLE);
@@ -930,7 +988,7 @@ public class MoveGameActivity extends AppCompatActivity {
                         scrollLeftButton.setVisibility(View.GONE);
                         scrollRightButton.setVisibility(View.GONE);
                     }
-                } else if (codeListVisibility == 1){
+                } else if (codeListVisibility == 1) {
 
                     nrElementScroll.setVisibility(View.VISIBLE);
                     conditionElementScroll.setVisibility(View.GONE);
@@ -1095,14 +1153,14 @@ public class MoveGameActivity extends AppCompatActivity {
         Intent intent = getIntent();
         finish();
         startActivity(intent);
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
     }
 
     private void openNextLevel() {
         Intent intent = new Intent(this, MoveGameActivity.class);
         intent.putExtra("levelId", verifyNextLevel());//pass the category id in LevelActivity class
         this.startActivity(intent);
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
     }
 
     private void openLevelActivity() {
@@ -1113,7 +1171,7 @@ public class MoveGameActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LevelMenuActivity.class);
         intent.putExtra("categoryId", categoryId);//pass the category id in LevelActivity class
         startActivity(intent);
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
     }
 
     private Boolean moveCodeElement(View view, MotionEvent motionEvent) {
@@ -1130,8 +1188,8 @@ public class MoveGameActivity extends AppCompatActivity {
 
         putObjectSound();//sound
 
-        Button draggedButton = (Button) dragEvent.getLocalState();
-        Button copiedButton = new Button(MoveGameActivity.this);
+        CustomButton draggedButton = (CustomButton) dragEvent.getLocalState();
+        CustomButton copiedButton = new CustomButton(MoveGameActivity.this);
 
         Drawable background = draggedButton.getBackground().getConstantState().newDrawable();//get dragged button background
         //set new button parameter
@@ -1143,26 +1201,29 @@ public class MoveGameActivity extends AppCompatActivity {
         copiedButton.setTransformationMethod(draggedButton.getTransformationMethod());//textAllCaps
         copiedButton.setTextColor(draggedButton.getTextColors());//textColor
         copiedButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, draggedButton.getTextSize());//textSize
+        copiedButton.setHideText(draggedButton.getHideText());
         copiedButton.setTag(true);//is from codeView
 
         if (draggedButton.getText().equals("1") || draggedButton.getText().equals("2") || draggedButton.getText().equals("3")
                 || draggedButton.getText().equals("4") || draggedButton.getText().equals("5") || draggedButton.getText().equals("6")
                 || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")) {
-            Button repeatButton;
+            CustomButton repeatButton;
             if (btnOrderInList == -1) {
                 repeatButton = getLastButton(codeView);
             } else {
                 ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(btnOrderInCode);
-                repeatButton = (Button) constraintLayout.getChildAt(0);
+                repeatButton = (CustomButton) constraintLayout.getChildAt(0);
             }
             placeNrButtonOnRepeatButton(repeatButton, copiedButton);
-        } else if (draggedButton.getText().equals(getString(R.string.log))) {
-            Button ifButton;
+        } else if (draggedButton.getText().equals(getString(R.string.log)) ||
+                "logRight".equals(draggedButton.getHideText()) || "logLeft".equals(draggedButton.getHideText())
+                || "logUp".equals(draggedButton.getHideText()) || "logDown".equals(draggedButton.getHideText())) {
+            CustomButton ifButton;
             if (btnOrderInList == -1) {
                 ifButton = getLastButton(codeView);
             } else {
                 ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(btnOrderInCode);
-                ifButton = (Button) constraintLayout.getChildAt(0);
+                ifButton = (CustomButton) constraintLayout.getChildAt(0);
             }
             placeButtonOnIfButton(ifButton, copiedButton);
         } else {
@@ -1250,7 +1311,7 @@ public class MoveGameActivity extends AppCompatActivity {
     }
 
     public void addNr(View view) {
-        Button button = (Button) view;
+        CustomButton button = (CustomButton) view;
         executeCodeList.add(button.getText().toString());
     }
 
@@ -1266,8 +1327,24 @@ public class MoveGameActivity extends AppCompatActivity {
         executeCodeList.add("log");
     }
 
+    public void addLogRight(View view) {
+        executeCodeList.add("logRight");
+    }
+
+    public void addLogLeft(View view) {
+        executeCodeList.add("logLeft");
+    }
+
+    public void addLogUp(View view) {
+        executeCodeList.add("logUp");
+    }
+
+    public void addLogDown(View view) {
+        executeCodeList.add("logDown");
+    }
+
     public void addNr(View view, int order) {
-        Button button = (Button) view;
+        CustomButton button = (CustomButton) view;
         if (order < executeCodeList.size()) {//if put in last position
             executeCodeList.add(executeCodeList.get(executeCodeList.size() - 1));//set last position
             for (int i = executeCodeList.size() - 2; i >= order; i--)
@@ -1281,7 +1358,7 @@ public class MoveGameActivity extends AppCompatActivity {
     }
 
     public void addCondition(View view, int order) {
-        Button button = (Button) view;
+        CustomButton button = (CustomButton) view;
         if (order < executeCodeList.size()) {//if put in last position
             executeCodeList.add(executeCodeList.get(executeCodeList.size() - 1));//set last position
             for (int i = executeCodeList.size() - 2; i >= order; i--)
@@ -1295,21 +1372,29 @@ public class MoveGameActivity extends AppCompatActivity {
         btnOrderInCode = -1;
     }
 
-    private String getExecuteCodeFromButton(Button button) {//return execute code list text
+    private String getExecuteCodeFromButton(CustomButton button) {//return execute code list text
         String text = "";
         if (button.getText().equals(getString(R.string.log))) {
             text = "log";
+        } else if (button.getHideText().equals("logRight")) {
+            text = "logRight";
+        } else if (button.getHideText().equals("logLeft")) {
+            text = "logLeft";
+        } else if (button.getHideText().equals("logUp")) {
+            text = "logUp";
+        } else if (button.getHideText().equals("logDown")) {
+            text = "logDown";
         }
         return text;
     }
 
-    private Button getLastButton(LinearLayout view) {
-        Button lastButton = null;
+    private CustomButton getLastButton(LinearLayout view) {
+        CustomButton lastButton = null;
         int childCount = view.getChildCount();
         for (int i = childCount - 1; i >= 0; i--) {
             View childView = view.getChildAt(i);
-            if (childView instanceof Button) {
-                Button button = (Button) childView;
+            if (childView instanceof CustomButton) {
+                CustomButton button = (CustomButton) childView;
                 if (button.getTag() != null && (boolean) button.getTag()) {
                     lastButton = button;
                     break;
@@ -1324,7 +1409,7 @@ public class MoveGameActivity extends AppCompatActivity {
         for (int i = 0; i < btnOrder; i++) {
             if (codeView.getChildAt(i) instanceof ConstraintLayout) {
                 ConstraintLayout constraintLayout = (ConstraintLayout) codeView.getChildAt(i);
-                Button btn = (Button) constraintLayout.getChildAt(0);
+                CustomButton btn = (CustomButton) constraintLayout.getChildAt(0);
                 if (btn.getText().equals(getString(R.string.repeat))) {
                     nr++;
                 }
@@ -1348,6 +1433,8 @@ public class MoveGameActivity extends AppCompatActivity {
         }
         if (repeatNr == 0 && index == -1)//-2 not exist repeat; -1 not close repeat
             index = -2;
+        else if (index == -1)
+            index = executeCodeList.size()-1;//last position
 
         return index;
     }
@@ -1374,8 +1461,8 @@ public class MoveGameActivity extends AppCompatActivity {
     private void realign() {
         int nrSpace = 0;
         for (int j = 0; j < codeView.getChildCount(); j++) {
-            if (codeView.getChildAt(j) instanceof Button) {
-                Button btn = (Button) codeView.getChildAt(j);
+            if (codeView.getChildAt(j) instanceof CustomButton) {
+                CustomButton btn = (CustomButton) codeView.getChildAt(j);
                 if (btn.getText().equals(getString(R.string.end_repeat)) || btn.getText().equals(getString(R.string.end_condition))) {
                     nrSpace--;
                 }
@@ -1391,11 +1478,11 @@ public class MoveGameActivity extends AppCompatActivity {
         }
     }
 
-    private void removeAfter(Button btn) {
+    private void removeAfter(CustomButton btn) {
         int start = codeView.indexOfChild(btn);
         for (int i = codeView.getChildCount() - 1; i >= start; i--) {
-            if (codeView.getChildAt(i) instanceof Button) {//if remove end button
-                Button button = (Button) codeView.getChildAt(i);
+            if (codeView.getChildAt(i) instanceof CustomButton) {//if remove end button
+                CustomButton button = (CustomButton) codeView.getChildAt(i);
                 if (button.getText().equals(getString(R.string.end_repeat))) {
                     endRepeatButton.setVisibility(View.VISIBLE);
                 } else if (button.getText().equals(getString(R.string.end_condition))) {
@@ -1411,7 +1498,7 @@ public class MoveGameActivity extends AppCompatActivity {
         }
     }
 
-    private void placeNrButtonOnRepeatButton(Button repeatButton, Button nrButton) {
+    private void placeNrButtonOnRepeatButton(CustomButton repeatButton, CustomButton nrButton) {
 
         float dp = getResources().getDisplayMetrics().density;
 
@@ -1454,7 +1541,7 @@ public class MoveGameActivity extends AppCompatActivity {
         constraintSet.applyTo(constraintLayout);
     }
 
-    private void placeButtonOnIfButton(Button ifButton, Button conditionButton) {
+    private void placeButtonOnIfButton(CustomButton ifButton, CustomButton conditionButton) {
         float dp = getResources().getDisplayMetrics().density;
         ConstraintLayout constraintLayout;//create ConstraintLayout
 
@@ -1479,9 +1566,25 @@ public class MoveGameActivity extends AppCompatActivity {
         }
 
         conditionButton.setId(ViewCompat.generateViewId());//set random id for ConstraintSet
+
+        //resize icon from condition button
+        Drawable drawable;
+        if (conditionButton.getHideText().equals("logRight")) {
+            drawable = ContextCompat.getDrawable(this, R.drawable.log_right_icon_48);
+        } else if (conditionButton.getHideText().equals("logLeft")) {
+            drawable = ContextCompat.getDrawable(this, R.drawable.log_left_icon_48);
+        } else if (conditionButton.getHideText().equals("logUp")) {
+            drawable = ContextCompat.getDrawable(this, R.drawable.log_up_icon_48);
+        } else {
+            drawable = ContextCompat.getDrawable(this, R.drawable.log_down_icon_48);
+        }
+        int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 36, getResources().getDisplayMetrics()); // resize 36dp
+        drawable.setBounds(0, 0, 2 * size, size);
+        conditionButton.setCompoundDrawables(drawable, null, null, null);
+
         constraintLayout.addView(conditionButton);//add buttons in constraintLayout
 
-        //set nrButton size and margins end
+        //set conditionButton size and margins end
         ConstraintLayout.LayoutParams conditionParams = new ConstraintLayout.LayoutParams(Math.round(72 * dp), Math.round(36 * dp));
         conditionParams.setMarginEnd(Math.round(8 * dp));
         conditionButton.setLayoutParams(conditionParams);
@@ -1489,7 +1592,7 @@ public class MoveGameActivity extends AppCompatActivity {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(constraintLayout);
 
-        //nrButton constraints
+        //conditionButton constraints
         constraintSet.connect(conditionButton.getId(), ConstraintSet.END, ifButton.getId(), ConstraintSet.END);
         constraintSet.connect(conditionButton.getId(), ConstraintSet.TOP, ifButton.getId(), ConstraintSet.TOP);
         constraintSet.connect(conditionButton.getId(), ConstraintSet.BOTTOM, ifButton.getId(), ConstraintSet.BOTTOM);
@@ -1522,7 +1625,7 @@ public class MoveGameActivity extends AppCompatActivity {
                     } else if (nrElementScroll.getVisibility() == View.VISIBLE) {
                         nrElementScroll.scrollBy(-10, 0);
                     } else if (codeElementScroll.getVisibility() == View.VISIBLE) {
-                        codeElementScroll.scrollBy(-10,0);
+                        codeElementScroll.scrollBy(-10, 0);
                     }
                     scrollHandler.postDelayed(this, 5);//repeat scrolling
                 }
@@ -1539,8 +1642,8 @@ public class MoveGameActivity extends AppCompatActivity {
                         codeElementScroll.scrollBy(10, 0);
                     } else if (nrElementScroll.getVisibility() == View.VISIBLE) {
                         nrElementScroll.scrollBy(10, 0);
-                    } else if (codeElementScroll.getVisibility() == View.VISIBLE){
-                        codeElementScroll.scrollBy(10,0);
+                    } else if (codeElementScroll.getVisibility() == View.VISIBLE) {
+                        codeElementScroll.scrollBy(10, 0);
                     }
                     scrollHandler.postDelayed(this, 5);//repeat scrolling
                 }
