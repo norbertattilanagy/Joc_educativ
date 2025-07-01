@@ -54,7 +54,6 @@ public class MoveGameActivity extends AppCompatActivity {
     CustomButton rightButton, leftButton, upButton, downButton, jumpButton, repeatButton, endRepeatButton, ifButton, endIfButton;
     CustomButton nr1Button, nr2Button, nr3Button, nr4Button, nr5Button, nr6Button, nr7Button, nr8Button, nr9Button;
 
-    CustomButton logButton;
     CustomButton logRightButton, logLeftButton, logUpButton, logDownButton;
     private int btnOrderInList = -1, btnOrderInCode = -1;
     private static int levelId;
@@ -121,7 +120,6 @@ public class MoveGameActivity extends AppCompatActivity {
         nr8Button = findViewById(R.id.nr8Button);
         nr9Button = findViewById(R.id.nr9Button);
 
-        logButton = findViewById(R.id.logButton);
         logRightButton = findViewById(R.id.logRightButton);
         logLeftButton = findViewById(R.id.logLeftButton);
         logUpButton = findViewById(R.id.logUpButton);
@@ -336,12 +334,6 @@ public class MoveGameActivity extends AppCompatActivity {
             }
         });
 
-        logButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                return moveCodeElement(view, motionEvent);
-            }
-        });
 
         logRightButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -407,7 +399,6 @@ public class MoveGameActivity extends AppCompatActivity {
                         } else if (draggedButton.getText().equals("1") || draggedButton.getText().equals("2") || draggedButton.getText().equals("3")
                                 || draggedButton.getText().equals("4") || draggedButton.getText().equals("5") || draggedButton.getText().equals("6")
                                 || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")
-                                || draggedButton.getText().equals(getString(R.string.log))
                                 || "logRight".equals(draggedButton.getHideText()) || "logLeft".equals(draggedButton.getHideText())
                                 || "logUp".equals(draggedButton.getHideText()) || "logDown".equals(draggedButton.getHideText())) {
 
@@ -442,7 +433,7 @@ public class MoveGameActivity extends AppCompatActivity {
                             || draggedButton.getText().equals("4") || draggedButton.getText().equals("5") || draggedButton.getText().equals("6")
                             || draggedButton.getText().equals("7") || draggedButton.getText().equals("8") || draggedButton.getText().equals("9")) {
                         changeScrollVisibility(1);
-                    } else if (draggedButton.getText().equals(getString(R.string.log)) || "logRight".equals(draggedButton.getHideText()) || "logLeft".equals(draggedButton.getHideText())
+                    } else if ("logRight".equals(draggedButton.getHideText()) || "logLeft".equals(draggedButton.getHideText())
                             || "logUp".equals(draggedButton.getHideText()) || "logDown".equals(draggedButton.getHideText())) {
                         changeScrollVisibility(2);
                     } else {
@@ -952,8 +943,6 @@ public class MoveGameActivity extends AppCompatActivity {
                 case "nr9":
                     nr9Button.setVisibility(View.VISIBLE);
                     break;
-                case "log":
-                    logButton.setVisibility(View.VISIBLE);
                 case "logRight":
                     logRightButton.setVisibility(View.VISIBLE);
                 case "logLeft":
@@ -1215,8 +1204,7 @@ public class MoveGameActivity extends AppCompatActivity {
                 repeatButton = (CustomButton) constraintLayout.getChildAt(0);
             }
             placeNrButtonOnRepeatButton(repeatButton, copiedButton);
-        } else if (draggedButton.getText().equals(getString(R.string.log)) ||
-                "logRight".equals(draggedButton.getHideText()) || "logLeft".equals(draggedButton.getHideText())
+        } else if ("logRight".equals(draggedButton.getHideText()) || "logLeft".equals(draggedButton.getHideText())
                 || "logUp".equals(draggedButton.getHideText()) || "logDown".equals(draggedButton.getHideText())) {
             CustomButton ifButton;
             if (btnOrderInList == -1) {
@@ -1323,10 +1311,6 @@ public class MoveGameActivity extends AppCompatActivity {
         executeCodeList.add("endIf");
     }
 
-    public void addLog(View view) {
-        executeCodeList.add("log");
-    }
-
     public void addLogRight(View view) {
         executeCodeList.add("logRight");
     }
@@ -1374,9 +1358,7 @@ public class MoveGameActivity extends AppCompatActivity {
 
     private String getExecuteCodeFromButton(CustomButton button) {//return execute code list text
         String text = "";
-        if (button.getText().equals(getString(R.string.log))) {
-            text = "log";
-        } else if (button.getHideText().equals("logRight")) {
+        if (button.getHideText().equals("logRight")) {
             text = "logRight";
         } else if (button.getHideText().equals("logLeft")) {
             text = "logLeft";

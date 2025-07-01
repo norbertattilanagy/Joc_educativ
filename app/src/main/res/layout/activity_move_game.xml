@@ -437,21 +437,6 @@
             android:orientation="horizontal">
 
             <com.joc_educativ.CustomButton
-                android:id="@+id/logButton"
-                android:layout_width="84dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginHorizontal="8dp"
-                android:background="@drawable/code_number_element"
-                android:onClick="addLog"
-                android:text="@string/log"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                app:hideText="log"
-                android:visibility="gone" />
-
-            <com.joc_educativ.CustomButton
                 android:id="@+id/logRightButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
