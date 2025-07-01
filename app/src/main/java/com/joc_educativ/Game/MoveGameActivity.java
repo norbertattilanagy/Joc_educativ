@@ -945,10 +945,13 @@ public class MoveGameActivity extends AppCompatActivity {
                     break;
                 case "logRight":
                     logRightButton.setVisibility(View.VISIBLE);
+                    break;
                 case "logLeft":
                     logLeftButton.setVisibility(View.VISIBLE);
+                    break;
                 case "logUp":
                     logUpButton.setVisibility(View.VISIBLE);
+                    break;
                 case "logDown":
                     logDownButton.setVisibility(View.VISIBLE);
             }

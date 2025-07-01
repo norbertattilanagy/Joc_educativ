@@ -19,7 +19,7 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public DatabaseHelper(@Nullable Context context) {
-        super(context, "educative_game.db", null, 2);//create db
+        super(context, "educative_game.db", null, 3);//create db
     }
 
     @Override
@@ -55,12 +55,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ",(2,2,6,4,'RRXLXHRTXTTTPXXTTTTTTTTT','right;up;jump;')" +
                 ",(2,3,6,4,'RRTTTTRTTTTTPXLXXHTTTTTT','right;jump;')" +
                 ",(2,4,8,5,'RRRRXXXHRRRRXTTTPXXLXTTTRRRTTTTTRRTTTTTT','right;up;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;')" +
-                ",(2,5,8,5,'RRRRRTTTRRRRTTTTPXXLXXXHRRRTTTTTRRTTTTTT','right;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')" +
-                ",(2,6,8,5,'RRRRXXXHRRRTXTTTTTTTLTRRRRRTXTTTPXXXXTTT','right;up;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')" +
-                ",(2,7,8,5,'PXLXXXLXRRRTTTTXRRTLTTTXRRRTLTTXRRRRTTTH','right;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')" +
-                ",(2,8,8,5,'PXLXXXLXRRRTTTTXRRTLTTTXRRRTTTTXHXXXLXXX','right;left;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')" +
-                ",(2,9,10,6,'PXLXXXXXTRRRRTTTTXTTRRTTTTTXXHRRRLTTTTTTRRRRTLTTTTRRRRRTTTRR','right;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')" +
-                ",(2,10,10,6,'PXLXXLXXTRRRRTTTTXTTRRTTXXXXTTRRRLXTTTTTRRRRXXXXXHRRRRRTTTRR','right;left;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;log;')";
+                ",(2,5,8,5,'RRRRRTTTRRRRTTTTPXXLXXXHRRRTTTTTRRTTTTTT','right;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;logRight;logLeft;logUp;logDown;')" +
+                ",(2,6,8,5,'RRRRXXXHRRRTXTTTTTTTLTRRRRRTXTTTPXXXXTTT','right;up;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;logRight;logLeft;logUp;logDown;')" +
+                ",(2,7,8,5,'PXLXXXLXRRRTTTTXRRTLTTTXRRRTLTTXRRRRTTTH','right;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;logRight;logLeft;logUp;logDown;')" +
+                ",(2,8,8,5,'PXLXXXLXRRRTTTTXRRTLTTTXRRRTTTTXHXXXLXXX','right;left;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;logRight;logLeft;logUp;logDown;')" +
+                ",(2,9,10,6,'PXLXXXXXTRRRRTTTTXTTRRTTTTTXXHRRRLTTTTTTRRRRTLTTTTRRRRRTTTRR','right;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;logRight;logLeft;logUp;logDown;')" +
+                ",(2,10,10,6,'PXLXXLXXTRRRRTTTTXTTRRTTXXXXTTRRRLXTTTTTRRRRXXXXXHRRRRRTTTRR','right;left;down;jump;repeat;nr1;nr2;nr3;nr4;nr5;nr6;nr7;nr8;nr9;if;logRight;logLeft;logUp;logDown;')";
 
         db.execSQL(insertLevel);
 
@@ -75,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //delete table
         db.execSQL("DROP TABLE IF EXISTS Category");
         db.execSQL("DROP TABLE IF EXISTS Level");
+        db.execSQL("DROP TABLE IF EXISTS AppData");
 
         Log.d("db","UPDATE");
         //create table again
