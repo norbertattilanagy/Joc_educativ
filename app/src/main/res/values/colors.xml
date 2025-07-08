@@ -35,4 +35,6 @@
     <color name="code_blue_selected">#6473FA</color>
     <color name="disable_blue">#6FCFFF</color>
     <color name="disable_gray">#7C7C7C</color>
+    <color name="gray">#6F6F6F</color>
+    <color name="light_gray">#DFDFDF</color>
 </resources>

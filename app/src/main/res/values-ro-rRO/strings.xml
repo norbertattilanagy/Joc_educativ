@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Code Game</string>
     <string name="play">PLAY</string>
     <string name="back">Înapoi</string>
@@ -40,4 +40,5 @@
     <string name="no">Nu</string>
     <string name="question_user_progress">Doriți să actualizați progresul utilizatorului?</string>
     <string name="authentication_failed">Autentificare nereușită</string>
+    <string name="log_in_google">Conectează-te</string>
 </resources>

@@ -52,7 +52,7 @@ public class LogInActivity extends AppCompatActivity {
     private TextInputLayout emailTextInputLayout, passwordTextInputLayout;
     private ImageButton backButton;
     private Button authenticationButton;
-    private SignInButton googleSignInButton;
+    private CustomButton googleSignInButton;
     private TextView createAccountLink;
     private GoogleSignInClient googleSignInClient;
     private FirebaseAuth firebaseAuth;

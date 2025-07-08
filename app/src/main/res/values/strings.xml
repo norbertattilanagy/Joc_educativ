@@ -43,4 +43,5 @@
     <string name="no">No</string>
     <string name="question_user_progress">Want to update user progress?</string>
     <string name="authentication_failed">Authentication Failed</string>
+    <string name="log_in_google">Sign In</string>
 </resources>

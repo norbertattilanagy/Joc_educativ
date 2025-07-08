@@ -94,11 +94,18 @@
                     android:textSize="24dp"
                     android:textStyle="bold" />
 
-                <com.google.android.gms.common.SignInButton
+                <com.joc_educativ.CustomButton
                     android:id="@+id/googleSignInButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="128dp"
+                    android:paddingHorizontal="12dp"
+                    android:drawableLeft="@drawable/google_icon_24"
+                    android:text="@string/log_in_google"
+                    android:textAllCaps="false"
+                    android:textColor="@drawable/button_google_background"
+                    android:textSize="20sp"
+                    android:background="@drawable/button_google_background"
                     android:layout_marginTop="8dp" />
 
                 <TextView
@@ -109,7 +116,7 @@
                     android:layout_marginVertical="16dp"
                     android:gravity="center"
                     android:text="@string/sign_up"
-                    android:textColor="@color/black"
+                    android:textColor="@drawable/link_color"
                     android:textSize="20sp" />
             </LinearLayout>
         </ScrollView>
