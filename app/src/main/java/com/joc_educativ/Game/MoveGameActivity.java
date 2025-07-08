@@ -1,5 +1,10 @@
 package com.joc_educativ.Game;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -9,6 +14,7 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.util.TypedValue;
 import android.view.DragEvent;
@@ -17,6 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
@@ -32,6 +40,7 @@ import androidx.core.view.ViewCompat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.joc_educativ.CustomButton;
 import com.joc_educativ.CustomView.DrawMoveGameView;
+import com.joc_educativ.Database.Category;
 import com.joc_educativ.Database.DatabaseHelper;
 import com.joc_educativ.Database.FirebaseDB;
 import com.joc_educativ.Database.Level;
@@ -40,6 +49,7 @@ import com.joc_educativ.R;
 import com.joc_educativ.SetingsPreferencis;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MoveGameActivity extends AppCompatActivity {
@@ -47,6 +57,7 @@ public class MoveGameActivity extends AppCompatActivity {
     private View decorView;
     private DrawMoveGameView gameView;
     public LinearLayout codeView;
+    ConstraintLayout constraintLayout;
     ScrollView codeScrollView;
     HorizontalScrollView codeElementScroll, nrElementScroll, conditionElementScroll;
     ImageButton scrollLeftButton, scrollRightButton;
@@ -55,6 +66,7 @@ public class MoveGameActivity extends AppCompatActivity {
     CustomButton nr1Button, nr2Button, nr3Button, nr4Button, nr5Button, nr6Button, nr7Button, nr8Button, nr9Button;
 
     CustomButton logRightButton, logLeftButton, logUpButton, logDownButton;
+    CustomButton copyBtn;
     private int btnOrderInList = -1, btnOrderInCode = -1;
     private static int levelId;
     public static int x, y;
@@ -63,7 +75,15 @@ public class MoveGameActivity extends AppCompatActivity {
     boolean gameOver = false;
     boolean isScrolling = false;
     private Handler scrollHandler = new Handler();
+
+    private boolean waitingForUser = false;
+
+    private float targetX,targetY;
     List<String> executeCodeList = new ArrayList<>();
+
+    private List<CustomButton> buttonsToAnimate; // List of buttons to animate
+    private int currentButtonIndex = 0;
+    private Boolean isTutorial = false;
 
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
@@ -85,6 +105,7 @@ public class MoveGameActivity extends AppCompatActivity {
         Intent intent = getIntent();//get submitted level id
         levelId = intent.getIntExtra("levelId", -1);
 
+        constraintLayout = findViewById(R.id.constraintLayout);
         gameView = findViewById(R.id.gameView);
         codeView = findViewById(R.id.codeView);
         codeScrollView = findViewById(R.id.codeScrollView);
@@ -171,6 +192,9 @@ public class MoveGameActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 SetingsPreferencis.playClickSound(MoveGameActivity.this);
+                playButton.clearAnimation();  // Stop blinking
+                playButton.setAlpha(1.0f);
+
                 if (animationThread != null) {
                     isRunning = false;
                     animationThread = null;
@@ -214,6 +238,8 @@ public class MoveGameActivity extends AppCompatActivity {
         rightButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+                constraintLayout.removeView(copyBtn);
+
                 return moveCodeElement(view, motionEvent);
             }
         });
@@ -443,15 +469,28 @@ public class MoveGameActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+
+
+
     }
 
 
-    //hide system bars
+    //after loaded page
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            decorView.setSystemUiVisibility(hideSystemBars());
+            decorView.setSystemUiVisibility(hideSystemBars());//hide system bars
+
+            //tutorial
+            DatabaseHelper db = new DatabaseHelper(this);
+            Level level = db.selectLevelById(levelId);//get level data
+            Category category = db.selectCategoryById(level.getCategoryId());//get category data
+            if (level.getLevel() == 1 && category.getCategory().equals("cars")) {
+                isTutorial = true;
+                tutorialLevelCars();
+            }
         }
     }
 
@@ -796,8 +835,8 @@ public class MoveGameActivity extends AppCompatActivity {
                 if (!isRunning)//press stop button
                     return false;
             }
-            if (addedEndIf){
-                executeCodeList.remove(executeCodeList.size()-1);
+            if (addedEndIf) {
+                executeCodeList.remove(executeCodeList.size() - 1);
             }
         }
         return false;
@@ -1270,6 +1309,19 @@ public class MoveGameActivity extends AppCompatActivity {
                 scrollview.fullScroll(ScrollView.FOCUS_DOWN);
             }
         });
+
+        if (waitingForUser && isTutorial) {
+            CustomButton expected = buttonsToAnimate.get(currentButtonIndex);
+
+            //check if correct button was dropped
+            if (copiedButton.getText().equals(expected.getText())) {
+                waitingForUser = false;
+                currentButtonIndex++;
+
+                //continue to next step
+                animateNextButton();
+            }
+        }
     }
 
     //add string to executeCodeList when button is pressed
@@ -1419,7 +1471,7 @@ public class MoveGameActivity extends AppCompatActivity {
         if (repeatNr == 0 && index == -1)//-2 not exist repeat; -1 not close repeat
             index = -2;
         else if (index == -1)
-            index = executeCodeList.size()-1;//last position
+            index = executeCodeList.size() - 1;//last position
 
         return index;
     }
@@ -1584,6 +1636,125 @@ public class MoveGameActivity extends AppCompatActivity {
         constraintSet.setVerticalBias(conditionButton.getId(), 0.5f);//centered vertically
         constraintSet.applyTo(constraintLayout);
     }
+
+
+    private void tutorialLevelCars() {
+        replayButton.setAlpha(0.2f);
+        playButton.setAlpha(0.2f);
+        stopButton.setAlpha(0.2f);
+        replayButton.setClickable(false);//set the button not clickable
+        playButton.setClickable(false);
+        stopButton.setClickable(false);
+
+        //initialize your list of buttons here
+        buttonsToAnimate = Arrays.asList(rightButton, rightButton, rightButton, rightButton, rightButton);
+
+        //start animation sequence
+        animateNextButton();
+    }
+
+    private void animateNextButton() {
+        if (currentButtonIndex >= buttonsToAnimate.size()) {
+
+            homeButton.setAlpha(0.2f);
+            playButton.setAlpha(1.0f);
+            playButton.setClickable(true);//enable play button
+
+            AlphaAnimation  blinkAnimator = new AlphaAnimation(1.0f, 0.2f);
+            blinkAnimator.setDuration(500);
+            blinkAnimator.setRepeatMode(Animation.REVERSE);
+            blinkAnimator.setRepeatCount(Animation.INFINITE);
+            playButton.startAnimation(blinkAnimator);
+
+            playButton.setOnClickListener(v -> {
+                playButton.clearAnimation();  //stop blinking
+                playButton.setAlpha(1.0f);    //reset alpha
+                homeButton.setAlpha(1.0f);
+                replayButton.setAlpha(1.0f);
+                stopButton.setAlpha(1.0f);
+
+                //enable other button
+                replayButton.setClickable(true);
+                stopButton.setClickable(true);
+
+                SetingsPreferencis.playClickSound(MoveGameActivity.this);
+                if (animationThread == null) {
+                    isRunning = true;
+                    playGame();
+                }
+            });
+            return;
+        }
+
+        CustomButton btn = buttonsToAnimate.get(currentButtonIndex);
+        getDestinationCoordinates(btn,() -> {
+            highlightDestination(rightButton);//show animation
+        }); //sets targetX and targetY for the btn
+
+        waitingForUser = true;//wait for user the place the button
+    }
+
+    private void getDestinationCoordinates(CustomButton btn,Runnable onReady){
+        CustomButton copiedButton = new CustomButton(MoveGameActivity.this);
+
+        Drawable background = btn.getBackground().getConstantState().newDrawable();//get dragged button background
+        //set new button parameter
+        copiedButton.setLayoutParams(new ViewGroup.LayoutParams(btn.getWidth(), btn.getHeight()));//layout
+        copiedButton.setCompoundDrawablesWithIntrinsicBounds(btn.getCompoundDrawables()[0], null, btn.getCompoundDrawables()[2], null);//drawableLeft
+        copiedButton.setPadding(0, 0, btn.getPaddingRight(), 0);//padding
+        copiedButton.setBackground(background);//background
+
+        codeView.addView(copiedButton);//add button in codeView
+
+        copiedButton.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {//wait finish copiedButton add in codeView
+            @Override
+            public void onGlobalLayout() {
+                copiedButton.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                int[] to = new int[2];
+                copiedButton.getLocationOnScreen(to);
+                targetX = to[0];
+                targetY = to[1];
+
+                codeView.removeView(copiedButton);
+
+                if (onReady != null) {
+                    onReady.run(); // Run after coordinates are ready
+                }
+            }
+        });
+    }
+
+    private void highlightDestination(CustomButton btn) {
+        //create move button
+        copyBtn = new CustomButton(this);
+        copyBtn.setLayoutParams(new ViewGroup.LayoutParams(btn.getWidth(), btn.getHeight()));
+        copyBtn.setBackground(btn.getBackground().getConstantState().newDrawable());
+        copyBtn.setText(btn.getText());//text
+        copyBtn.setTransformationMethod(btn.getTransformationMethod());//textAllCaps
+        copyBtn.setTextColor(btn.getTextColors());//textColor
+        copyBtn.setTextSize(TypedValue.COMPLEX_UNIT_PX, btn.getTextSize());//textSize
+        Drawable[] drawables = btn.getCompoundDrawables();
+        copyBtn.setCompoundDrawablesWithIntrinsicBounds(drawables[0], drawables[1], drawables[2], drawables[3]);
+        copyBtn.setAlpha(0.5f);
+
+        constraintLayout.addView(copyBtn);//add in constraintLayout
+
+        int[] from = new int[2];//get from coordinates
+        rightButton.getLocationOnScreen(from);
+        copyBtn.setX(from[0]);
+        copyBtn.setY(from[1]);
+
+        //moving animation
+        ObjectAnimator animX = ObjectAnimator.ofFloat(copyBtn, "translationX", targetX);
+        ObjectAnimator animY = ObjectAnimator.ofFloat(copyBtn, "translationY", targetY);
+
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(animX, animY);
+        animatorSet.setDuration(2000); //2sec
+        animatorSet.start();
+    }
+
 
     private void putObjectSound() {
         if (SetingsPreferencis.getSound(this)) {
