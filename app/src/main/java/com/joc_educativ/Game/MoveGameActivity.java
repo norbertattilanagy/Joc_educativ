@@ -1,10 +1,7 @@
 package com.joc_educativ.Game;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -14,7 +11,6 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Vibrator;
 import android.util.TypedValue;
 import android.view.DragEvent;
@@ -28,6 +24,7 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
@@ -78,7 +75,7 @@ public class MoveGameActivity extends AppCompatActivity {
 
     private boolean waitingForUser = false;
 
-    private float targetX,targetY;
+    private float targetX, targetY;
     List<String> executeCodeList = new ArrayList<>();
 
     private List<CustomButton> buttonsToAnimate; // List of buttons to animate
@@ -469,8 +466,6 @@ public class MoveGameActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-
 
 
     }
@@ -1134,18 +1129,53 @@ public class MoveGameActivity extends AppCompatActivity {
                 Button nextLeveButton = dialog.findViewById(R.id.nextLevelButton);
                 Button homeButton = dialog.findViewById(R.id.homeButton);
 
+                ImageView star1 = dialog.findViewById(R.id.star1);
+                ImageView star2 = dialog.findViewById(R.id.star2);
+                ImageView star3 = dialog.findViewById(R.id.star3);
+
+
+
+                int userStar=0;
+                DatabaseHelper db = new DatabaseHelper(MoveGameActivity.this);
+                Level level = db.selectLevelById(levelId);//get level data
+
+                if (level.getStarStage3() >= codeView.getChildCount()) {
+                    star3.setImageResource(R.drawable.star_yellow);
+                    star2.setImageResource(R.drawable.star_yellow);
+                    star1.setImageResource(R.drawable.star_yellow);
+
+                    if (db.getUserStar(levelId) < 3) {
+                        userStar = 3;
+                    }
+                } else if (level.getStarStage2() >= codeView.getChildCount()) {
+                    star2.setImageResource(R.drawable.star_yellow);
+                    star1.setImageResource(R.drawable.star_yellow);
+
+                    if (db.getUserStar(levelId) < 2) {
+                        userStar = 2;
+                    }
+                } else {
+                    star1.setImageResource(R.drawable.star_yellow);
+
+                    if (db.getUserStar(levelId) < 1) {
+                        userStar = 1;
+                    }
+                }
+
+                if (db.getUserStar(levelId) < userStar)//save star in firebase
+                    saveLevelInFirebase(level.getCategoryId(), level.getId(), userStar);
+
                 if (verifyNextLevel() == -1)//if exist next level
                     nextLeveButton.setVisibility(View.GONE);
                 else {
-                    DatabaseHelper db = new DatabaseHelper(MoveGameActivity.this);//save next unlocked level
-                    Level level = db.selectLevelById(levelId);
                     int unlockedLevel = db.selectUnlockedLevel(level.getCategoryId());//select unlocked level nr
 
                     if (verifyNextLevel() > unlockedLevel) {
                         db.updateUnlockedLevel(level.getCategoryId(), unlockedLevel + 1);
-                        saveLevelInFirebase(level.getCategoryId(), unlockedLevel + 1);
                     }
                 }
+
+                db.addUserStar(userStar, levelId);//add user star in local db
 
                 retryButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -1660,7 +1690,7 @@ public class MoveGameActivity extends AppCompatActivity {
             playButton.setAlpha(1.0f);
             playButton.setClickable(true);//enable play button
 
-            AlphaAnimation  blinkAnimator = new AlphaAnimation(1.0f, 0.2f);
+            AlphaAnimation blinkAnimator = new AlphaAnimation(1.0f, 0.2f);
             blinkAnimator.setDuration(500);
             blinkAnimator.setRepeatMode(Animation.REVERSE);
             blinkAnimator.setRepeatCount(Animation.INFINITE);
@@ -1687,14 +1717,14 @@ public class MoveGameActivity extends AppCompatActivity {
         }
 
         CustomButton btn = buttonsToAnimate.get(currentButtonIndex);
-        getDestinationCoordinates(btn,() -> {
+        getDestinationCoordinates(btn, () -> {
             highlightDestination(rightButton);//show animation
         }); //sets targetX and targetY for the btn
 
         waitingForUser = true;//wait for user the place the button
     }
 
-    private void getDestinationCoordinates(CustomButton btn,Runnable onReady){
+    private void getDestinationCoordinates(CustomButton btn, Runnable onReady) {
         CustomButton copiedButton = new CustomButton(MoveGameActivity.this);
 
         Drawable background = btn.getBackground().getConstantState().newDrawable();//get dragged button background
@@ -1764,10 +1794,10 @@ public class MoveGameActivity extends AppCompatActivity {
         }
     }
 
-    private void saveLevelInFirebase(int CategoryId, int unlockedLevel) {
+    private void saveLevelInFirebase(int categoryId,int levelId, int userStar) {
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             FirebaseDB fdb = new FirebaseDB();
-            fdb.saveUserLevel(CategoryId, unlockedLevel);
+            fdb.saveUserLevel(categoryId,levelId, userStar);
         }
     }
 

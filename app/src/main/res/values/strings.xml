@@ -44,4 +44,6 @@
     <string name="question_user_progress">Want to update user progress?</string>
     <string name="authentication_failed">Authentication Failed</string>
     <string name="log_in_google">Sign In</string>
+    <string name="forgot_password">Forgot Password</string>
+    <string name="submit">Submit</string>
 </resources>

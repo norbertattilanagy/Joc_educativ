@@ -134,7 +134,42 @@ public class LoadingActivity extends AppCompatActivity {
 
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {//if connect User
-                List<Category> allLocalCategory = dbh.selectAllCategory();//sync unlocked level
+
+                List<Level> allLocalLevel = dbh.selectUserStar();
+                for (Level level : allLocalLevel) {
+                    fdb.selectUserLevel(level.getCategoryId(), level.getId(), new FirebaseDB.UserStarCallback() {
+                        @Override
+                        public void onUserStarReceived(int userStar) {
+                            if (userStar < level.getUserStar())
+                                fdb.saveUserLevel(level.getCategoryId(), level.getId(), level.getUserStar());//save in firebase
+                            else
+                                dbh.updateUserStar(level.getId(), userStar);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError error) {
+                            Log.d("Loading", error.toString());
+                        }
+                    });
+
+                }
+
+                List<Category> allLocalCategory = dbh.selectAllCategory();
+                for (Category category : allLocalCategory){
+                    fdb.getUnlockedUserLevel(category.getId(), new FirebaseDB.UnlockedUserLevelCallback() {
+                        @Override
+                        public void onUnlockedUserLevel(int unlockedLevel) {
+                            dbh.updateUnlockedLevel(category.getId(),unlockedLevel+1);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError error) {
+                            Log.d("Loading", error.toString());
+                        }
+                    });
+                }
+
+                /*List<Category> allLocalCategory = dbh.selectAllCategory();//sync unlocked level
                 for (Category category : allLocalCategory) {
                     fdb.selectUserLevel(category.getId(), new FirebaseDB.UnlockedLevelCallback() {
                         @Override
@@ -151,7 +186,7 @@ public class LoadingActivity extends AppCompatActivity {
                             Log.d("Loading", error.toString());
                         }
                     });
-                }
+                }*/
             }
 
             //write in firebase
@@ -160,7 +195,7 @@ public class LoadingActivity extends AppCompatActivity {
                 fdb.saveCategory(category);
             }*/
 
-            /*List<Level> levelList = dbh.selectAllLevelByCategory(1);
+            /*List<Level> levelList = dbh.selectAllLevelByCategory(2);
             //fdb.deleteAllLevel();
             for (Level level : levelList){
                 fdb.saveLevel(level);

@@ -1,5 +1,7 @@
 package com.joc_educativ.Database;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -26,7 +28,6 @@ public class FirebaseDB {
     }
 
 
-
     public void getDBVersion(DBVersionCallback callback) {
         databaseReference.child("appData").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -45,7 +46,8 @@ public class FirebaseDB {
     public interface appVersionCallback {
         void onAppVersionReceived(String appVersion);
     }
-    public void getAppVersion(appVersionCallback callback){
+
+    public void getAppVersion(appVersionCallback callback) {
         databaseReference.child("appData").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -117,6 +119,8 @@ public class FirebaseDB {
         levelMap.put("mapYSize", level.getMapYSize());
         levelMap.put("map", mapString);
         levelMap.put("codeElement", level.getCodeElement());
+        levelMap.put("starStage2", level.getStarStage2());
+        levelMap.put("starStage3", level.getStarStage3());
 
         //put map in db
         databaseReference.child("level").push().setValue(levelMap).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -146,6 +150,8 @@ public class FirebaseDB {
                     level.setLevel(dataSnapshot.child("level").getValue(Integer.class));
                     level.setMapXSize(dataSnapshot.child("mapXSize").getValue(Integer.class));
                     level.setMapYSize(dataSnapshot.child("mapYSize").getValue(Integer.class));
+                    level.setStarStage2(dataSnapshot.child("starStage2").getValue(Integer.class));
+                    level.setStarStage3(dataSnapshot.child("starStage3").getValue(Integer.class));
 
                     String mapString = dataSnapshot.child("map").getValue(String.class);//set map
                     String[][] map = new String[level.getMapYSize()][level.getMapXSize()];
@@ -170,41 +176,42 @@ public class FirebaseDB {
         });
     }
 
-    public void saveUserLevel(int categoryId, int unlockedLevel) {
+    public void saveUserLevel(int categoryId, int levelId, int userStar) {
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference userLevelRef = databaseReference.child("userLevel").child(userId);
+        DatabaseReference userLevelRef = databaseReference.child("userLevel").child(userId).child(String.valueOf(categoryId));
         userLevelRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                userLevelRef.child(String.valueOf(categoryId)).setValue(unlockedLevel);//update level
+                userLevelRef.child(String.valueOf(levelId)).setValue(userStar);//update user star
+                System.out.println("daaaaaaaaaaaaa"+categoryId);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                Log.d("Firebase:", error.toString());
             }
         });
     }
 
-    public interface UnlockedLevelCallback {
-        void onUnlockedLevelReceived(int unlockedLevel);
+    public interface UserStarCallback {
+        void onUserStarReceived(int userStar);
 
         void onCancelled(DatabaseError error);
     }
 
-    public void selectUserLevel(int categoryId, UnlockedLevelCallback callback) {
+    public void selectUserLevel(int categoryId, int levelId, UserStarCallback callback) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference userReference = databaseReference.child("userLevel").child(userId).child(String.valueOf(categoryId));
+        DatabaseReference userReference = databaseReference.child("userLevel").child(userId).child(String.valueOf(categoryId)).child(String.valueOf(levelId));
 
         userReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    int unlockedLevel = snapshot.getValue(Integer.class);
-                    callback.onUnlockedLevelReceived(unlockedLevel);
+                    int userStar = snapshot.getValue(Integer.class);
+                    callback.onUserStarReceived(userStar);
                 } else {
-                    callback.onUnlockedLevelReceived(1);
+                    callback.onUserStarReceived(1);
                 }
             }
 
@@ -232,6 +239,32 @@ public class FirebaseDB {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
+            }
+        });
+    }
+
+    public interface UnlockedUserLevelCallback {
+        void onUnlockedUserLevel(int unlockedLevel);
+
+        void onCancelled(DatabaseError error);
+    }
+
+    public void getUnlockedUserLevel(int categoryId, UnlockedUserLevelCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference ref = databaseReference.child("userLevel").child(userId).child(String.valueOf(categoryId));
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {//if exist data
+                    long unlockedLevel = snapshot.getChildrenCount();
+                    callback.onUnlockedUserLevel((int) unlockedLevel);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onCancelled(error);
             }
         });
     }

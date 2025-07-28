@@ -26,7 +26,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -41,6 +40,7 @@ import com.google.firebase.database.DatabaseError;
 import com.joc_educativ.Database.Category;
 import com.joc_educativ.Database.DatabaseHelper;
 import com.joc_educativ.Database.FirebaseDB;
+import com.joc_educativ.Database.Level;
 
 import java.util.List;
 
@@ -175,6 +175,7 @@ public class LogInActivity extends AppCompatActivity {
                                 syncUnlockedLevel(true);//save in firebase
                                 openCategoryActivity();
                             }
+
                             @Override
                             public void onNoClicked() {
                                 syncUnlockedLevel(false);//save in local DB
@@ -288,21 +289,35 @@ public class LogInActivity extends AppCompatActivity {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {//if connect User
-            List<Category> allLocalCategory = dbh.selectAllCategory();//sync unlocked level
-            for (Category category : allLocalCategory) {
-                fdb.selectUserLevel(category.getId(), new FirebaseDB.UnlockedLevelCallback() {
+            List<Level> allLocalLevel = dbh.selectUserStar();
+            for (Level level : allLocalLevel) {
+                fdb.selectUserLevel(level.getCategoryId(), level.getId(), new FirebaseDB.UserStarCallback() {
                     @Override
-                    public void onUnlockedLevelReceived(int unlockedLevel) {
+                    public void onUserStarReceived(int userStar) {
                         if (syncFirebase) {
-                            if (unlockedLevel < category.getUnlockedLevel())
-                                fdb.saveUserLevel(category.getId(), category.getUnlockedLevel());//save in firebase
-                            else if (unlockedLevel > category.getUnlockedLevel()) {
-                                //dbh.updateUnlockedLevel(category.getId(), 2);
-                                dbh.updateUnlockedLevel(category.getId(), unlockedLevel);//save in local db
-                            }
+                            if (userStar < level.getUserStar())
+                                fdb.saveUserLevel(level.getCategoryId(), level.getId(), level.getUserStar());//save in firebase
+                            else
+                                dbh.updateUserStar(level.getId(), userStar);
                         } else {
-                            dbh.updateUnlockedLevel(category.getId(), unlockedLevel);//save in local db
+                            dbh.updateUnlockedLevel(level.getId(), userStar);//save in local db
                         }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        Log.d("Loading", error.toString());
+                    }
+                });
+            }
+
+
+            List<Category> allLocalCategory = dbh.selectAllCategory();
+            for (Category category : allLocalCategory){
+                fdb.getUnlockedUserLevel(category.getId(), new FirebaseDB.UnlockedUserLevelCallback() {
+                    @Override
+                    public void onUnlockedUserLevel(int unlockedLevel) {
+                        dbh.updateUnlockedLevel(category.getId(),unlockedLevel+1);
                     }
 
                     @Override
@@ -317,10 +332,11 @@ public class LogInActivity extends AppCompatActivity {
 
     public interface DialogCallback {
         void onYesClicked();
+
         void onNoClicked();
     }
 
-    private void questionProgress(DialogCallback callback){
+    private void questionProgress(DialogCallback callback) {
 
         Dialog dialog = new Dialog(this, R.style.CustomDialog);
         dialog.setContentView(R.layout.question_dialog);
@@ -352,12 +368,12 @@ public class LogInActivity extends AppCompatActivity {
         Intent intent = new Intent(this, CategoryMenuActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
     }
 
     public void openCreateAccountActivity() {
         Intent intent = new Intent(this, CreateAccountActivity.class);
         startActivity(intent);
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
     }
 }
