@@ -26,6 +26,19 @@ public class Level {
         this.starStage3 = starStage3;
     }
 
+    public Level(int id, int categoryId, int level, int mapXSize, int mapYSize, String[][] map, String codeElement,int starStage2, int starStage3, int userStar) {
+        this.id = id;
+        this.categoryId = categoryId;
+        this.level = level;
+        this.mapXSize = mapXSize;
+        this.mapYSize = mapYSize;
+        this.map = map;
+        this.codeElement = codeElement;
+        this.starStage2 = starStage2;
+        this.starStage3 = starStage3;
+        this.userStar = userStar;
+    }
+
     public Level(int id,int categoryId, int userStar){
         this.id = id;
         this.categoryId = categoryId;

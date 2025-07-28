@@ -4,70 +4,29 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_margin="15dp"
-        android:background="@drawable/button_selector"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="34sp"
-        android:textStyle="bold"
-        />
+    <include
+        android:id="@+id/level1"
+        layout="@layout/level_button_view"/>
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_margin="15dp"
-        android:background="@drawable/button_selector"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="34sp"
-        android:textStyle="bold"
-        android:visibility="invisible"
-        />
+    <include
+        android:id="@+id/level2"
+        layout="@layout/level_button_view"
+        android:visibility="invisible"/>
 
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_margin="15dp"
-        android:background="@drawable/button_selector"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="34sp"
-        android:textStyle="bold"
-        android:visibility="invisible"
-        />
+    <include
+        android:id="@+id/level3"
+        layout="@layout/level_button_view"
+        android:visibility="invisible"/>
 
-    <Button
-        android:id="@+id/button4"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_margin="15dp"
-        android:background="@drawable/button_selector"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="34sp"
-        android:textStyle="bold"
-        android:visibility="invisible"
-        />
+    <include
+        android:id="@+id/level4"
+        layout="@layout/level_button_view"
+        android:visibility="invisible"/>
 
-    <Button
-        android:id="@+id/button5"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_margin="15dp"
-        android:background="@drawable/button_selector"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="34sp"
-        android:textStyle="bold"
-        android:focusable="false"
-        android:clickable="false"
-        android:visibility="invisible"
-        />
+    <include
+        android:id="@+id/level5"
+        layout="@layout/level_button_view"
+        android:visibility="invisible"/>
+
 
 </LinearLayout>

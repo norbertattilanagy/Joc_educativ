@@ -250,6 +250,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String codeElement = cursor.getString(6);
                 int starStage2 = cursor.getInt(7);
                 int starStage3 = cursor.getInt(8);
+                int userStar = cursor.getInt(9);
 
                 String[][] map = new String[mapYSize][mapXSize];
                 int index = 0;
@@ -259,7 +260,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         mapText = mapText.substring(1);//delete first character
                     }
                 }
-                allLevelByCategory.add(new Level(id, category, level, mapXSize, mapYSize, map, codeElement,starStage2,starStage3));
+                allLevelByCategory.add(new Level(id, category, level, mapXSize, mapYSize, map, codeElement,starStage2,starStage3,userStar));
             } while (cursor.moveToNext());
         }
         cursor.close();

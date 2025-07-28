@@ -211,7 +211,7 @@ public class FirebaseDB {
                     int userStar = snapshot.getValue(Integer.class);
                     callback.onUserStarReceived(userStar);
                 } else {
-                    callback.onUserStarReceived(1);
+                    callback.onUserStarReceived(0);
                 }
             }
 

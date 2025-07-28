@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.joc_educativ.Database.DatabaseHelper;
 import com.joc_educativ.Database.Level;
@@ -43,93 +45,61 @@ public class LevelAdaptor extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup){
-        view = inflater.inflate(R.layout.level_list_view,null);
+    public View getView(int i, View view, ViewGroup viewGroup) {
+        view = inflater.inflate(R.layout.level_list_view, null);
 
-        DatabaseHelper db= new DatabaseHelper(context);
+        DatabaseHelper db = new DatabaseHelper(context);
         int unlockedLevel = db.selectUnlockedLevel(levelModels.get(i).get(0).getCategoryId());
-
-        Button button1 = view.findViewById(R.id.button1);
-        Button button2 = view.findViewById(R.id.button2);
-        Button button3 = view.findViewById(R.id.button3);
-        Button button4 = view.findViewById(R.id.button4);
-        Button button5 = view.findViewById(R.id.button5);
-
-        button1.setText(String.valueOf(levelModels.get(i).get(0).getLevel()));
-
-        if (Integer.parseInt((String) button1.getText()) > unlockedLevel)//disable next level
-            button1.setEnabled(false);
-
-       if (levelModels.get(i).size() > 1) {
-            button2.setVisibility(View.VISIBLE);
-            button2.setText(String.valueOf(levelModels.get(i).get(1).getLevel()));
-
-           if (Integer.parseInt((String) button2.getText()) > unlockedLevel)//disable next level
-               button2.setEnabled(false);
-        }
-
-        if (levelModels.get(i).size() > 2) {
-            button3.setVisibility(View.VISIBLE);
-            button3.setText(String.valueOf(levelModels.get(i).get(2).getLevel()));
-
-            if (Integer.parseInt((String) button3.getText()) > unlockedLevel)//disable next level
-                button3.setEnabled(false);
-        }
-
-        if (levelModels.get(i).size() > 3) {
-            button4.setVisibility(View.VISIBLE);
-            button4.setText(String.valueOf(levelModels.get(i).get(3).getLevel()));
-
-            if (Integer.parseInt((String) button4.getText()) > unlockedLevel)//disable next level
-                button4.setEnabled(false);
-        }
-
-        if (levelModels.get(i).size() > 4) {
-            button5.setVisibility(View.VISIBLE);
-            button5.setText(String.valueOf(levelModels.get(i).get(4).getLevel()));
-
-            if (Integer.parseInt((String) button5.getText()) > unlockedLevel)//disable next level
-                button5.setEnabled(false);
-        }
 
         LevelMenuActivity levelMenuActivity = new LevelMenuActivity();
 
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SetingsPreferencis.playClickSound(context);
-                levelMenuActivity.openGameActivity(context,levelModels.get(i).get(0).getId());
-            }
-        });
-        button2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SetingsPreferencis.playClickSound(context);
-                levelMenuActivity.openGameActivity(context,levelModels.get(i).get(1).getId());
-            }
-        });
-        button3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SetingsPreferencis.playClickSound(context);
-                levelMenuActivity.openGameActivity(context,levelModels.get(i).get(2).getId());
-            }
-        });
-        button4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SetingsPreferencis.playClickSound(context);
-                levelMenuActivity.openGameActivity(context,levelModels.get(i).get(3).getId());
-            }
-        });
-        button5.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SetingsPreferencis.playClickSound(context);
-                levelMenuActivity.openGameActivity(context,levelModels.get(i).get(4).getId());
-            }
-        });
+        int levelCount = levelModels.get(i).size();
+        int[] levelIds = {R.id.level1, R.id.level2, R.id.level3, R.id.level4, R.id.level5};
 
+        for (int j = 0; j < levelCount && j < levelIds.length; j++) {
+            LinearLayout levelLayout = view.findViewById(levelIds[j]);
+            levelLayout.setVisibility(View.VISIBLE);
+
+            //set the level number
+            Button levelButton = levelLayout.findViewById(R.id.button);
+            levelButton.setText(String.valueOf(levelModels.get(i).get(j).getLevel()));
+
+            //get star
+            ImageView star1 = levelLayout.findViewById(R.id.star1);
+            ImageView star2 = levelLayout.findViewById(R.id.star2);
+            ImageView star3 = levelLayout.findViewById(R.id.star3);
+
+            //if unlocked the level
+            if (levelModels.get(i).get(j).getLevel() > unlockedLevel) {
+                levelButton.setEnabled(false);
+                star1.setAlpha(0.4f);
+                star2.setAlpha(0.4f);
+                star3.setAlpha(0.4f);
+            }
+
+            //verify the star
+            if (levelModels.get(i).get(j).getUserStar() == 3) {
+                star3.setImageResource(R.drawable.star_yellow);
+                star2.setImageResource(R.drawable.star_yellow);
+                star1.setImageResource(R.drawable.star_yellow);
+
+            } else if (levelModels.get(i).get(j).getUserStar() == 2) {
+                star2.setImageResource(R.drawable.star_yellow);
+                star1.setImageResource(R.drawable.star_yellow);
+
+            } else if (levelModels.get(i).get(j).getUserStar() == 1) {
+                star1.setImageResource(R.drawable.star_yellow);
+            }
+
+            //click the button
+            levelButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    SetingsPreferencis.playClickSound(context);
+                    levelMenuActivity.openGameActivity(context, levelModels.get(i).get(1).getId());
+                }
+            });
+        }
 
         return view;
     }
