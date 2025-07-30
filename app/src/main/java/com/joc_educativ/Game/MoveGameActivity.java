@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.MotionEvent;
@@ -34,6 +35,11 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.joc_educativ.CustomButton;
 import com.joc_educativ.CustomView.DrawMoveGameView;
@@ -82,9 +88,13 @@ public class MoveGameActivity extends AppCompatActivity {
     private int currentButtonIndex = 0;
     private Boolean isTutorial = false;
 
+    private InterstitialAd mInterstitialAd;
+
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        loadInterstitialAd();
+
         super.onCreate(savedInstanceState);
         //remove notch area
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -467,9 +477,59 @@ public class MoveGameActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
+    private void loadInterstitialAd() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        InterstitialAd.load(this,
+                "ca-app-pub-3940256099942544/1033173712", // Ad Unit ID de test sau al tău real
+                adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(InterstitialAd interstitialAd) {
+                        mInterstitialAd = interstitialAd;
+                        Log.d("AdMob", "Ad was loaded.");
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(LoadAdError adError) {
+                        Log.d("AdMob", adError.getMessage());
+                        mInterstitialAd = null;
+                    }
+                });
+    }
+
+    private void showInterstitialAd() {
+        if (mInterstitialAd != null) {
+            mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                @Override
+                public void onAdDismissedFullScreenContent() {//closed the ads
+                    Log.d("AdMob", "Ad dismissed.");
+                    loadInterstitialAd(); //reload for next time
+                }
+
+                @Override
+                public void onAdFailedToShowFullScreenContent(com.google.android.gms.ads.AdError adError) {
+                    Log.d("AdMob", "Ad failed to show.");
+                }
+
+                @Override
+                public void onAdShowedFullScreenContent() {
+                    mInterstitialAd = null;
+                    Log.d("AdMob", "Ad showed fullscreen content.");
+                }
+            });
+
+            runOnUiThread(() -> {
+                if (mInterstitialAd != null) {
+                    mInterstitialAd.show(MoveGameActivity.this);
+                }
+            });
+        } else {
+            Log.d("AdMob", "The interstitial ad wasn't ready yet.");
+        }
+    }
 
     //after loaded page
     @Override
@@ -612,10 +672,12 @@ public class MoveGameActivity extends AppCompatActivity {
                     if (gameOver || ifGameOver(level, i)) {//game over
                         isRunning = false;
                         animationThread = null;
+                        //showInterstitialAd();
                         gameOver(MoveGameActivity.this);
                     } else if (level.getMap()[y][x].equals("H")) {//completed
                         isRunning = false;
                         animationThread = null;
+                        showInterstitialAd();
                         completed(MoveGameActivity.this);
                     }
 

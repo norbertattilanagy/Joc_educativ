@@ -91,12 +91,13 @@ public class LevelAdaptor extends BaseAdapter {
                 star1.setImageResource(R.drawable.star_yellow);
             }
 
-            //click the button
-            levelButton.setOnClickListener(new View.OnClickListener() {
+
+            Level level = levelModels.get(i).get(j);//get the current level object
+            levelButton.setOnClickListener(new View.OnClickListener() {//click the button
                 @Override
                 public void onClick(View view) {
                     SetingsPreferencis.playClickSound(context);
-                    levelMenuActivity.openGameActivity(context, levelModels.get(i).get(1).getId());
+                    levelMenuActivity.openGameActivity(context, level.getId());
                 }
             });
         }
